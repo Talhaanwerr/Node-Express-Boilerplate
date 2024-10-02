@@ -17,7 +17,7 @@ app.use("/api", routes);
 
 
 app.get('/users', (req, res) => {
-  res.json([{ name: "John Doe" }]);
+  res.json([{ name: "John Doee" }]);
 })
 
 

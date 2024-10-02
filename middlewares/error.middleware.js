@@ -1,22 +1,6 @@
 module.exports = (err, req, res, next) => {
-  console.log(
-    "Error Middleware",
-    err?.response?.data?.errors,
-    // err,
-    // err?.response,
-    // err?.status,
-    // err?.message,
-    // err?.name,
-    // err?.stack
-  );
-  // console.log("Error Middleware3", err?.message);
+  console.log("Error Middleware", err);
 
-  if (err?.status === 401) {
-    return res.status(err.status).json({
-      success: false,
-      message: "Unauthorized",
-    });
-  }
   res.status(500).json({
     success: false,
     message: "Something went wrong",
