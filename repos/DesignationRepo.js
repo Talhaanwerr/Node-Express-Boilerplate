@@ -49,4 +49,4 @@ class DesignationRepo extends BaseRepository {
     // }
 }
 
-module.exports = new AnnouncementRepo();
+module.exports = new DesignationRepo();

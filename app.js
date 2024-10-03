@@ -15,9 +15,9 @@ app.use(cors());
 app.use("/api", routes);
 
 
-// app.get('/users', (req, res) => {
-//   res.json([{ name: "John Doee" }]);
-// })
+app.get('/users', (req, res) => {
+    res.json([{ name: "John Doee" }]);
+})
 
 
 
