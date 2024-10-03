@@ -17,15 +17,22 @@ class RoleController extends BaseController {
     return this.successResponse(res, role, "Role created successfully");
   };
 
-  updateRole = async (req, res) => {
-    
+  getRole = async (req, res) => {
+    const role = await RoleRepo.findAll(req.body);
+    return this.successResponse(res,role,"Getting All Roles")
+  };
 
-    const role = await RoleRepo.updateRole(req.body,req.params.id);
+  getRoleById =async (req,res)=>{
+    const role = await RoleRepo.findOne(req.params.id);
+    return this.successResponse(res, role, "Getting Role ");
+  }
+
+  updateRole = async (req, res) => {
+    const role = await RoleRepo.updateRole(req.body, req.params.id);
     return this.successResponse(res, role, "Role Updated successfully");
   };
 
   deleteRole = async (req, res) => {
-   
     const role = await RoleRepo.deleteRole(req.params.id);
     return this.successResponse(res, role, "Role Deleted successfully");
   };

@@ -12,6 +12,7 @@ class RoleValidator extends BaseValidator {
 
     return this.validate(schema, role);
   };
+  
 }
 
 module.exports = new RoleValidator();
