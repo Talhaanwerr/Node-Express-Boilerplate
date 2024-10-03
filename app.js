@@ -1,4 +1,3 @@
-
 require("express-async-errors");
 const express = require("express");
 const cors = require("cors");
@@ -16,9 +15,11 @@ app.use(cors());
 app.use("/api", routes);
 
 
-app.get('/users', (req, res) => {
-  res.json([{ name: "John Doee" }]);
-})
+// app.get('/users', (req, res) => {
+//   res.json([{ name: "John Doee" }]);
+// })
+
+
 
 
 app.use(error);
