@@ -31,6 +31,9 @@ fs
     db[model.name] = model;
   });
 
+  const Role = require('./role')(sequelize, Sequelize.DataTypes); 
+db.Role = Role;
+
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
