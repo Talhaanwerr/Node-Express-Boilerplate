@@ -4,6 +4,6 @@ const announcementRoutes = require("./announcement.route.js");
 const roleRoutes = require("./role.route.js");
 
 router.use("/announcements", announcementRoutes);
-router.use("/role", roleRoutes);
+router.use("/roles", roleRoutes);
 
 module.exports = router;

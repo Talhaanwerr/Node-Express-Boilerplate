@@ -12,20 +12,20 @@ class RoleRepo extends BaseRepository {
   }
 
   async updateRole(data, id) {
-    return this.model.update(data, { where: { id } });
+    return this.update(data, { id });
   }
 
-  async deleteRole(id) {
-    return this.model.update({ isDeleted: true }, { where: { id } });
+  async deleteRole(id, type) {
+    return this.delete(id, type)
   }
 
-  async findAll() {
-    return this.model.findAll({
-      where: { isDeleted: false },
-    });
+  async getRoles() {
+    return this.findAll();
   }
-  async findOne(id) {
-    return this.model.findOne({ where: { id } });
+  async findRole(id) {
+    return this.findOne({ 
+      id
+     } );
   }
 }
 
