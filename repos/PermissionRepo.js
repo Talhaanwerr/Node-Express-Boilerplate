@@ -12,16 +12,17 @@ class PermissionRepo extends BaseRepository {
     return this.create(permission);
   }
 
-  async getPermission(searchQuery = {}) {
-    if (searchQuery && Object.keys(searchQuery).length > 0) {
-      return this.findAll(searchQuery);
-    }
+  async getPermissions(searchQuery = {}) {
     return this.findAll(searchQuery);
+    // if (searchQuery && Object.keys(searchQuery).length > 0) {
+    //   return this.findAll(searchQuery);
+    // }
   }
 
   async updatePermission(permission, id) {
-    return this.update(permission, { id });
-    // return this.findById(id);
+    // R&D on find by id and update
+    await this.update(permission, { id });
+    return this.findById(id);
   }
 
   async findById(id) {
@@ -36,11 +37,11 @@ class PermissionRepo extends BaseRepository {
   //   return this.findOneWithInclude(searchQuery);
   // }
 
-  // async isUserExists(email) {
-  //   return this.count({
-  //     email,
-  //   });
-  // }
+  async isPermissionExists(i) {
+    return this.count({
+      id,
+    });
+  }
 }
 
 module.exports = new PermissionRepo();
