@@ -13,11 +13,13 @@ class PermissionController extends BaseController {
 
   getAllPermission = async (req, res) => {
     const sortOrder = req?.query?.sortOrder || "id";
-    const sortDirection = req?.query?.sortDirection || "ASC";
+    const sortDirection = req?.query?.sortDirection || "Desc";
 
     const customQuery = {
       order: [[sortOrder, sortDirection]],
-      where: {},
+      where: {
+        isDeleted: false,
+      },
     };
 
     if (req?.query?.name) {
@@ -32,15 +34,16 @@ class PermissionController extends BaseController {
       };
     }
 
+    // filter exact match (module)
     if (req?.query?.createdAt) {
       customQuery.where.createdAt = {
         [Op.like]: `%${req?.query?.createdAt}%`,
       };
     }
 
-    const permissions = await PermissionRepo.getPermission(customQuery);
+    const permissions = await PermissionRepo.getPermissions(customQuery);
 
-    if (!permissions || permissions.length === 0) {
+    if (!permissions.length) {
       return this.errorResponse(res, "No matching permissions found", 404);
     }
 
@@ -70,14 +73,14 @@ class PermissionController extends BaseController {
   updatePermission = async (req, res) => {
     const { id } = req.params;
     const validationResult = validateUpdatePermission(req.body);
-    const validationId = id === PermissionRepo.findById(id) ? true : false;
-
-    if (!validationId) {
-      return this.errorResponse(res, "Permission ID is required", 404);
-    }
-
     if (!validationResult.status) {
       return this.validationErrorResponse(res, validationResult.message);
+    }
+    
+    const validationId = id === PermissionRepo.findById(id) ? true : false; // check if permission exists
+
+    if (!validationId) {
+      return this.errorResponse(res, "Permission ID is required", 404); // fix error message
     }
 
     const permission = await PermissionRepo.updatePermission(req.body, id);
@@ -93,10 +96,10 @@ class PermissionController extends BaseController {
     let { id } = req?.params;
     let { type } = req?.query;
 
-    const isPermission = await PermissionRepo.findById(id);
+    const isPermission = await PermissionRepo.findById(id); // is permission exists
 
     if (!isPermission) {
-      return this.errorResponse(res, "Permission ID is required", 404);
+      return this.errorResponse(res, "Permission ID is required", 404); // fix error message
     }
 
     type = type ? type : "soft";
