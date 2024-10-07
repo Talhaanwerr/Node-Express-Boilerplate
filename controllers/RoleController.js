@@ -1,11 +1,17 @@
 const RoleRepo = require("../repos/RoleRepo.js");
-const { validateCreateRole } = require("../validators/RoleValidator.js");
+const db = require("../models/index");
+
+const {
+  validateCreateRole,
+  validateUpdateRole,
+} = require("../validators/RoleValidator.js");
 const BaseController = require("./BaseController.js");
 
 class RoleController extends BaseController {
   constructor() {
     super();
   }
+
   createRole = async (req, res) => {
     const validationResult = validateCreateRole(req.body);
 
@@ -18,13 +24,32 @@ class RoleController extends BaseController {
   };
 
   getRoles = async (req, res) => {
-    const customQuery = {};
-    const sortDirection = req.query.sortDirection || "ASC"
-    if(req.query.sortOrder){
-      condition.order = [[sortOrder, sortDirection]]
+    const {
+      sortBy = "id",
+      sortOrder = "ASC",
+      page = 1,
+      limit = 10,
+      search = "",
+    } = req.query;
+
+    const skip = (page - 1) * limit;
+    const searchParams = {};
+
+    if (search) {
+      searchParams[db.Sequelize.Op.or] = [
+        { roleName: { [db.Sequelize.Op.like]: `%${search}%` } },
+      ];
     }
-    const role = await RoleRepo.getRoles();
-    return this.successResponse(res, role, "Getting All Roles");
+
+    const condition = {
+      order: [[sortBy, sortOrder]],
+      limit: parseInt(limit),
+      offset: skip,
+      where: searchParams,
+    };
+
+    const roles = await RoleRepo.getRoles(condition);
+    return this.successResponse(res, roles, "Getting All Roles");
   };
 
   getRoleById = async (req, res) => {
@@ -32,24 +57,26 @@ class RoleController extends BaseController {
     if (!role) {
       return this.errorResponse(res, "Role not found", 404);
     }
-    return this.successResponse(res, role, "Getting Role ");
+    return this.successResponse(res, role, "Getting Role");
   };
 
   updateRole = async (req, res) => {
+    const validationResult = validateUpdateRole(req.body);
+    if (!validationResult.status) {
+      return this.validationErrorResponse(res, validationResult.message);
+    }
+
     const role = await RoleRepo.updateRole(req.body, req.params.id);
     if (!role) {
       return this.errorResponse(res, "Role not found", 404);
     }
-    return this.successResponse(res, role, "Role Updated successfully");
+    return this.successResponse(res, role, "Role updated successfully");
   };
 
   deleteRole = async (req, res) => {
-    const { id } = req.params;
-    const { type } = req.query;
-    // check if role exist
-    type = type ? type : "soft";
-    const role = await RoleRepo.deleteRole(id, type);
-    return this.successResponse(res, role, "Role Deleted successfully");
+    const { type = "soft" } = req.query;
+    const role = await RoleRepo.deleteRole(req.params.id, type);
+    return this.successResponse(res, role, "Role deleted successfully");
   };
 }
 
