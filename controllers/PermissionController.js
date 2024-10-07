@@ -70,11 +70,11 @@ class PermissionController extends BaseController {
   updatePermission = async (req, res) => {
     const { id } = req.params;
     const validationResult = validateUpdatePermission(req.body);
-    const validationId = id === PermissionRepo.findById(id) ? true : false;
+    // const validationId = id === PermissionRepo.findById(id) ? true : false;
 
-    if (!validationId) {
-      return this.errorResponse(res, "Permission ID is required", 404);
-    }
+    // if (!validationId) {
+    //   return this.errorResponse(res, "Permission ID is required", 404);
+    // }
 
     if (!validationResult.status) {
       return this.validationErrorResponse(res, validationResult.message);

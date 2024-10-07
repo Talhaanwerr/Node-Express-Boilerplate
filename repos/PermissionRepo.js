@@ -20,8 +20,8 @@ class PermissionRepo extends BaseRepository {
   }
 
   async updatePermission(permission, id) {
-    await this.update(permission, { id });
-    return this.findById(id);
+    return this.update(permission, { id });
+    // return this.findById(id);
   }
 
   async findById(id) {
