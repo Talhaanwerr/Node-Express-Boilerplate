@@ -16,11 +16,28 @@ module.exports = class BaseRepository {
     return this.model.findOne(searchQuery);
   }
 
-  async findAll(condition = null) {
-    if (condition) {
-      return this.model.findAll(condition);
+  async findAll(condition = {}) {
+    condition.where = {
+      ...condition?.where,
+      isDeleted: false,
+    };
+    if (!condition?.order) {
+      condition.order = [["id", "desc"]];
     }
-    return this.model.findAll();
+    return this.model.findAll(condition);
+  }
+
+  async softDelete(id) {
+    return this.model.update(
+      {
+        isDeleted: true,
+      },
+      {
+        where: {
+          id,
+        },
+      }
+    );
   }
 
   async count(condition) {
@@ -35,8 +52,13 @@ module.exports = class BaseRepository {
     return this.model.bulkCreate(data);
   }
 
-  async delete(condition) {
-    return this.model.destroy({ where: condition });
+  async delete(id, type) {
+    if (type === "soft") {
+      return this.softDelete(id);
+    } else if (type === "hard") {
+      return this.model.destroy({
+        where: { id },
+      });
+    }
   }
 };
-  

@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const PermissionRepo = require("../repos/PermissionRepo.js");
 const {
   validateCreatePermission,
@@ -11,7 +12,37 @@ class PermissionController extends BaseController {
   }
 
   getAllPermission = async (req, res) => {
-    const permissions = await PermissionRepo.findPermission(req.query);
+    const sortOrder = req?.query?.sortOrder || "id";
+    const sortDirection = req?.query?.sortDirection || "ASC";
+
+    const customQuery = {
+      order: [[sortOrder, sortDirection]],
+      where: {},
+    };
+
+    if (req?.query?.name) {
+      customQuery.where.name = {
+        [Op.like]: `%${req?.query?.name}%`,
+      };
+    }
+
+    if (req?.query?.module) {
+      customQuery.where.module = {
+        [Op.like]: `%${req?.query?.module}%`,
+      };
+    }
+
+    if (req?.query?.createdAt) {
+      customQuery.where.createdAt = {
+        [Op.like]: `%${req?.query?.createdAt}%`,
+      };
+    }
+
+    const permissions = await PermissionRepo.getPermission(customQuery);
+
+    if (!permissions || permissions.length === 0) {
+      return this.errorResponse(res, "No matching permissions found", 404);
+    }
 
     return this.successResponse(
       res,
@@ -37,7 +68,7 @@ class PermissionController extends BaseController {
   };
 
   updatePermission = async (req, res) => {
-    const id = req.params.id;
+    const { id } = req.params;
     const validationResult = validateUpdatePermission(req.body);
     const validationId = id === PermissionRepo.findById(id) ? true : false;
 
@@ -59,14 +90,16 @@ class PermissionController extends BaseController {
   };
 
   deletePermission = async (req, res) => {
-    const id = req.params.id;
-    const validationId = id === PermissionRepo.findById(id) ? true : false;
+    let { id } = req?.params;
+    let { type } = req?.query;
 
-    if (!validationId) {
+    const isPermission = await PermissionRepo.findById(id);
+
+    if (!isPermission) {
       return this.errorResponse(res, "Permission ID is required", 404);
     }
 
-    let type = req.query.type ? req.query.type : "soft";
+    type = type ? type : "soft";
     const permission = await PermissionRepo.deletePermission(id, type);
 
     return this.successResponse(

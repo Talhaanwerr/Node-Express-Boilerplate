@@ -12,11 +12,11 @@ class PermissionRepo extends BaseRepository {
     return this.create(permission);
   }
 
-  async findPermission(searchQuery) {
+  async getPermission(searchQuery = {}) {
     if (searchQuery && Object.keys(searchQuery).length > 0) {
       return this.findAll(searchQuery);
     }
-    return this.findAll();
+    return this.findAll(searchQuery);
   }
 
   async updatePermission(permission, id) {
@@ -29,12 +29,7 @@ class PermissionRepo extends BaseRepository {
   }
 
   async deletePermission(id, type = "soft") {
-    switch (type) {
-      case "soft":
-        return this.update({ isDeleted: true }, { id });
-      case "hard":
-        return this.delete({ id });
-    }
+    return this.delete(id, type);
   }
 
   // async findByIdWithInclude(searchQuery) {
