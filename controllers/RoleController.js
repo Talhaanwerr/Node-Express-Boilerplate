@@ -30,6 +30,7 @@ class RoleController extends BaseController {
       page = 1,
       limit = 10,
       search = "",
+      filterByName,
     } = req.query;
 
     const skip = (page - 1) * limit;
@@ -39,6 +40,12 @@ class RoleController extends BaseController {
       searchParams[db.Sequelize.Op.or] = [
         { roleName: { [db.Sequelize.Op.like]: `%${search}%` } },
       ];
+    }
+
+    if (filterByName) {
+      searchParams.roleName = {
+        [db.Sequelize.Op.like]: `%${filterByName}%`,
+      };
     }
 
     const condition = {
@@ -51,6 +58,7 @@ class RoleController extends BaseController {
     const roles = await RoleRepo.getRoles(condition);
     return this.successResponse(res, roles, "Getting All Roles");
   };
+  
 
   getRoleById = async (req, res) => {
     const role = await RoleRepo.findRole(req.params.id);
