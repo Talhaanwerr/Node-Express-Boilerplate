@@ -14,14 +14,11 @@ class PermissionRepo extends BaseRepository {
 
   async getPermissions(searchQuery = {}) {
     return this.findAll(searchQuery);
-    // if (searchQuery && Object.keys(searchQuery).length > 0) {
-    //   return this.findAll(searchQuery);
-    // }
   }
 
-  async updatePermission(permission, id) { // R&D on find by id and update
-    await this.update(permission, { id });
-    return this.findById(id);
+  async updatePermission(permission, id) {
+    // R&D on find by id and update
+    return this.update(permission, { id }), this.findById(id);
   }
 
   async findById(id) {
@@ -32,11 +29,15 @@ class PermissionRepo extends BaseRepository {
     return this.delete(id, type);
   }
 
+  async countPermission(query = {}) {
+    return this.count(query);
+  }
+
   // async findByIdWithInclude(searchQuery) {
   //   return this.findOneWithInclude(searchQuery);
   // }
 
-  async isPermissionExists(i) {
+  async isPermissionExists(id) {
     return this.count({
       id,
     });
