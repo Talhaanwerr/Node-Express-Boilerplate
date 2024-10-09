@@ -70,8 +70,8 @@ class RoleController extends BaseController {
   updateRole = async (req, res) => {
     const roleId = req.params.id;
 
-    const existingRole = await RoleRepo.findRole(roleId);
-    if (!existingRole) {
+    const isRoleExist = await RoleRepo.isRoleExists(roleId);
+    if (!isRoleExist) {
       return this.errorResponse(res, "Role not found", 404);
     }
 
@@ -87,14 +87,14 @@ class RoleController extends BaseController {
   deleteRole = async (req, res) => {
     const roleId = req.params.id;
 
-    const existingRole = await RoleRepo.findRole(roleId);
-    if (!existingRole) {
+    const isRoleExist = await RoleRepo.isRoleExists(roleId);
+    if (!isRoleExist) {
       return this.errorResponse(res, "Role not found", 404);
     }
+
     const { type = "soft" } = req.query;
-    const role = await RoleRepo.deleteRole(req.params.id, type);
-    return this.successResponse(res, role, "Role deleted successfully");
+    const deletedRole = await RoleRepo.deleteRole(roleId, type);
+    return this.successResponse(res, deletedRole, "Role deleted successfully");
   };
 }
-
 module.exports = new RoleController();
