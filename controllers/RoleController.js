@@ -26,7 +26,7 @@ class RoleController extends BaseController {
   getRoles = async (req, res) => {
     const {
       sortBy = "id",
-      sortOrder = "ASC",
+      sortOrder = "DESC",
       page = 1,
       limit = 10,
       search = "",
