@@ -58,7 +58,6 @@ class RoleController extends BaseController {
     const roles = await RoleRepo.getRoles(condition);
     return this.successResponse(res, roles, "Getting All Roles");
   };
-  
 
   getRoleById = async (req, res) => {
     const role = await RoleRepo.findRole(req.params.id);
@@ -69,19 +68,29 @@ class RoleController extends BaseController {
   };
 
   updateRole = async (req, res) => {
+    const roleId = req.params.id;
+
+    const existingRole = await RoleRepo.findRole(roleId);
+    if (!existingRole) {
+      return this.errorResponse(res, "Role not found", 404);
+    }
+
     const validationResult = validateUpdateRole(req.body);
     if (!validationResult.status) {
       return this.validationErrorResponse(res, validationResult.message);
     }
 
-    const role = await RoleRepo.updateRole(req.body, req.params.id);
-    if (!role) {
-      return this.errorResponse(res, "Role not found", 404);
-    }
-    return this.successResponse(res, role, "Role updated successfully");
+    const updatedRole = await RoleRepo.updateRole(req.body, roleId);
+    return this.successResponse(res, updatedRole, "Role updated successfully");
   };
 
   deleteRole = async (req, res) => {
+    const roleId = req.params.id;
+
+    const existingRole = await RoleRepo.findRole(roleId);
+    if (!existingRole) {
+      return this.errorResponse(res, "Role not found", 404);
+    }
     const { type = "soft" } = req.query;
     const role = await RoleRepo.deleteRole(req.params.id, type);
     return this.successResponse(res, role, "Role deleted successfully");
