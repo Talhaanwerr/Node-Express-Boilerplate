@@ -25,41 +25,42 @@ class DesignationController extends BaseController {
 
     // Get all designations with optional sorting and filters
     getAllDesignations = async(req, res) => {
-        const sortOrder = (req.query && req.query.sortOrder) ? req.query.sortOrder : "id";
-        const sortDirection = (req.query && req.query.sortDirection) ? req.query.sortDirection : "Desc";
+        const sortOrder = req.query.sortOrder || "id";
+        const sortDirection = req.query.sortDirection || "DESC";
+
+        const limit = parseInt(req.query.limit) || 10; // Default limit
+        const offset = parseInt(req.query.skip) || 0; // Default offset
+
+        // Validate limit and offset
+        if (limit < 1 || offset < 0) {
+            return this.validationErrorResponse(res, "Invalid pagination parameters");
+        }
 
         const customQuery = {
             order: [
                 [sortOrder, sortDirection]
             ],
             where: {},
-            limit: parseInt(req.query && req.query.limit) || 10,
-            offset: parseInt(req.query && req.query.skip) || 0,
+            limit: limit,
+            offset: offset,
         };
 
         // Search by designation_name
-        if (req.query && req.query.designation_name) {
+        if (req.query.designation_name) {
             customQuery.where.designation_name = {
                 [Op.like]: `%${req.query.designation_name}%`,
             };
         }
 
         const designations = await DesignationRepo.getDesignations(customQuery);
-        const count = await DesignationRepo.countDesignation({
-            where: customQuery.where,
-        });
+        const count = await DesignationRepo.countDesignation({ where: customQuery.where });
 
-        if (!designations.length) {
-            return this.errorResponse(res, "No matching designations found", 404);
-        }
-
-        return this.successResponse(
-            res, {
-                designations,
-                total: count,
-            },
-            "Designations retrieved successfully"
-        );
+        return this.successResponse(res, {
+            designations,
+            total: count,
+            limit: limit,
+            offset: offset,
+        }, "Designations retrieved successfully");
     };
 
     // Create a new designation
@@ -97,7 +98,7 @@ class DesignationController extends BaseController {
 
     // Delete designation by ID (soft or hard delete)
     deleteDesignation = async(req, res) => {
-        let { id } = req.params;
+        const { id } = req.params;
         let { type } = req.query;
 
         const isDesignation = await DesignationRepo.isDesignationExists(id); // Check if designation exists
@@ -110,11 +111,7 @@ class DesignationController extends BaseController {
 
         const designation = await DesignationRepo.deleteDesignation(id, type);
 
-        return this.successResponse(
-            res,
-            designation,
-            `Designation with ID ${id} deleted successfully`
-        );
+        return this.successResponse(res, designation, `Designation with ID ${id} deleted successfully`);
     };
 }
 
