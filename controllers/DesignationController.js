@@ -25,11 +25,11 @@ class DesignationController extends BaseController {
 
     // Get all designations with optional sorting and filters
     getAllDesignations = async(req, res) => {
-        const sortOrder = req.query.sortOrder || "id";
-        const sortDirection = req.query.sortDirection || "DESC";
+        const sortOrder = req.query.sortOrder || "id"; // Default sorting by 'id'
+        const sortDirection = req.query.sortDirection || "DESC"; // Default sorting direction
 
-        const limit = parseInt(req.query.limit) || 10; // Default limit
-        const offset = parseInt(req.query.skip) || 0; // Default offset
+        const limit = parseInt(req.query.limit) || 10; // Default limit for pagination
+        const offset = parseInt(req.query.skip) || 0; // Default offset for pagination
 
         // Validate limit and offset
         if (limit < 1 || offset < 0) {
@@ -38,17 +38,17 @@ class DesignationController extends BaseController {
 
         const customQuery = {
             order: [
-                [sortOrder, sortDirection]
+                [sortOrder, sortDirection] // Sorting is applied here
             ],
-            where: {},
-            limit: limit,
-            offset: offset,
+            where: {}, // This is where filtering conditions will be added
+            limit: limit, // Pagination limit
+            offset: offset, // Pagination offset
         };
 
         // Search by designation_name
         if (req.query.designation_name) {
             customQuery.where.designation_name = {
-                [Op.like]: `%${req.query.designation_name}%`,
+                [Op.like]: `%${req.query.designation_name}%`, // Searching for designation_name
             };
         }
 
@@ -56,7 +56,7 @@ class DesignationController extends BaseController {
         const count = await DesignationRepo.countDesignation({ where: customQuery.where });
 
         return this.successResponse(res, {
-            designations,
+            designations, // Results after applying filtering and pagination
             total: count,
             limit: limit,
             offset: offset,
