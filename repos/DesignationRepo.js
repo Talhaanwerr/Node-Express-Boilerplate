@@ -4,49 +4,45 @@ const db = require("../models/index.js");
 class DesignationRepo extends BaseRepository {
     model;
     constructor() {
-        super(db.Designation);
-        this.model = db.Announcement;
+        super(db.Designation); // Use Designation model
+        this.model = db.Designation;
     }
 
+    // Create Designation
     async createDesignation(designation) {
-            return this.create(designation);
-        }
-        // for find
-    async findDesignation(searchQuery) {
-        if (searchQuery && Object.keys(searchQuery).length > 0) {
-            return this.findAll({
-                where: searchQuery
-            });
-        }
-        return this.findAll();
+        return this.create(designation);
     }
 
-    // for update
-    async updateDesignation(designation, id) {
-        await this.update(designation, { where: { id } });
+    // Get all Designations with optional search query
+    async getDesignations(searchQuery = {}) {
+        return this.findAll(searchQuery);
+    }
+
+    // Find Designation by ID
+    async findById(id) {
         return this.findOne({ where: { id } });
     }
 
-    // for delete
-    //   async deleteDesignation(id) {
-    //     await this.update({ isDeleted: true }, { where: { id } });
-    //     return `Designation with ID ${id} deleted successfully.`;
-    // }
+    // Update Designation by ID
+    async updateDesignation(designation, id) {
+        await this.update(designation, { where: { id } });
+        return this.findById(id);
+    }
 
+    // Soft delete Designation by ID (set isDeleted = true)
+    async deleteDesignation(id, type = "soft") {
+        return this.delete(id, type);
+    }
 
-    // async findByEmail(email) {
-    //   return this.findOne({ email });
-    // }
+    // Count the number of Designations (for pagination or other needs)
+    async countDesignations(query = {}) {
+        return this.count(query);
+    }
 
-    // async findByIdWithInclude(searchQuery) {
-    //   return this.findOneWithInclude(searchQuery);
-    // }
-
-    // async isUserExists(email) {
-    //   return this.count({
-    //     email,
-    //   });
-    // }
+    // Check if a Designation exists by ID
+    async isDesignationExists(id) {
+        return this.count({ where: { id } });
+    }
 }
 
 module.exports = new DesignationRepo();

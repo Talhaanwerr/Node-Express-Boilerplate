@@ -1,9 +1,9 @@
-const DesignationRepo = require("../repos/DesignationRepo.js");
+const { Op } = require("sequelize");
+const DesignationRepo = require("../repos/DesignationRepo.js"); // Repo for Designation operations
 const {
     validateCreateDesignation,
     validateUpdateDesignation,
-    validateId,
-} = require("../validators/DesignationValidator.js");
+} = require("../validators/DesignationValidator.js"); // Validators for Designation
 const BaseController = require("./BaseController.js");
 
 class DesignationController extends BaseController {
@@ -11,60 +11,123 @@ class DesignationController extends BaseController {
         super();
     }
 
-    createDesignation = async(req, res) => {
-        console.log("test - create");
-        const { error } = validateCreateDesignation(req.body); // Joi returns `error` object, not `status`
+    // Get designation by ID
+    getDesignationById = async(req, res) => {
+        const { id } = req.params;
+        const designation = await DesignationRepo.findById(id);
 
-        if (error) {
-            return this.validationErrorResponse(res, error.details[0].message); // Return the Joi validation error
+        if (!designation) {
+            return this.errorResponse(res, "Designation ID not found", 404);
         }
 
-        const designation = await DesignationRepo.createDesignation(req.body);
-        return this.successResponse(res, designation, "Designation created successfully");
+        return this.successResponse(
+            res,
+            designation,
+            "Designation retrieved successfully"
+        );
     };
 
-    findDesignation = async(req, res) => {
-        console.log("test - find");
+    // Get all designations with optional sorting and filters
+    // getAllDesignations = async(req, res) => {
+    //     const sortOrder = req ? .query ? .sortOrder || "id";
+    //     const sortDirection = req ? .query ? .sortDirection || "Desc";
 
+    //     const customQuery = {
+    //         order: [
+    //             [sortOrder, sortDirection]
+    //         ],
+    //         where: {},
+    //         limit: parseInt(req.query.limit) || 10,
+    //         offset: parseInt(req.query.skip) || 0,
+    //     };
 
-        if (req.query.id) {
-            const { error } = validateId(req.query.id);
+    // Search by designation_name
+    if (req ? .query ? .designation_name) {
+        customQuery.where.designation_name = {
+            [Op.like]: `%${req?.query?.designation_name}%`,
+        };
+    }
 
-            if (error) {
-                return this.validationErrorResponse(res, error.details[0].message);
-            }
-        }
+    const designations = await DesignationRepo.getDesignations(customQuery);
+    const count = await DesignationRepo.countDesignation({
+        where: customQuery.where,
+    });
 
-        const designations = await DesignationRepo.findDesignation(req.query);
-        return this.successResponse(res, designations, "Designations retrieved successfully");
-    };
+    if (!designations.length) {
+        return this.errorResponse(res, "No matching designations found", 404);
+    }
 
-    updateDesignation = async(req, res) => {
-        console.log("test - update");
+    return this.successResponse(
+        res, {
+            designations,
+            total: count,
+        },
+        "Designations retrieved successfully"
+    );
+};
 
-        const { error: idError } = validateId(req.params.id); // Validate ID
-        const { error: updateError } = validateUpdateDesignation(req.body); // Validate Update Data
+// Create a new designation
+createDesignation = async(req, res) => {
+    const validationResult = validateCreateDesignation(req.body);
 
-        if (idError || updateError) {
-            const message = idError ? idError.details[0].message : updateError.details[0].message;
-            return this.validationErrorResponse(res, message);
-        }
+    if (!validationResult.status) {
+        return this.validationErrorResponse(res, validationResult.message);
+    }
 
-        const designation = await DesignationRepo.updateDesignation(req.body, req.params.id);
-        return this.successResponse(res, designation, "Designation updated successfully");
-    };
+    const designation = await DesignationRepo.createDesignation(req.body);
 
-    deleteDesignation = async(req, res) => {
-        console.log("test - delete");
-        const { error } = validateId(req.params.id); // Validate ID
+    return this.successResponse(
+        res,
+        designation,
+        "Designation created successfully"
+    );
+};
 
-        if (error) {
-            return this.validationErrorResponse(res, error.details[0].message);
-        }
+// Update designation by ID
+updateDesignation = async(req, res) => {
+    const { id } = req.params;
+    const validationResult = validateUpdateDesignation(req.body);
 
-        await DesignationRepo.deleteDesignation(req.params.id);
-        return this.successResponse(res, {}, `Designation with ID ${req.params.id} deleted successfully`);
-    };
+    if (!validationResult.status) {
+        return this.validationErrorResponse(res, validationResult.message);
+    }
+
+    const isDesignation = await DesignationRepo.isDesignationExists(id); // Check if designation exists
+
+    if (!isDesignation) {
+        return this.errorResponse(res, "Designation ID not found", 404);
+    }
+
+    const designation = await DesignationRepo.updateDesignation(req.body, id);
+
+    return this.successResponse(
+        res,
+        designation,
+        "Designation updated successfully"
+    );
+};
+
+// Delete designation by ID (soft or hard delete)
+deleteDesignation = async(req, res) => {
+    let { id } = req ? .params;
+    let { type } = req ? .query;
+
+    const isDesignation = await DesignationRepo.isDesignationExists(id); // Check if designation exists
+
+    if (!isDesignation) {
+        return this.errorResponse(res, "Designation ID not found", 404);
+    }
+
+    type = type ? type : "soft"; // Default to soft delete
+
+    const designation = await DesignationRepo.deleteDesignation(id, type);
+
+    return this.successResponse(
+        res,
+        designation,
+        `Designation with ID ${id} deleted successfully`
+    );
+};
 }
 
 module.exports = new DesignationController();
