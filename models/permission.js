@@ -20,9 +20,8 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true,
         primaryKey: true,
       },
-      permissionName: {
+      name: {
         type: DataTypes.STRING,
-        allowNull: false,
       },
       isDeleted: {
         type: DataTypes.BOOLEAN,

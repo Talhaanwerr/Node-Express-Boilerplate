@@ -1,14 +1,19 @@
 
-const RolePermissionRepo = require('../repos/RolePermissionRepo');
-const RolePermissionValidator = require('../validators/RolePermissionValidator');
-const BaseController = require('./BaseController'); 
+const role = require("../models/role");
+const RolePermissionRepo = require("../repos/RolePermissionRepo");
+const RolePermissionValidator = require("../validators/RolePermissionValidator");
+const BaseController = require("./BaseController");
+const { sequelize } = require("../models");
+
 class RolePermissionController extends BaseController {
   constructor() {
     super();
   }
 
   assignPermissions = async (req, res) => {
-    const validationResult = RolePermissionValidator.validateAssignPermissions(req.body);
+    const validationResult = RolePermissionValidator.validateAssignPermissions(
+      req.body
+    );
 
     if (!validationResult.status) {
       return this.validationErrorResponse(res, validationResult.message);
@@ -16,32 +21,45 @@ class RolePermissionController extends BaseController {
 
     const { roleId, permissions } = req.body;
 
-    await RolePermissionRepo.assignPermissions(roleId, permissions);
-    return this.successResponse(res, null, 'Permissions assigned successfully');
+    const rolePermission = await RolePermissionRepo.assignPermissions(
+      roleId,
+      permissions
+    );
+
+    console.log("role permission ", rolePermission);
+
+    return this.successResponse(
+      res,
+      rolePermission,
+      "Permissions assigned successfully"
+    );
   };
 
   getRolesWithPermissions = async (req, res) => {
     const roles = await RolePermissionRepo.getRolesWithPermissions();
-    return this.successResponse(res, roles, 'Getting all roles with permissions');
-};
+    return this.successResponse(
+      res,
+      roles,
+      "Getting all roles with permissions"
+    );
+  };
 
-  // getRolePermissions = async (req, res) => {
-  //   const { roleId } = req.params;
-  //   const permissions = await RolePermissionRepo.getRolePermissions(roleId);
-  //   return this.successResponse(res, permissions, 'Getting permissions for the role');
-  // };
+  getRolesWithPermissionsById = async (req, res) => {
+    const { roleId } = req?.params;
 
-  // deleteRolePermission = async (req, res) => {
-  //   const validationResult = RolePermissionValidator.validateDeleteRolePermission(req.body);
+    const query = `SELECT * from rolepermissions where roleId = :roleId`;
 
-  //   if (!validationResult.status) {
-  //     return this.validationErrorResponse(res, validationResult.message);
-  //   }
+    const roleWithPermissions = await sequelize.query(query, {
+      replacements: { roleId },
+      type: sequelize.QueryTypes.SELECT,
+    });
 
-  //   const { roleId, permissionId } = req.body;
-  //   await RolePermissionRepo.deleteRolePermission(roleId, permissionId);
-  //   return this.successResponse(res, null, ' deleted successfully');
-  // };
+    return this.successResponse(
+      res,
+      roleWithPermissions,
+      "Getting all roles with permissions"
+    );
+  };
 }
 
 module.exports = new RolePermissionController();

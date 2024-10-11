@@ -4,8 +4,11 @@ const router = express.Router();
 const RolePermissionController = require("../controllers/RolePermissionController.js");
 
 router.get("/get-all", RolePermissionController.getRolesWithPermissions); 
-router.get("/get-by-role/:roleId", RolePermissionController.getRolePermissions); 
+router.get(
+  "/get-by-role/:roleId",
+  RolePermissionController.getRolesWithPermissionsById
+); 
 router.post("/assign", RolePermissionController.assignPermissions);
-router.delete("/delete", RolePermissionController.deleteRolePermission); 
+// router.delete("/delete", RolePermissionController.deleteRolePermission); 
 
 module.exports = router;
