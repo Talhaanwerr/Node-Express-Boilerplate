@@ -1,4 +1,3 @@
-
 const BaseRepository = require("./BaseRepo");
 const db = require("../models/index");
 
@@ -12,27 +11,26 @@ class RoleRepo extends BaseRepository {
     return this.create(role);
   }
 
-  async updateRole(role, id) {
-    await this.update(role, { id }); 
-    return this.findOne({ id });
+  async updateRole(role, roleId) {
+    await this.update(role, { roleId }); 
+    return this.findOne({ roleId }); 
   }
-  
 
-  async deleteRole(id, type) {
-    return this.delete(id, type);
+  async deleteRole(roleId, type) {
+    return this.delete(roleId, type); 
   }
 
   async getRoles(condition = {}) {
     return this.findAll(condition);
   }
 
-  async findRole(id) {
-    return this.findOne({ id });
+  async findRole(roleId) {
+    return this.findOne({ roleId }); 
   }
 
-  async isRoleExists(id) {
+  async isRoleExists(roleId) {
     return this.count({
-      id,
+      roleId, 
     });
   }
 }

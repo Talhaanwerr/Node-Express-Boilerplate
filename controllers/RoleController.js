@@ -1,10 +1,6 @@
 const RoleRepo = require("../repos/RoleRepo.js");
 const db = require("../models/index");
-
-const {
-  validateCreateRole,
-  validateUpdateRole,
-} = require("../validators/RoleValidator.js");
+const { validateCreateRole, validateUpdateRole } = require("../validators/RoleValidator.js");
 const BaseController = require("./BaseController.js");
 
 class RoleController extends BaseController {
@@ -25,7 +21,7 @@ class RoleController extends BaseController {
 
   getRoles = async (req, res) => {
     const {
-      sortBy = "id",
+      sortBy = "roleId",  
       sortOrder = "DESC",
       page = 1,
       limit = 10,
@@ -48,6 +44,8 @@ class RoleController extends BaseController {
       };
     }
 
+    searchParams.isDeleted = false;
+
     const condition = {
       order: [[sortBy, sortOrder]],
       limit: parseInt(limit),
@@ -57,7 +55,10 @@ class RoleController extends BaseController {
 
     const roles = await RoleRepo.getRoles(condition);
     return this.successResponse(res, roles, "Getting All Roles");
-  };
+};
+
+
+
 
   getRoleById = async (req, res) => {
     const role = await RoleRepo.findRole(req.params.id);
@@ -98,3 +99,6 @@ class RoleController extends BaseController {
   };
 }
 module.exports = new RoleController();
+
+
+

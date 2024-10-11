@@ -1,3 +1,5 @@
+const role = require("../models/role");
+
 module.exports = class BaseRepository {
   model;
   constructor(model) {
@@ -21,18 +23,17 @@ module.exports = class BaseRepository {
     return this.model.findAll(condition);
   }
 
-  async softDelete(id) {
+  async softDelete(roleId) {
     return this.model.update(
       {
         isDeleted: true,
       },
       {
         where: {
-          id,
+          roleId,
         },
       }
-    );
-  }
+    )};
 
   async count(condition) {
     return this.model.count({ where: condition });
@@ -46,12 +47,12 @@ module.exports = class BaseRepository {
     return this.model.bulkCreate(data);
   }
 
-  async delete(id, type) {
+  async delete(roleId, type) {
     if (type === "soft") {
-      return this.softDelete(id);
+      return this.softDelete(roleId);
     } else if (type === "hard") {
       return this.model.destroy({
-        where: { id },
+        where: { roleId: roleId },
       });
     }
   }
