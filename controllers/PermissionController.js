@@ -53,9 +53,9 @@ class PermissionController extends BaseController {
     }
 
     // for filtering
-    if (req?.query?.module) {
-      customQuery.where.module = {
-        [Op.eq]: `${req?.query?.module}`,
+    if (req?.query?.filterBymodule) {
+      customQuery.where.filterBymodule = {
+        [Op.eq]: `${req?.query?.filterBymodule}`,
       };
     }
 
