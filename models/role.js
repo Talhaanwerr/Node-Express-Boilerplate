@@ -1,26 +1,30 @@
-// Permission.js
+// Role.js
 "use strict";
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class Permission extends Model {
+  class Role extends Model {
     static associate(models) {
-      Permission.belongsToMany(models.Role, {
+      Role.belongsToMany(models.Permission, {
         through: models.RolePermission,
-        foreignKey: 'permissionId',
-        as: 'Roles',
+        foreignKey: 'roleId',
+        as: 'Permissions',
+      });
+      Role.hasMany(models.RolePermission, {
+        foreignKey: 'roleId',
+        as: 'RolePermissions',
       });
     }
   }
 
-  Permission.init(
+  Role.init(
     {
-      id: {
+      roleId: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
       },
-      permissionName: {
+      roleName: {
         type: DataTypes.STRING,
         allowNull: false,
       },
@@ -31,8 +35,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "Permission",
+      modelName: "Role",
     }
   );
-  return Permission;
+  return Role;
 };
