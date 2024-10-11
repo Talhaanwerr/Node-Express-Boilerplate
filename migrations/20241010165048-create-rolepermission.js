@@ -1,5 +1,7 @@
 "use strict";
 
+const { sequelize } = require("../models");
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -8,33 +10,29 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER,
         references: {
-          model: "Roles", 
+          model: "Roles",
           key: "roleId",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
-        primaryKey: true, 
       },
       permissionId: {
         allowNull: false,
         type: Sequelize.INTEGER,
         references: {
-          model: "Permissions", 
+          model: "Permissions",
           key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
-        primaryKey: true,
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
     });
   },
