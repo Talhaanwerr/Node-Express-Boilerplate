@@ -21,7 +21,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       name: {
         type: DataTypes.STRING,
-        allowNull: false,
       },
       isDeleted: {
         type: DataTypes.BOOLEAN,
