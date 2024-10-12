@@ -1,118 +1,133 @@
 const { Op } = require("sequelize");
 const DesignationRepo = require("../repos/DesignationRepo.js");
 const {
-    validateCreateDesignation,
-    validateUpdateDesignation,
+  validateCreateDesignation,
+  validateUpdateDesignation,
 } = require("../validators/DesignationValidator.js");
 const BaseController = require("./BaseController.js");
 
 class DesignationController extends BaseController {
-    constructor() {
-        super();
+  constructor() {
+    super();
+  }
+
+  getDesignationById = async (req, res) => {
+    const { id } = req.params;
+    const designation = await DesignationRepo.findById(id);
+
+    if (!designation) {
+      return this.errorResponse(res, "Designation ID not found", 404);
     }
 
-    // Get designation by ID
-    getDesignationById = async(req, res) => {
-        const { id } = req.params;
-        const designation = await DesignationRepo.findById(id);
+    return this.successResponse(
+      res,
+      designation,
+      "Designation retrieved successfully"
+    );
+  };
 
-        if (!designation) {
-            return this.errorResponse(res, "Designation ID not found", 404);
-        }
+  getAllDesignations = async (req, res) => {
+    const sortOrder = req.query.sortOrder || "id";
+    const sortDirection = req.query.sortDirection || "DESC";
 
-        return this.successResponse(res, designation, "Designation retrieved successfully");
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = parseInt(req.query.skip) || 0;
+
+    if (limit < 1 || offset < 0) {
+      return this.validationErrorResponse(res, "Invalid pagination parameters");
+    }
+
+    const customQuery = {
+      order: [[sortOrder, sortDirection]],
+      where: {},
+      limit: limit,
+      offset: offset,
     };
 
-    // Get all designations with optional sorting and filters
-    getAllDesignations = async(req, res) => {
-        const sortOrder = req.query.sortOrder || "id"; // Default sorting by 'id'
-        const sortDirection = req.query.sortDirection || "DESC"; // Default sorting direction
+    customQuery.where.isDeleted = false;
 
-        const limit = parseInt(req.query.limit) || 10; // Default limit for pagination
-        const offset = parseInt(req.query.skip) || 0; // Default offset for pagination
+    if (req.query.designation_name) {
+      customQuery.where.designation_name = {
+        [Op.like]: `%${req.query.designation_name}%`,
+      };
+    }
 
-        // Validate limit and offset
-        if (limit < 1 || offset < 0) {
-            return this.validationErrorResponse(res, "Invalid pagination parameters");
-        }
+    const designations = await DesignationRepo.getDesignations(customQuery);
+    const count = await DesignationRepo.countDesignation({
+      where: customQuery.where,
+    });
 
-        const customQuery = {
-            order: [
-                [sortOrder, sortDirection] // Sorting is applied here
-            ],
-            where: {}, // This is where filtering conditions will be added
-            limit: limit, // Pagination limit
-            offset: offset, // Pagination offset
-        };
+    return this.successResponse(
+      res,
+      {
+        designations,
+        total: count,
+        limit: limit,
+        offset: offset,
+      },
+      "Designations retrieved successfully"
+    );
+  };
 
-        // Search by designation_name
-        if (req.query.designation_name) {
-            customQuery.where.designation_name = {
-                [Op.like]: `%${req.query.designation_name}%`, // Searching for designation_name
-            };
-        }
+  createDesignation = async (req, res) => {
+    const validationResult = validateCreateDesignation(req.body);
 
-        const designations = await DesignationRepo.getDesignations(customQuery);
-        const count = await DesignationRepo.countDesignation({ where: customQuery.where });
+    if (!validationResult.status) {
+      return this.validationErrorResponse(res, validationResult.message);
+    }
 
-        return this.successResponse(res, {
-            designations, // Results after applying filtering and pagination
-            total: count,
-            limit: limit,
-            offset: offset,
-        }, "Designations retrieved successfully");
-    };
+    const designation = await DesignationRepo.createDesignation(req.body);
 
-    // Create a new designation
-    createDesignation = async(req, res) => {
-        const validationResult = validateCreateDesignation(req.body);
+    return this.successResponse(
+      res,
+      designation,
+      "Designation created successfully"
+    );
+  };
 
-        if (!validationResult.status) {
-            return this.validationErrorResponse(res, validationResult.message);
-        }
+  updateDesignation = async (req, res) => {
+    const { id } = req.params;
+    const validationResult = validateUpdateDesignation(req.body);
 
-        const designation = await DesignationRepo.createDesignation(req.body);
+    if (!validationResult.status) {
+      return this.validationErrorResponse(res, validationResult.message);
+    }
 
-        return this.successResponse(res, designation, "Designation created successfully");
-    };
+    const isDesignation = await DesignationRepo.isDesignationExists(id);
 
-    // Update designation by ID
-    updateDesignation = async(req, res) => {
-        const { id } = req.params;
-        const validationResult = validateUpdateDesignation(req.body);
+    if (!isDesignation) {
+      return this.errorResponse(res, "Designation ID not found", 404);
+    }
 
-        if (!validationResult.status) {
-            return this.validationErrorResponse(res, validationResult.message);
-        }
+    const designation = await DesignationRepo.updateDesignation(req.body, id);
 
-        const isDesignation = await DesignationRepo.isDesignationExists(id); // Check if designation exists
+    return this.successResponse(
+      res,
+      designation,
+      "Designation updated successfully"
+    );
+  };
 
-        if (!isDesignation) {
-            return this.errorResponse(res, "Designation ID not found", 404);
-        }
+  deleteDesignation = async (req, res) => {
+    const { id } = req.params;
+    let { type } = req.query;
 
-        const designation = await DesignationRepo.updateDesignation(req.body, id);
+    const isDesignation = await DesignationRepo.isDesignationExists(id);
 
-        return this.successResponse(res, designation, "Designation updated successfully");
-    };
+    if (!isDesignation) {
+      return this.errorResponse(res, "Designation ID not found", 404);
+    }
 
-    // Delete designation by ID (soft or hard delete)
-    deleteDesignation = async(req, res) => {
-        const { id } = req.params;
-        let { type } = req.query;
+    type = type && type !== "" ? type : "soft";
 
-        const isDesignation = await DesignationRepo.isDesignationExists(id); // Check if designation exists
+    const designation = await DesignationRepo.deleteDesignation(id, type);
 
-        if (!isDesignation) {
-            return this.errorResponse(res, "Designation ID not found", 404);
-        }
-
-        type = (type && type !== "") ? type : "soft"; // Default to soft delete
-
-        const designation = await DesignationRepo.deleteDesignation(id, type);
-
-        return this.successResponse(res, designation, `Designation with ID ${id} deleted successfully`);
-    };
+    return this.successResponse(
+      res,
+      designation,
+      `Designation with ID ${id} deleted successfully`
+    );
+  };
 }
 
 module.exports = new DesignationController();

@@ -5,11 +5,15 @@ const designationRoute = require("./designation.route.js");
 const roleRoutes = require("./role.route.js");
 const permissionRoutes = require("./permission.route.js");
 const RolePermissionRoutes = require("./rolepermission.route.js");
+const userRoutes = require("./user.route.js");
+const userProfileRoutes = require("./userprofile.route.js");
 
 router.use("/announcements", announcementRoutes);
 router.use("/roles", roleRoutes);
 router.use("/permissions", permissionRoutes);
 router.use("/rolepermission", RolePermissionRoutes);
+router.use("/users", userRoutes);
+router.use("/user-profiles", userProfileRoutes);
 
 router.use("/designation", designationRoute);
 module.exports = router;

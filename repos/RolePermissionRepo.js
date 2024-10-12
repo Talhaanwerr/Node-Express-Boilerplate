@@ -54,6 +54,7 @@ class RolePermissionRepo extends BaseRepository {
   //     },
   //   });
   // }
+
 }
 
 module.exports = new RolePermissionRepo();

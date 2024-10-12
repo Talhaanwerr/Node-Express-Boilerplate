@@ -12,12 +12,11 @@ class DesignationValidator extends BaseValidator {
 
     validateCreateDesignation = (designation) => {
         const schema = Joi.object().keys({
-            designation_name: Joi.string().required().label("Designation Name"), // Required field for the designation title
-            description: Joi.string().optional().label("Description"), // Optional description field
-            // type: Joi.string().optional().label("Type"), // Optional type field
-            isDeleted: Joi.boolean().optional().default(false), // Optional isDeleted field with a default value of false
-            createdAt: Joi.date().optional(), // Optional field to track when the designation was created
-            updatedAt: Joi.date().optional() // Optional field to track when the designation was last updated
+          designation_name: Joi.string().required().label("Designation Name"), // Required field for the designation title
+          description: Joi.string().optional().label("Description"), // Optional description field
+          isDeleted: Joi.boolean().optional().default(false), // Optional isDeleted field with a default value of false
+          createdAt: Joi.date().optional(), // Optional field to track when the designation was created
+          updatedAt: Joi.date().optional(), // Optional field to track when the designation was last updated
         });
 
         return this.validate(schema, designation); // Validate the input against the schema
