@@ -9,13 +9,14 @@ class RolePermissionRepo extends BaseRepository {
 
   async assignPermissions(roleId, permissions) {
     const uniquePermissions = [...new Set(permissions)];
-    return await RolePermission.bulkCreate(
-      uniquePermissions.map((permissionId) => ({
-        roleId,
-        permissionId,
-      })),
-      { ignoreDuplicates: true }
-    );
+    const rolePermissions = uniquePermissions.map((permissionId) => ({
+      roleId,
+      permissionId,
+    }));
+
+    return this.bulkCreate(rolePermissions, {
+      ignoreDuplicates: true,
+    });
   }
 
   async getRolesWithPermissions() {
@@ -40,27 +41,34 @@ class RolePermissionRepo extends BaseRepository {
   }
 
   async isRolePermissionExists(roleId, permissionId) {
-    return this.model.findOne({
-      where: {
-        roleId,
-        permissionId,
-      },
+    return this.findOne({
+      roleId,
+      permissionId,
     });
+    // return this.model.findOne({
+    //   where: {
+    //     roleId,
+    //     permissionId,
+    //   },
+    // });
   }
 
   async updateRolePermission(data, roleId, permissionId) {
-    return this.model.update(data, {
-      where: {
-        roleId,
-        permissionId,
-      },
+    return this.update(data, {
+      roleId,
+      permissionId,
     });
+    // return this.model.update(data, {
+    //   where: {
+    //     roleId,
+    //     permissionId,
+    //   },
+    // });
   }
 
   // async deleteRolePermission(roleId, type) {
   //   return this.delete(roleId, type);
   // }
-
 }
 
 module.exports = new RolePermissionRepo();

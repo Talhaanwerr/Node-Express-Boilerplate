@@ -3,6 +3,7 @@ const RolePermissionRepo = require("../repos/RolePermissionRepo");
 const RolePermissionValidator = require("../validators/RolePermissionValidator");
 const BaseController = require("./BaseController");
 const { sequelize } = require("../models");
+const permission = require("../models/permission");
 
 class RolePermissionController extends BaseController {
   constructor() {
@@ -19,6 +20,9 @@ class RolePermissionController extends BaseController {
     }
 
     const { roleId, permissions } = req.body;
+    if(permissions.length){
+      // Delete all role-permissions of roleId
+    }
 
     const rolePermission = await RolePermissionRepo.assignPermissions(
       roleId,
@@ -46,12 +50,31 @@ class RolePermissionController extends BaseController {
   getRolesWithPermissionsById = async (req, res) => {
     const { roleId } = req?.params;
 
+    // const customQuery = {
+    //   where: roleId,
+    //   include: 
+    // }
+
+    // get role with include
+
+    // RoleRepo.getPermissionsByRole(customQuery)
+
     const query = `SELECT * from rolepermissions where roleId = :roleId`;
 
     const roleWithPermissions = await sequelize.query(query, {
       replacements: { roleId },
       type: sequelize.QueryTypes.SELECT,
     });
+
+    // role = {
+    //   name: "Admin",
+    //   createdaT: "sdfds"
+    //   permissions: [
+    //     {
+    //       name: "create-user"
+    //     }
+    //   ]
+    // }
 
     return this.successResponse(
       res,

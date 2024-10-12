@@ -11,6 +11,10 @@ class RoleRepo extends BaseRepository {
     return this.create(role);
   }
 
+  async getPermissionsByRole (customQuery) {
+    this.findOneWithInclude(customQuery)
+  }
+
   async updateRole(role, roleId) {
     await this.update(role, { roleId }); 
     return this.findOne({ roleId }); 
