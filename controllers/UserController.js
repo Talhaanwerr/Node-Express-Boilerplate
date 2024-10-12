@@ -16,6 +16,17 @@ class UserController extends BaseController {
     const { id } = req?.params;
     const user = await UserRepo.findById(id);
 
+    // const user = {
+    //   name: "",
+    //   email:"",
+    //   role: {
+    //     name: "Admin"
+    //   },
+    //   designation: {
+    //     name: "Software Engineer",
+    //   }
+    // }
+
     if (!user) {
       return this.errorResponse(res, "User ID not found", 404);
     }
@@ -61,14 +72,38 @@ class UserController extends BaseController {
   createUserWithProfile = async (req, res) => {
     const validationResult = validateCreateUserWithProfile(req.body);
 
+    const promises = []
+    
+    if(req.body.roleId) {
+      promises.push(UserRepo.isRoleExists(req.body.roleId));
+    }
+    
+    if(req.body.designationId) {
+      promises.push(UserRepo.isDesignationExists(req.body.designationId));
+    }
+
+    const [isRoleExists, isDesignationExists] = await Promise.all(promises);
+
+    if(!isRoleExists) {
+      return this.errorResponse(res, "Role ID not found", 404);
+    }
+
+    if(!isDesignationExists) {
+      return this.errorResponse(res, "Designation ID not found", 404);
+    }
+    
     if (!validationResult.status) {
       return this.validationErrorResponse(res, validationResult.message);
     }
-
+    
     const { profile, ...userData } = req.body;
     console.log(userData);
     console.log(profile);
+    // use bcrypt to hash password
+    // userData.password = bcrypt.hashSync(userData.password, 10);
 
+    // login api
+    
     try {
       const user = await UserRepo.createUserAndProfile({
         ...userData,
@@ -78,6 +113,9 @@ class UserController extends BaseController {
       });
 
       console.log(user);
+
+
+      // remove password from user object
 
       return this.successResponse(
         res,

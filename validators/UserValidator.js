@@ -5,14 +5,14 @@ class UserValidator extends BaseValidator {
   validateCreateUser = (user) => {
     const schema = Joi.object().keys({
       firstName: Joi.string().required().label("First Name"),
-      lastName: Joi.string().required().label("Last Name"),
+      lastName: Joi.string().optional().label("Last Name"),
       email: Joi.string().email().required().label("Email"),
       password: Joi.string().required().label("Password"),
       shiftTime: Joi.string().optional().label("Shift Time"),
       status: Joi.string().optional().label("Status"),
       reportingTo: Joi.number().optional().label("Reporting To"),
-      designationId: Joi.number().required().label("Designation ID"),
-      roleId: Joi.number().required().label("Role ID"),
+      designationId: Joi.number().optional().label("Designation ID"),
+      roleId: Joi.number().optional().label("Role ID"),
       profilePicture: Joi.binary().optional().label("Profile Picture"),
       isDeleted: Joi.boolean().optional(),
     });
