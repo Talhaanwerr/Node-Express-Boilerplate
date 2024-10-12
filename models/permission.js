@@ -1,4 +1,3 @@
-// Permission.js
 "use strict";
 const { Model } = require("sequelize");
 
@@ -7,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Permission.belongsToMany(models.Role, {
         through: models.RolePermission,
-        foreignKey: 'permissionId',
+        foreignKey: 'id',
         as: 'Roles',
       });
     }

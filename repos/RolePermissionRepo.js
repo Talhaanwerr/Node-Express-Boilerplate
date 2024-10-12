@@ -1,6 +1,5 @@
 const { RolePermission } = require("../models");
 const db = require("../models/index");
-
 const BaseRepository = require("./BaseRepo");
 
 class RolePermissionRepo extends BaseRepository {
@@ -39,21 +38,29 @@ class RolePermissionRepo extends BaseRepository {
   async findById(id) {
     return this.findAll({ id });
   }
-  // async getRolePermissions(roleId) {
-  //   return RolePermission.findAll({
-  //     where: { roleId },
-  //     include: ["Permission"],
-  //   });
+
+  async isRolePermissionExists(roleId, permissionId) {
+    return this.model.findOne({
+      where: {
+        roleId,
+        permissionId,
+      },
+    });
+  }
+
+  async updateRolePermission(data, roleId, permissionId) {
+    return this.model.update(data, {
+      where: {
+        roleId,
+        permissionId,
+      },
+    });
+  }
+
+  // async deleteRolePermission(roleId, type) {
+  //   return this.delete(roleId, type);
   // }
 
-  // async deleteRolePermission(roleId, permissionId) {
-  //   return this.destroy({
-  //     where: {
-  //       roleId,
-  //       permissionId,
-  //     },
-  //   });
-  // }
 
 }
 

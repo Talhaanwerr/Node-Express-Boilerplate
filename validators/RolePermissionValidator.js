@@ -14,14 +14,15 @@ class RolePermissionValidator extends BaseValidator {
     return this.validate(schema, data);
   };
 
-  validateDeleteRolePermission = (data) => {
+  validateUpdateRolePermission = (data) => {
     const schema = Joi.object({
-      roleId: Joi.number().required().label("Role ID"),
       permissionId: Joi.number().required().label("Permission ID"),
+      isDeleted: Joi.boolean().optional().label("Deleted Record"),
     });
 
     return this.validate(schema, data);
   };
+
 }
 
 module.exports = new RolePermissionValidator();

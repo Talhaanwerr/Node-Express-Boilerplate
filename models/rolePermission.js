@@ -15,9 +15,14 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
   }
-
+ 
   RolePermission.init(
     {
+      id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true, 
+      },
       roleId: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -25,7 +30,6 @@ module.exports = (sequelize, DataTypes) => {
           model: "Roles",
           key: "roleId",
         },
-        primaryKey: true,
       },
       permissionId: {
         type: DataTypes.INTEGER,
@@ -34,7 +38,11 @@ module.exports = (sequelize, DataTypes) => {
           model: "Permissions",
           key: "id",
         },
-        primaryKey: true,
+      },
+      isDeleted: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        allowNull: false,
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -52,6 +60,9 @@ module.exports = (sequelize, DataTypes) => {
       timestamps: true,
     }
   );
+  
+  
+  
 
   return RolePermission;
 };

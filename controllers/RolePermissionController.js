@@ -1,4 +1,3 @@
-
 const role = require("../models/role");
 const RolePermissionRepo = require("../repos/RolePermissionRepo");
 const RolePermissionValidator = require("../validators/RolePermissionValidator");
@@ -60,6 +59,25 @@ class RolePermissionController extends BaseController {
       "Getting all roles with permissions"
     );
   };
+
+  updateRolePermission = async (req, res) => {
+    const { roleId, permissionId } = req.params;
+
+    const isRolePermissionExist = await RolePermissionRepo.isRolePermissionExists(roleId, permissionId);
+    if (!isRolePermissionExist) {
+      return this.errorResponse(res, "Role-Permission not found", 404);
+    }
+
+    const validationResult = RolePermissionValidator.validateUpdateRolePermission(req.body);
+    if (!validationResult.status) {
+      return this.validationErrorResponse(res, validationResult.message);
+    }
+
+    const updatedRolePermission = await RolePermissionRepo.updateRolePermission(req.body, roleId, permissionId);
+    return this.successResponse(res, updatedRolePermission, "Role-Permission updated successfully");
+  };
+
+  
 }
 
 module.exports = new RolePermissionController();
