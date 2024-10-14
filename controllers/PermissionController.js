@@ -54,16 +54,14 @@ class PermissionController extends BaseController {
 
     // for filtering
     if (req?.query?.filterBymodule) {
-      customQuery.where.filterBymodule = {
+      customQuery.where.module = {
         [Op.eq]: `${req?.query?.filterBymodule}`,
       };
     }
 
     const permissions = await PermissionRepo.getPermissions(customQuery);
 
-    const count = await PermissionRepo.countPermission({
-      where: customQuery.where,
-    });
+    const count = await PermissionRepo.countPermission();
 
     if (!permissions.length) {
       return this.errorResponse(res, "No matching permissions found", 404);
@@ -96,7 +94,7 @@ class PermissionController extends BaseController {
   };
 
   updatePermission = async (req, res) => {
-    const { id } = req.params;
+    const { id } = req?.params;
     const validationResult = validateUpdatePermission(req.body);
 
     if (!validationResult.status) {

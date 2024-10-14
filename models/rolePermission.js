@@ -1,4 +1,4 @@
-// RolePermission.js
+
 "use strict";
 const { Model } = require("sequelize");
 
