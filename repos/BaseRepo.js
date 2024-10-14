@@ -33,7 +33,8 @@ module.exports = class BaseRepository {
           roleId,
         },
       }
-    )};
+    );
+  }
 
   async count(condition) {
     return this.model.count({ where: condition });
@@ -43,8 +44,8 @@ module.exports = class BaseRepository {
     return this.model.update(data, { where: condition });
   }
 
-  async bulkCreate(data) {
-    return this.model.bulkCreate(data);
+  async bulkCreate(data, config) {
+    return this.model.bulkCreate(data, (config = {}));
   }
 
   async delete(roleId, type) {

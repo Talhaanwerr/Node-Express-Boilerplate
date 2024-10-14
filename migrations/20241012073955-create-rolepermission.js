@@ -11,7 +11,6 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       roleId: {
-        allowNull: false,
         type: Sequelize.INTEGER,
         references: {
           model: 'Roles',
@@ -21,7 +20,6 @@ module.exports = {
         onDelete: 'CASCADE',
       },
       permissionId: {
-        allowNull: false,
         type: Sequelize.INTEGER,
         references: {
           model: 'Permissions',
@@ -38,12 +36,10 @@ module.exports = {
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
     });
 

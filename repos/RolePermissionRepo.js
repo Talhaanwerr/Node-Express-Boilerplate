@@ -19,7 +19,7 @@ class RolePermissionRepo extends BaseRepository {
   }
 
   async getRolesWithPermissions() {
-    const roleWithPermissions = await this.findAll({
+    return await this.findAll({
         include: [
             {
                 model: db.Role,
@@ -34,7 +34,6 @@ class RolePermissionRepo extends BaseRepository {
         ],
     });
 
-    return roleWithPermissions || [];
 }
   
 
@@ -49,6 +48,7 @@ class RolePermissionRepo extends BaseRepository {
         permissionId,
       },
     });
+    
   }
 
   async findOneWithInclude(roleId) {
@@ -77,6 +77,7 @@ class RolePermissionRepo extends BaseRepository {
         permissionId,
       },
     });
+    
   }
 }
 

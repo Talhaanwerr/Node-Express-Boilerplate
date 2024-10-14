@@ -25,6 +25,7 @@ class RolePermissionController extends BaseController {
       permissions
     );
 
+
     return this.successResponse(
       res,
       rolePermission,
