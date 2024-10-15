@@ -23,7 +23,21 @@ class UserRepo extends BaseRepository {
   }
 
   async getUsers(searchQuery = {}) {
-    return this.findAll(searchQuery);
+    return this.findAll({
+      ...searchQuery,
+      include: [
+        {
+          model: db.Role,
+          as: "role",
+          attributes: ["roleName"],
+        },
+        {
+          model: db.Designation,
+          as: "designation",
+          attributes: ["designation_name"],
+        },
+      ],
+    });
   }
 
   async updateUser(user, id) {
@@ -39,18 +53,48 @@ class UserRepo extends BaseRepository {
     return this.delete(id, type);
   }
 
-  async countPermission(query = {}) {
+  async countUsers(query = {}) {
     return this.count(query);
   }
 
-  // async findByIdWithInclude(searchQuery) {
-  //   return this.findOneWithInclude(searchQuery);
-  // }
+  async findByIdWithInclude(customQuery) {
+    return this.findOneWithInclude({
+      where: { customQuery },
+      include: [
+        {
+          model: db.Role,
+          as: "role",
+          attributes: ["roleName"],
+        },
+        {
+          model: db.Designation,
+          as: "designation",
+          attributes: ["designation_name"],
+        },
+      ],
+    });
+  }
 
   async isUserExists(id) {
     return this.count({
       id,
     });
+  }
+
+  async findRole(id) {
+    return this.findByPk(id);
+  }
+
+  async findDesignation(id) {
+    return this.findByPk(id);
+  }
+
+  async findUserByEmail(email) {
+    return this.findOne({ email });
+  }
+
+  async updateUserPassword(userId, newPassword) {
+    return this.update({ password: newPassword }, { id: userId });
   }
 }
 

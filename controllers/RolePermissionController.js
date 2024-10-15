@@ -46,12 +46,14 @@ class RolePermissionController extends BaseController {
   getRolesWithPermissionsById = async (req, res) => {
     const { roleId } = req?.params;
 
-    const query = `SELECT * from rolepermissions where roleId = :roleId`;
+    // const query = `SELECT * from rolepermissions where roleId = :roleId`;
 
-    const roleWithPermissions = await sequelize.query(query, {
-      replacements: { roleId },
-      type: sequelize.QueryTypes.SELECT,
-    });
+    // const roleWithPermissions = await sequelize.query(query, {
+    //   replacements: { roleId },
+    //   type: sequelize.QueryTypes.SELECT,
+    // });
+
+    const roleWithPermissions = await RolePermissionRepo.findById(roleId);
 
     return this.successResponse(
       res,

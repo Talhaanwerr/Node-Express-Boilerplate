@@ -20,6 +20,10 @@ module.exports = class BaseRepository {
     return this.model.findAll(condition);
   }
 
+  async findByPk(id) {
+    return this.model.findByPk(id);
+  }
+
   async softDelete(id) {
     return this.model.update(
       {

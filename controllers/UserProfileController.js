@@ -1,4 +1,5 @@
-// const { Op } = require("sequelize");
+const { Op } = require("sequelize");
+const db = require("../models/index.js");
 const UserProfileRepo = require("../repos/UserProfileRepo.js");
 const {
   validateUpdateUserProfile,
@@ -13,7 +14,7 @@ class UserProfileController extends BaseController {
 
   getUserProfileById = async (req, res) => {
     const { id } = req?.params;
-    const user = await UserProfileRepo.findById(id);
+    const user = await UserProfileRepo.findByIdWithInclude(id);
 
     if (!user) {
       return this.errorResponse(res, "User ID not found", 404);
@@ -23,30 +24,78 @@ class UserProfileController extends BaseController {
   };
 
   getAllUserProfiles = async (req, res) => {
-    const {
-      sortBy = "id",
-      sortOrder = "DESC",
-      page = 1,
-      limit = 10,
-      search = "",
-      filterByName,
-      filterByEmail,
-      filterByStatus,
-    } = req?.query;
-
-    const skip = (page - 1) * limit;
-    const searchParams = {};
+    const sortOrder = req?.query?.sortOrder || "id";
+    const sortDirection = req?.query?.sortDirection || "DESC";
 
     const customQuery = {
+      order: [[sortOrder, sortDirection]],
       where: {
         isDeleted: false,
-        ...searchParams,
       },
+      limit: parseInt(req.query.limit) || 10,
+      offset: parseInt(req.query.skip) || 0,
     };
 
-    if (search) {
-      searchParams[db.sequelize.Op.or] = [{}];
+    if (req?.query?.contactNo) {
+      customQuery.where.contactNo = {
+        [Op.like]: `%${req?.query?.contactNo}%`,
+      };
     }
+
+    if (req?.query?.cnicNo) {
+      customQuery.where.cnicNo = {
+        [Op.like]: `%${req?.query?.cnicNo}%`,
+      };
+    }
+
+    if (req?.query?.city) {
+      customQuery.where.city = {
+        [Op.like]: `%${req?.query?.city}%`,
+      };
+    }
+    if (req?.query?.gender) {
+      customQuery.where.gender = {
+        [Op.like]: `%${req?.query?.gender}%`,
+      };
+    }
+    if (req?.query?.branch) {
+      customQuery.where.branch = {
+        [Op.like]: `%${req?.query?.branch}%`,
+      };
+    }
+    // if (req?.query?.search) {
+    //   customQuery.where[Op.or] = [
+    //     { firstName: { [Op.like]: `%${req?.query?.search}%` } },
+    //     { lastName: { [Op.like]: `%${req?.query?.search}%` } },
+    //     { email: { [Op.like]: `%${req?.query?.search}%` } },
+    //   ];
+    // }
+
+    if (req?.query?.userName) {
+      customQuery.include = [
+        {
+          model: db.User,
+          as: "user",
+          where: {
+            firstName: req?.query?.userName,
+          },
+        },
+      ];
+    }
+
+    if (req?.query?.email) {
+      customQuery.include = [
+        {
+          model: db.User,
+          as: "user",
+          where: {
+            email: req?.query?.email,
+          },
+        },
+      ];
+    }
+
+    console.log("customQuery", customQuery.where);
 
     const userProfiles = await UserProfileRepo.getUserProfiles(customQuery);
 
@@ -63,9 +112,17 @@ class UserProfileController extends BaseController {
 
   createUserProfile = async (req, res) => {
     const validationResult = validateCreateUserProfile(req?.body);
-
     if (!validationResult.status) {
       return this.validationErrorResponse(res, validationResult.message);
+    }
+
+    const { userId } = req?.body;
+
+    if (userId) {
+      const isUserExists = await UserProfileRepo.findUser(userId);
+      if (!isUserExists) {
+        return this.errorResponse(res, "User not found", 404);
+      }
     }
 
     const user = await UserProfileRepo.createUserProfile(req?.body);

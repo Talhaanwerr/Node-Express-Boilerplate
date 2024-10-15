@@ -53,9 +53,7 @@ class DesignationController extends BaseController {
     }
 
     const designations = await DesignationRepo.getDesignations(customQuery);
-    const count = await DesignationRepo.countDesignation({
-      where: customQuery.where,
-    });
+    const count = await DesignationRepo.countDesignation();
 
     return this.successResponse(
       res,

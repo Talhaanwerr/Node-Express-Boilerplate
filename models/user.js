@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
       User.belongsTo(models.Designation, {
         foreignKey: "designationId",
         as: "designation",
-        onDelete: "CASCADE",
+        onDelete: "SET NULL",
       });
     }
   }
@@ -64,6 +64,10 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       isDeleted: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      isNewUser: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },

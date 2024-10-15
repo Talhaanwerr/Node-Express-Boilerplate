@@ -12,7 +12,16 @@ class UserProfileRepo extends BaseRepository {
   }
 
   async getUserProfiles(searchQuery = {}) {
-    return this.findAll(searchQuery);
+    return this.findAll({
+      ...searchQuery,
+      include: [
+        {
+          model: db.User,
+          as: "user",
+          attributes: ["firstName", "lastName", "email"],
+        }
+      ],
+    });
   }
 
   async updateUserProfile(userprofile, id) {
@@ -41,6 +50,25 @@ class UserProfileRepo extends BaseRepository {
       id,
     });
   }
+
+  async findByIdWithInclude(id) {
+    return this.findOneWithInclude({
+      where: { id },
+      include: [
+        {
+          model: db.User,
+          as: "user",
+          attributes: ["firstName", "lastName", "email"],
+        },
+      ],
+    });
+  }
+
+  async findUser(id) {
+    console.log(id);
+    return this.findByPk(id);
+  }
+
 }
 
 module.exports = new UserProfileRepo();
