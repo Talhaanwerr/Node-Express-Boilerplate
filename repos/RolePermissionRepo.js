@@ -20,22 +20,20 @@ class RolePermissionRepo extends BaseRepository {
 
   async getRolesWithPermissions() {
     return await this.findAll({
-        include: [
-            {
-                model: db.Role,
-                as: "Role",
-                attributes: ["roleName"], 
-            },
-            {
-                model: db.Permission,
-                as: "Permission",
-                attributes: ["name","module"], 
-            },
-        ],
+      include: [
+        {
+          model: db.Role,
+          as: "Role",
+          attributes: ["roleName"],
+        },
+        {
+          model: db.Permission,
+          as: "Permission",
+          attributes: ["name", "module"],
+        },
+      ],
     });
-
-}
-  
+  }
 
   async findById(id) {
     return this.findAll({ id });
@@ -48,14 +46,12 @@ class RolePermissionRepo extends BaseRepository {
         permissionId,
       },
     });
-    
   }
 
   async findOneWithInclude(roleId) {
     return this.findAll({
       where: { roleId: roleId },
       include: [
-        
         {
           model: db.Role,
           as: "Role",
@@ -64,7 +60,7 @@ class RolePermissionRepo extends BaseRepository {
         {
           model: db.Permission,
           as: "Permission",
-          attributes: ["name","module"],
+          attributes: ["name", "module"],
         },
       ],
     });
@@ -77,7 +73,6 @@ class RolePermissionRepo extends BaseRepository {
         permissionId,
       },
     });
-    
   }
 }
 
