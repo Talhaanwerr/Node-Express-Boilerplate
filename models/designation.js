@@ -1,7 +1,6 @@
-'use strict';
-const {
-    Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
     class Designation extends Model {
         /**
@@ -10,17 +9,26 @@ module.exports = (sequelize, DataTypes) => {
          * The `models/index` file will call this method automatically.
          */
         static associate(models) {
-            // define association here
+            // Define associations here if needed
         }
     }
+
     Designation.init({
-        designation_name: DataTypes.STRING,
-        description: DataTypes.STRING,
-        // type: DataTypes.STRING,
-        isDeleted: DataTypes.BOOLEAN
+        designation_name: {
+            type: DataTypes.STRING,
+            allowNull: false, // Mandatory field
+        },
+        description: {
+            type: DataTypes.STRING,
+        },
+        isDeleted: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false, // Default to false for soft deletion
+        },
     }, {
         sequelize,
-        modelName: 'Designation',
+        modelName: "Designation", // Model name
     });
+
     return Designation;
 };
