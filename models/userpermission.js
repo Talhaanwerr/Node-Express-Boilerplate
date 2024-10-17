@@ -55,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         sequelize,
         modelName: "UserPermission", // Model name is UserPermission
-        tableName: "userpermissions", // Table name for UserPermissions
+        tableName: "user-permissions", // Table name for UserPermissions
         timestamps: true, // Enable createdAt and updatedAt
     });
 
