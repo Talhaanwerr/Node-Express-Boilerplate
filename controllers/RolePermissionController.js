@@ -25,8 +25,6 @@ class RolePermissionController extends BaseController {
       permissions
     );
 
-    console.log("role permission ", rolePermission);
-
     return this.successResponse(
       res,
       rolePermission,
@@ -35,51 +33,64 @@ class RolePermissionController extends BaseController {
   };
 
   getRolesWithPermissions = async (req, res) => {
-    const roles = await RolePermissionRepo.getRolesWithPermissions();
-    return this.successResponse(
-      res,
-      roles,
-      "Getting all roles with permissions"
-    );
-  };
+    const roleWithPermissions =
+      await RolePermissionRepo.getRolesWithPermissions();
 
-  getRolesWithPermissionsById = async (req, res) => {
-    const { roleId } = req?.params;
-
-    // const query = `SELECT * from rolepermissions where roleId = :roleId`;
-
-    // const roleWithPermissions = await sequelize.query(query, {
-    //   replacements: { roleId },
-    //   type: sequelize.QueryTypes.SELECT,
-    // });
-
-    const roleWithPermissions = await RolePermissionRepo.findById(roleId);
+    if (!roleWithPermissions || roleWithPermissions.length === 0) {
+      return this.errorResponse(res, "Role Not Found", 404);
+    }
 
     return this.successResponse(
       res,
       roleWithPermissions,
-      "Getting all roles with permissions"
+      "Getting all Roles with Permissions"
+    );
+  };
+
+  getRolesWithPermissionsById = async (req, res) => {
+    const { roleId } = req.params;
+
+    const roleWithPermissions = await RolePermissionRepo.findOneWithInclude(
+      roleId
+    );
+
+    if (!roleWithPermissions || roleWithPermissions.length === 0) {
+      return this.errorResponse(res, "Role Not Found", 404);
+    }
+
+    return this.successResponse(
+      res,
+      roleWithPermissions,
+      "Getting Role with Permissions"
     );
   };
 
   updateRolePermission = async (req, res) => {
     const { roleId, permissionId } = req.params;
 
-    const isRolePermissionExist = await RolePermissionRepo.isRolePermissionExists(roleId, permissionId);
+    const isRolePermissionExist =
+      await RolePermissionRepo.isRolePermissionExists(roleId, permissionId);
     if (!isRolePermissionExist) {
-      return this.errorResponse(res, "Role-Permission not found", 404);
+      return this.errorResponse(res, "Role Permission not found", 404);
     }
 
-    const validationResult = RolePermissionValidator.validateUpdateRolePermission(req.body);
+    const validationResult =
+      RolePermissionValidator.validateUpdateRolePermission(req.body);
     if (!validationResult.status) {
       return this.validationErrorResponse(res, validationResult.message);
     }
 
-    const updatedRolePermission = await RolePermissionRepo.updateRolePermission(req.body, roleId, permissionId);
-    return this.successResponse(res, updatedRolePermission, "Role-Permission updated successfully");
+    const updatedRolePermission = await RolePermissionRepo.updateRolePermission(
+      req.body,
+      roleId,
+      permissionId
+    );
+    return this.successResponse(
+      res,
+      updatedRolePermission,
+      "Role Permission updated successfully"
+    );
   };
-
-  
 }
 
 module.exports = new RolePermissionController();

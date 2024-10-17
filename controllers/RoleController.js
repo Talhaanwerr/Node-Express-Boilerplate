@@ -21,7 +21,7 @@ class RoleController extends BaseController {
 
   getRoles = async (req, res) => {
     const {
-      sortBy = "roleId",  
+      sortBy = "roleId",
       sortOrder = "DESC",
       page = 1,
       limit = 10,
@@ -55,10 +55,7 @@ class RoleController extends BaseController {
 
     const roles = await RoleRepo.getRoles(condition);
     return this.successResponse(res, roles, "Getting All Roles");
-};
-
-
-
+  };
 
   getRoleById = async (req, res) => {
     const role = await RoleRepo.findRole(req.params.id);

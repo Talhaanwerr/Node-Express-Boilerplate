@@ -18,15 +18,17 @@ class UserController extends BaseController {
   getUserById = async (req, res) => {
     const { id } = req?.params;
 
-    const customQuery = {
-      id,
-      attributes: { exclude: ["password"] },
-    };
+    const customQuery = { id };
 
     const user = await UserRepo.findByIdWithInclude(customQuery);
     if (!user) {
       return this.errorResponse(res, "User not found", 404);
     }
+
+    user.password = undefined;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
     return this.successResponse(res, user, "User retrieved successfully");
   };
 
@@ -130,8 +132,9 @@ class UserController extends BaseController {
       email,
       id,
     } = req?.body;
+
     const saltRounds = 10;
-    const jwtSecret = process.env.JWT_SECRET || "";
+    // const jwtSecret = process.env.JWT_SECRET || "";
 
     req.body.password = await bcrypt.hash(password, saltRounds);
 
@@ -150,7 +153,9 @@ class UserController extends BaseController {
       return this.errorResponse(res, "Role ID not found", 404);
     }
 
-    req.body.token = jwt.sign({ id, email }, jwtSecret, { expiresIn: "1h" });
+    // req.body.token = jwt.sign({ id, email }, jwtSecret, { expiresIn: "1h" });
+
+    // console.log("req.body", req.body);
 
     const isUserExists = await UserRepo.findUserByEmail(email);
 
@@ -158,6 +163,7 @@ class UserController extends BaseController {
       return this.errorResponse(res, "User already exists", 409);
     } else {
       const user = await UserRepo.createUser(req?.body);
+      user.password = undefined;
       return this.successResponse(res, user, "User created successfully");
     }
   };

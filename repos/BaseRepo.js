@@ -45,8 +45,8 @@ module.exports = class BaseRepository {
     return this.model.update(data, { where: condition });
   }
 
-  async bulkCreate(data) {
-    return this.model.bulkCreate(data);
+  async bulkCreate(data, config) {
+    return this.model.bulkCreate(data, (config = {}));
   }
 
   async delete(id, type) {

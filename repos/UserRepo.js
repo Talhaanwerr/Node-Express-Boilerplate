@@ -1,5 +1,6 @@
 const BaseRepository = require("./BaseRepo.js");
 const db = require("../models/index.js");
+const { Op } = require("sequelize");
 
 class UserRepo extends BaseRepository {
   constructor() {
@@ -59,7 +60,7 @@ class UserRepo extends BaseRepository {
 
   async findByIdWithInclude(customQuery) {
     return this.findOneWithInclude({
-      where: { customQuery },
+      where: { ...customQuery },
       include: [
         {
           model: db.Role,
@@ -72,6 +73,31 @@ class UserRepo extends BaseRepository {
           attributes: ["designation_name"],
         },
       ],
+    });
+  }
+
+  async findByEmailWithInclude(email) {
+    return this.findOneWithInclude({
+      where: { email },
+      include: [
+        {
+          model: db.Role,
+          as: "role",
+          attributes: ["roleName"],
+        },
+        {
+          model: db.Designation,
+          as: "designation",
+          attributes: ["designation_name"],
+        },
+      ],
+    });
+  }
+
+  async getRolePermissions(roleId) {
+    console.log("roleId :", roleId);
+    return db.RolePermission.findAll({
+      where: { roleId },
     });
   }
 
@@ -89,12 +115,21 @@ class UserRepo extends BaseRepository {
     return this.findByPk(id);
   }
 
-  async findUserByEmail(email) {
-    return this.findOne({ email });
-  }
-
   async updateUserPassword(userId, newPassword) {
     return this.update({ password: newPassword }, { id: userId });
+  }
+
+  async findUserByResetToken(token) {
+    return this.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: {
+        [Op.gt]: Date.now(),
+      },
+    });
+  }
+
+  async findUserByEmail(email) {
+    return this.findOne({ email });
   }
 }
 
