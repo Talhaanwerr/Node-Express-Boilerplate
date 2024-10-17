@@ -18,7 +18,7 @@ app.use("/api", routes);
 
 // Sample route for testing
 app.get('/users', (req, res) => {
-    res.json([{ name: "John Doe" }]); // Fixed the name spelling
+    res.json([{ name: "John Doe" }]);
 });
 
 // Error handling middleware
