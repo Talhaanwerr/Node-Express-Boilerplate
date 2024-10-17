@@ -68,13 +68,7 @@ class UserController extends BaseController {
       customQuery.where.status = req?.query?.status;
     }
 
-    // if (req?.query?.search) {
-    //   customQuery.where[Op.or] = [
-    //     { firstName: { [Op.like]: `%${req?.query?.search}%` } },
-    //     { lastName: { [Op.like]: `%${req?.query?.search}%` } },
-    //     { email: { [Op.like]: `%${req?.query?.search}%` } },
-    //   ];
-    // }
+    
 
     if (req?.query?.roleName) {
       customQuery.include = [
