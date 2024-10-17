@@ -9,6 +9,7 @@ module.exports = class BaseRepository {
   }
 
   async findOne(condition) {
+    console.log("condition : ",condition);
     return this.model.findOne({ where: condition });
   }
 

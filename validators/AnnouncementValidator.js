@@ -19,6 +19,17 @@ class AnnouncementValidator extends BaseValidator {
 
     return this.validate(schema, announcement);
   };
+
+  validateUpdateAnnouncement = (announcement) => {
+    const schema = Joi.object().keys({
+      name: Joi.string().optional().label("Announcement Title"),
+      description: Joi.string().optional().label("Description"),
+      type: Joi.string().optional().label("Type"),
+      isDeleted: Joi.boolean().optional(),
+    });
+
+    return this.validate(schema, announcement);
+  };
 }
 
 module.exports = new AnnouncementValidator();
