@@ -35,8 +35,8 @@ class PermissionController extends BaseController {
       where: {
         isDeleted: false,
       },
-      limit: parseInt(req.query.limit) || 10,
-      offset: parseInt(req.query.skip) || 0,
+      limit: parseInt(req?.query?.limit) || 10,
+      offset: parseInt(req?.query?.skip) || 0,
     };
 
     if (req?.query?.name) {
@@ -58,6 +58,7 @@ class PermissionController extends BaseController {
         [Op.eq]: `${req?.query?.filterBymodule}`,
       };
     }
+
 
     const permissions = await PermissionRepo.getPermissions(customQuery);
 

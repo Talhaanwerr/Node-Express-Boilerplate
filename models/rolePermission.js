@@ -6,15 +6,15 @@ module.exports = (sequelize, DataTypes) => {
   class RolePermission extends Model {
     static associate(models) {
       RolePermission.belongsTo(models.Role, {
-        foreignKey: 'roleId',
-        as: 'Role',
+        foreignKey: "roleId",
+        as: "Role",
       });
       RolePermission.belongsTo(models.Permission, {
-        foreignKey: 'permissionId',
-        as: 'Permission',
+        foreignKey: "permissionId",
+        as: "Permission",
       });
     }
-  }
+  } 
  
   RolePermission.init(
     {
