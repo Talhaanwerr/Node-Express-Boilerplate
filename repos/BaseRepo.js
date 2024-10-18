@@ -9,6 +9,7 @@ module.exports = class BaseRepository {
   }
 
   async findOne(condition) {
+    console.log("condition : ",condition);
     return this.model.findOne({ where: condition });
   }
 
@@ -18,6 +19,10 @@ module.exports = class BaseRepository {
 
   async findAll(condition = {}) {
     return this.model.findAll(condition);
+  }
+
+  async findByPk(id) {
+    return this.model.findByPk(id);
   }
 
   async softDelete(id) {
@@ -41,8 +46,8 @@ module.exports = class BaseRepository {
     return this.model.update(data, { where: condition });
   }
 
-  async bulkCreate(data) {
-    return this.model.bulkCreate(data);
+  async bulkCreate(data, config) {
+    return this.model.bulkCreate(data, (config = {}));
   }
 
   async delete(id, type) {
@@ -52,6 +57,18 @@ module.exports = class BaseRepository {
       return this.model.destroy({
         where: { id },
       });
+    }
+  }
+
+  async runTransaction(callback) {
+    const transaction = await this.model.sequelize.transaction();
+    try {
+      const result = await callback(transaction);
+      await transaction.commit();
+      return result;
+    } catch (error) {
+      await transaction.rollback();
+      throw new Error("Transaction failed: " + error.message);
     }
   }
 };

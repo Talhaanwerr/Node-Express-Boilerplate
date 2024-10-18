@@ -12,31 +12,26 @@ class AnnouncementRepo extends BaseRepository {
     return this.create(announcement);
   }
 
-  async findAnnouncements(searchQuery) {
-    if (searchQuery && Object.keys(searchQuery).length > 0) {
-      return this.findAll(searchQuery);
-    }
-    return this.findAll();
+  async findAnnouncements(id) {
+    return this.findOne({ id });
   }
 
-  async updateAnnouncement(announcement, email) {
-    await this.update(announcement, { email });
-    return this.findByEmail(email);
+  async getAnnouncement(condition = {}) {
+    return this.findAll(condition);
   }
 
-  // async findByEmail(email) {
-  //   return this.findOne({ email });
-  // }
+  async updateAnnouncement(announcement, id) {
+    await this.update(announcement, { id });
+    return this.findOne({ id });
+  }
 
-  // async findByIdWithInclude(searchQuery) {
-  //   return this.findOneWithInclude(searchQuery);
-  // }
+  async isAnnouncementExists(announcementId) {
+    return this.count({ where: { id: announcementId } });
+  }
 
-  // async isUserExists(email) {
-  //   return this.count({
-  //     email,
-  //   });
-  // }
+  async deleteAnnouncement(id, type) {
+    return this.delete(id, type);
+  }
 }
 
 module.exports = new AnnouncementRepo();

@@ -1,39 +1,78 @@
 "use strict";
 const { Model } = require("sequelize");
-
 module.exports = (sequelize, DataTypes) => {
     class User extends Model {
+        /**
+         * Helper method for defining associations.
+         * This method is not a part of Sequelize lifecycle.
+         * The `models/index` file will call this method automatically.
+         */
         static associate(models) {
-            // User-Role relationship (Many-to-Many with Permission through RolePermission)
-            User.belongsToMany(models.Permission, {
-                through: models.UserPermission, // UserPermission table for the many-to-many relationship
-                foreignKey: 'userId', // foreign key in the pivot table
-                as: 'Permissions',
+            User.hasOne(models.UserProfile, {
+                foreignKey: "userId",
+                as: "profile",
+                onDelete: "CASCADE",
             });
-            User.hasMany(models.UserPermission, {
-                foreignKey: 'userId', // foreign key in UserPermission table
-                as: 'UserPermissions',
+
+            User.hasOne(models.User, {
+                foreignKey: "reportingTo",
+                as: "user",
+                onDelete: "CASCADE",
+            });
+
+            User.belongsTo(models.Role, {
+                foreignKey: "roleId",
+                as: "role",
+                onDelete: "SET NULL",
+            });
+
+            User.belongsTo(models.Designation, {
+                foreignKey: "designationId",
+                as: "designation",
+                onDelete: "SET NULL",
             });
         }
     }
-
     User.init({
-        userId: { // userId column
-            type: DataTypes.INTEGER,
-            autoIncrement: true,
-            primaryKey: true,
-        },
-        userName: { // userName column
+        firstName: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        isDeleted: { // isDeleted column for soft delete functionality
+        lastName: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        email: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        password: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        shiftTime: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        status: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        reportingTo: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        isDeleted: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
+        isNewUser: {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
         },
     }, {
         sequelize,
-        modelName: "User", // Model name is User
+        modelName: "User",
     });
     return User;
 };

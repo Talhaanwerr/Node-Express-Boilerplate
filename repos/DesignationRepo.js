@@ -2,6 +2,7 @@ const BaseRepository = require("./BaseRepo.js");
 const db = require("../models/index.js");
 
 class DesignationRepo extends BaseRepository {
+    model;
     constructor() {
         super(db.Designation); // Use Designation model
         this.model = db.Designation;
@@ -34,7 +35,7 @@ class DesignationRepo extends BaseRepository {
     }
 
     // Count the number of Designations (for pagination or other needs)
-    async countDesignations(query = {}) {
+    async countDesignation(query = {}) {
         return this.count(query);
     }
 
