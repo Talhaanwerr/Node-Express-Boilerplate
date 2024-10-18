@@ -95,9 +95,15 @@ class UserRepo extends BaseRepository {
   }
 
   async getRolePermissions(roleId) {
-    console.log("roleId :", roleId);
     return db.RolePermission.findAll({
       where: { roleId },
+      include: [
+        {
+          model: db.Permission,
+          as: "Permission",
+          attributes: ["name"],
+        },
+      ],
     });
   }
 

@@ -12,6 +12,32 @@ class AuthController extends BaseController {
     super();
   }
 
+  signToken = (id, email, role) => {
+    return jwt.sign({ id, email, role }, jwtSecret, {
+      expiresIn: "4h",
+    });
+  };
+
+  createSendResponse = (user, statusCode, res, msg) => {
+    let token = this.signToken(user?.id, user?.email, user.role?.roleName);
+    const options = {
+      maxAge: 1000 * 60 * 60 * 4,
+      httpOnly: true,
+    };
+    res.cookie("jwt", token, options);
+    user.password = undefined;
+
+    const userResponse = {
+      id: user.id,
+      email: user.email,
+      isNewUser: user.isNewUser,
+      roleName: user?.role?.roleName || "",
+      designationName: user?.designation?.designation_name,
+    };
+
+    return this.successResponse(res, { userResponse, token }, msg);
+  };
+
   loginUser = async (req, res) => {
     const validationResult = validateLoginUser(req?.body);
 
@@ -33,35 +59,21 @@ class AuthController extends BaseController {
       return this.errorResponse(res, "Invalid password", 401);
     }
 
-    const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role.roleName },
-      jwtSecret,
-      {
-        expiresIn: "4h",
-      }
-    );
+    // const token = jwt.sign(
+    //   { id: user.id, email: user.email, role: user.role.roleName },
+    //   jwtSecret,
+    //   {
+    //     expiresIn: "4h",
+    //   }
+    // );
 
-    const options = {
-      maxAge: 1000 * 60 * 60 * 4,
-      httpOnly: true,
-    };
+    // const options = {
+    //   maxAge: 1000 * 60 * 60 * 4,
+    //   httpOnly: true,
+    // };
 
-    res.cookie("token", token, options);
-    user.password = undefined;
-
-    const userResponse = {
-      id: user.id,
-      email: user.email,
-      isNewUser: user.isNewUser,
-      roleName: user.role.roleName,
-      designationName: user.designation.designation_name,
-    };
-
-    return this.successResponse(
-      res,
-      { userResponse, token },
-      "Login successful"
-    );
+    // res.cookie("token", token, options);
+    this.createSendResponse(user, 200, res, "login Successful");
   };
 
   changePassword = async (req, res) => {
@@ -206,7 +218,8 @@ class AuthController extends BaseController {
   };
 
   resetPasswordWithToken = async (req, res) => {
-    const { token, newPassword } = req?.body;
+    const { token } = req?.query;
+    const { newPassword } = req?.body;
 
     if (!token || !newPassword) {
       return this.validationErrorResponse(
@@ -233,33 +246,37 @@ class AuthController extends BaseController {
     user.resetPasswordExpires = undefined;
 
     await user.save();
+    this.createSendResponse(user, 201, res, "Password reset successful");
 
     return this.successResponse(res, {}, "Password reset successful");
   };
 
-  verifyToken = async (req, res) => {
-    const { token } = req?.query;
+  // verifyToken = async (req, res) => {
+  //   const { token } = req?.query;
 
-    if (!token) {
-      return this.validationErrorResponse(res, "Token is required");
-    }
+  //   if (!token) {
+  //     return this.validationErrorResponse(res, "Token is required");
+  //   }
 
-    const encryptedToken = crypto
-      .createHash("sha256")
-      .update(token)
-      .digest("hex");
+  //   const encryptedToken = crypto
+  //     .createHash("sha256")
+  //     .update(token)
+  //     .digest("hex");
 
-    const user = await UserRepo.findUserByResetToken(encryptedToken);
+  //   const user = await UserRepo.findUserByResetToken(encryptedToken);
 
-    if (!user || user.resetPasswordExpires < Date.now()) {
-      return this.errorResponse(res, "Token is invalid or has expired", 400);
-    }
+  //   if (!user || user.resetPasswordExpires < Date.now()) {
+  //     return this.errorResponse(res, "Token is invalid or has expired", 400);
+  //   }
 
-    return this.successResponse(res, {}, "Token is valid");
-  };
+  //   return this.successResponse(res, {}, "Token is valid");
+  // };
 
   logoutUser = async (req, res) => {
-    res.clearCookie("token");
+    res.clearCookie("jwt");
+
+    // id validation of user
+
     return this.successResponse(res, {}, "Logout successful");
   };
 }

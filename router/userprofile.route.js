@@ -1,16 +1,31 @@
 const express = require("express");
 const router = express.Router();
 const UserProfileController = require("../controllers/UserProfileController.js");
+const authorize = require("../middlewares/auth.middleware.js");
 
-router.get("/get-all-user-profiles", UserProfileController.getAllUserProfiles);
-router.get("/get-user-profile/:id", UserProfileController.getUserProfileById);
-router.post("/create-user-profile", UserProfileController.createUserProfile);
+router.get(
+  "/get-all-user-profiles",
+  authorize("admin"),
+  UserProfileController.getAllUserProfiles
+);
+router.get(
+  "/get-user-profile/:id",
+  authorize("admin"),
+  UserProfileController.getUserProfileById
+);
+router.post(
+  "/create-user-profile",
+  authorize("user"),
+  UserProfileController.createUserProfile
+);
 router.patch(
   "/update-user-profile/:id",
+  authorize("user"),
   UserProfileController.updateUserProfile
 );
 router.delete(
   "/delete-user-profile/:id",
+  authorize("admin"),
   UserProfileController.deleteUserProfile
 );
 

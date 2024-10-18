@@ -19,9 +19,9 @@ class AnnouncementRepo extends BaseRepository {
     return this.findAll();
   }
 
-  async updateAnnouncement(announcement, email) {
-    await this.update(announcement, { email });
-    return this.findByEmail(email);
+  async updateAnnouncement(announcement, id) {
+    await this.update(announcement, { id });
+    return this.findOne({ id });
   }
 
   // async findByEmail(email) {
