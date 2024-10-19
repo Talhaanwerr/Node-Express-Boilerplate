@@ -1,10 +1,15 @@
 require("express-async-errors");
 const express = require("express");
 const cors = require("cors");
-const routes = require("./router/routes.js");
-const errorMiddleware = require("./middlewares/error.middleware.js");
+const routes = require("./router/routes");
+const errorMiddleware = require("./middlewares/error.middleware");
+// const Designation = require("./models/Designation.js");
+
 
 const app = express();
+
+
+
 
 // Middleware to parse URL-encoded and JSON bodies
 app.use(express.urlencoded({ extended: true }));
@@ -16,10 +21,12 @@ app.use(cors());
 // Use routes for the API
 app.use("/api", routes);
 
+
 // Sample route for testing
-app.get('/users', (req, res) => {
+app.get('/', (req, res) => {
     res.json([{ name: "John Doe" }]);
 });
+
 
 // Error handling middleware
 app.use(errorMiddleware);

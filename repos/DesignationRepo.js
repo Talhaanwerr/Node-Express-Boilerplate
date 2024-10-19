@@ -1,48 +1,47 @@
-const BaseRepository = require("./BaseRepo.js");
-const db = require("../models/index.js");
+// repos/DesignationRepo.js
+const Designation = require('../models/Designation');
 
-class DesignationRepo extends BaseRepository {
-    model;
-    constructor() {
-        super(db.Designation); // Use Designation model
-        this.model = db.Designation;
+class DesignationRepo {
+    // Find designation by ID
+    static async findById(id) {
+        return await Designation.findByPk(id);
     }
 
-    // Create Designation
-    async createDesignation(designation) {
-        return this.create(designation);
+    // Get designations with custom query
+    static async getDesignations(query) {
+        return await Designation.findAll(query);
     }
 
-    // Get all Designations with optional search query
-    async getDesignations(searchQuery = {}) {
-        return this.findAll(searchQuery);
+    // Count total designations
+    static async countDesignation() {
+        return await Designation.count({ where: { isDeleted: false } });
     }
 
-    // Find Designation by ID
-    async findById(id) {
-        return this.findOne({ where: { id } });
+    // Create new designation
+    static async createDesignation(data) {
+        return await Designation.create(data);
     }
 
-    // Update Designation by ID
-    async updateDesignation(designation, id) {
-        await this.update(designation, { where: { id } });
+    // Check if designation exists
+    static async isDesignationExists(id) {
+        const designation = await Designation.findByPk(id);
+        return !!designation;
+    }
+
+    // Update designation
+    static async updateDesignation(data, id) {
+        await Designation.update(data, { where: { id } });
         return this.findById(id);
     }
 
-    // Soft delete Designation by ID (set isDeleted = true)
-    async deleteDesignation(id, type = "soft") {
-        return this.delete(id, type);
-    }
-
-    // Count the number of Designations (for pagination or other needs)
-    async countDesignation(query = {}) {
-        return this.count(query);
-    }
-
-    // Check if a Designation exists by ID
-    async isDesignationExists(id) {
-        return this.count({ where: { id } });
+    // Delete designation
+    static async deleteDesignation(id, type) {
+        if (type === "soft") {
+            return await Designation.update({ isDeleted: true }, { where: { id } });
+        } else {
+            return await Designation.destroy({ where: { id } });
+        }
     }
 }
 
-module.exports = new DesignationRepo();
+module.exports = DesignationRepo;

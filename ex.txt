@@ -1,0 +1,2 @@
+git checkout memona   //branch switch
+git pull origin <branch-name>
