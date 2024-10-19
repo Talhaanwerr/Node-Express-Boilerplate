@@ -6,6 +6,7 @@ const { validateLoginUser } = require("../validators/AuthValidator.js");
 const { jwtSecret } = require("../config/config.js");
 const crypto = require("crypto");
 const transporter = require("../utils/email.js");
+const axios = require("axios");
 
 class AuthController extends BaseController {
   constructor() {
@@ -278,6 +279,54 @@ class AuthController extends BaseController {
     // id validation of user
 
     return this.successResponse(res, {}, "Logout successful");
+  };
+
+  googleAuthentication = async (req, res) => {
+    const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+    const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+    const REDIRECT_URI = "http://localhost:3000/auth/google/callback";
+
+    router.get("/auth/google", (req, res) => {
+      const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=profile email`;
+      res.redirect(url);
+    });
+
+    router.get("/auth/google/callback", async (req, res) => {
+      const { code } = req.query;
+
+      try {
+        const { data } = await axios.post(
+          "https://oauth2.googleapis.com/token",
+          {
+            client_id: CLIENT_ID,
+            client_secret: CLIENT_SECRET,
+            code,
+            redirect_uri: REDIRECT_URI,
+            grant_type: "authorization_code",
+          }
+        );
+
+        const { access_token, id_token } = data;
+
+        const { data: profile } = await axios.get(
+          "https://www.googleapis.com/oauth2/v1/userinfo",
+          {
+            headers: { Authorization: `Bearer ${access_token}` },
+          }
+        );
+
+        res.redirect("/");
+      } catch (error) {
+        console.error("Error:", error.response.data.error);
+        res.redirect("/login");
+      }
+    });
+
+    // Logout route
+    router.get("/logout", (req, res) => {
+      // Code to handle user logout
+      res.redirect("/login");
+    });
   };
 }
 
