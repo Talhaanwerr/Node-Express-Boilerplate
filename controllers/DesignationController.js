@@ -34,25 +34,29 @@ class DesignationController extends BaseController {
         const limit = parseInt(req.query.limit) || 10;
         const offset = parseInt(req.query.skip) || 0;
 
+        // Validate pagination parameters
         if (limit < 1 || offset < 0) {
             return this.validationErrorResponse(res, "Invalid pagination parameters");
         }
 
+        // Build the query
         const customQuery = {
             order: [
                 [sortOrder, sortDirection]
             ],
             where: { isDeleted: false },
-            limit: limit,
-            offset: offset,
+            limit,
+            offset,
         };
 
+        // Apply filtering based on designation_name query parameter
         if (req.query.designation_name) {
             customQuery.where.designation_name = {
                 [Op.like]: `%${req.query.designation_name}%`,
             };
         }
 
+        // Fetch designations and their count
         const designations = await DesignationRepo.getDesignations(customQuery);
         const count = await DesignationRepo.countDesignation();
 
@@ -70,6 +74,13 @@ class DesignationController extends BaseController {
             return this.validationErrorResponse(res, validationResult.message);
         }
 
+        // Check if designation name already exists
+        const existingDesignation = await DesignationRepo.isDesignationExists(req.body.designation_name);
+        if (existingDesignation) {
+            return this.errorResponse(res, "Designation name already exists", 400);
+        }
+
+        // Create the new designation
         const designation = await DesignationRepo.createDesignation(req.body);
 
         return this.successResponse(
@@ -88,12 +99,13 @@ class DesignationController extends BaseController {
             return this.validationErrorResponse(res, validationResult.message);
         }
 
+        // Check if the designation exists
         const isDesignation = await DesignationRepo.isDesignationExists(id);
-
         if (!isDesignation) {
             return this.errorResponse(res, "Designation ID not found", 404);
         }
 
+        // Update the designation
         const designation = await DesignationRepo.updateDesignation(req.body, id);
 
         return this.successResponse(
@@ -108,14 +120,16 @@ class DesignationController extends BaseController {
         const { id } = req.params;
         let { type } = req.query;
 
+        // Check if the designation exists
         const isDesignation = await DesignationRepo.isDesignationExists(id);
-
         if (!isDesignation) {
             return this.errorResponse(res, "Designation ID not found", 404);
         }
 
+        // Default to soft delete if no type is provided
         type = type && type !== "" ? type : "soft";
 
+        // Perform the deletion
         const designation = await DesignationRepo.deleteDesignation(id, type);
 
         return this.successResponse(

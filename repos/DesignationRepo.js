@@ -1,47 +1,87 @@
-// repos/DesignationRepo.js
-const Designation = require('../models/Designation');
+const { Designation } = require("../models");
+const db = require("../models/index");
+const BaseRepository = require("./BaseRepo");
 
-class DesignationRepo {
+class DesignationRepo extends BaseRepository {
+    constructor() {
+        super(Designation); // Calling parent constructor with Designation model
+    }
+
     // Find designation by ID
-    static async findById(id) {
-        return await Designation.findByPk(id);
+    async findById(id) {
+        try {
+            return await this.findOne({ where: { id } });
+        } catch (error) {
+            console.error(`Error finding designation by ID: ${id}`, error);
+            throw new Error("Database error occurred while fetching designation.");
+        }
     }
 
     // Get designations with custom query
-    static async getDesignations(query) {
-        return await Designation.findAll(query);
+    async getDesignations(query) {
+        try {
+            return await this.findAll(query);
+        } catch (error) {
+            console.error("Error retrieving designations", error);
+            throw new Error("Database error occurred while fetching designations.");
+        }
     }
 
     // Count total designations
-    static async countDesignation() {
-        return await Designation.count({ where: { isDeleted: false } });
+    async countDesignation() {
+        try {
+            return await this.count({ where: { isDeleted: false } });
+        } catch (error) {
+            console.error("Error counting designations", error);
+            throw new Error("Database error occurred while counting designations.");
+        }
     }
 
     // Create new designation
-    static async createDesignation(data) {
-        return await Designation.create(data);
+    async createDesignation(data) {
+        try {
+            return await this.create(data);
+        } catch (error) {
+            console.error("Error creating designation", error);
+            throw new Error("Database error occurred while creating designation.");
+        }
     }
 
     // Check if designation exists
-    static async isDesignationExists(id) {
-        const designation = await Designation.findByPk(id);
-        return !!designation;
+    async isDesignationExists(id) {
+        try {
+            return await this.findOne({
+                where: { id }
+            });
+        } catch (error) {
+            console.error(`Error checking existence of designation ID: ${id}`, error);
+            throw new Error("Database error occurred while checking designation existence.");
+        }
     }
 
     // Update designation
-    static async updateDesignation(data, id) {
-        await Designation.update(data, { where: { id } });
-        return this.findById(id);
+    async updateDesignation(data, id) {
+        try {
+            return await this.update(data, { where: { id } });
+        } catch (error) {
+            console.error(`Error updating designation ID: ${id}`, error);
+            throw new Error("Database error occurred while updating designation.");
+        }
     }
 
-    // Delete designation
-    static async deleteDesignation(id, type) {
-        if (type === "soft") {
-            return await Designation.update({ isDeleted: true }, { where: { id } });
-        } else {
-            return await Designation.destroy({ where: { id } });
+    // Soft delete or hard delete designation
+    async deleteDesignation(id, type) {
+        try {
+            if (type === "soft") {
+                return await this.update({ isDeleted: true }, { where: { id } });
+            } else {
+                return await this.destroy({ where: { id } });
+            }
+        } catch (error) {
+            console.error(`Error deleting designation ID: ${id}`, error);
+            throw new Error("Database error occurred while deleting designation.");
         }
     }
 }
 
-module.exports = DesignationRepo;
+module.exports = new DesignationRepo();
