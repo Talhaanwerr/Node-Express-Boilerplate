@@ -5,27 +5,27 @@ const authorize = require("../middlewares/auth.middleware.js");
 
 router.get(
   "/get-all-permissions",
-  authorize("admin"),
+  // authorize("admin"),
   PermissionController.getAllPermission
 );
 router.get(
   "/get-permission/:id",
-  authorize("admin"),
+  // authorize("admin"),
   PermissionController.getPermissionById
 );
 router.post(
   "/create-permission",
-  authorize("admin"),
+  // authorize("admin"),
   PermissionController.createPermission
 );
 router.patch(
   "/update-permission/:id",
-  authorize("admin"),
+  // authorize("admin"),
   PermissionController.updatePermission
 ); // patch
 router.delete(
   "/delete-permission/:id",
-  authorize("admin"),
+  // authorize("admin"),
   PermissionController.deletePermission
 );
 // get one permission

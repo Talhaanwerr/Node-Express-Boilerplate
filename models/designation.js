@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         // Define associations here if needed
         Designation.hasMany(models.User, {
           foreignKey: "designationId",
-          as: "users",
+          as: "user",
           onDelete: "SET NULL",
         });
       }

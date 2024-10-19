@@ -8,25 +8,25 @@ router.post("/create-designation", DesignationController.createDesignation);
 
 router.patch(
   "/update-designation/:id",
-  authorize("admin"),
+  // authorize("admin"),
   DesignationController.updateDesignation
 );
 
 router.delete(
   "/delete-designation/:id",
-  authorize("admin"),
+  // authorize("admin"),
   DesignationController.deleteDesignation
 );
 
 router.get(
   "/get-all-designations",
-  authorize("admin"),
+  // authorize("admin"),
   DesignationController.getAllDesignations
 );
 
 router.get(
   "/get-designation/:id",
-  authorize("admin"),
+  // authorize("admin"),
   DesignationController.getDesignationById
 );
 

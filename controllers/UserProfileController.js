@@ -14,13 +14,17 @@ class UserProfileController extends BaseController {
 
   getUserProfileById = async (req, res) => {
     const { id } = req?.params;
-    const user = await UserProfileRepo.findByIdWithInclude(id);
+    const user = await UserProfileRepo?.findByIdWithInclude(id);
 
     if (!user) {
-      return this.errorResponse(res, "User ID not found", 404);
+      return this.errorResponse(res, `User with ID ${id} not found`, 404);
     }
 
-    return this.successResponse(res, user, "User retrieved successfully");
+    return this.successResponse(
+      res,
+      user,
+      `User with ID ${id} retrieved successfully`
+    );
   };
 
   getAllUserProfiles = async (req, res) => {
@@ -119,13 +123,24 @@ class UserProfileController extends BaseController {
     const { userId } = req?.body;
 
     if (userId) {
-      const isUserExists = await UserProfileRepo.findUser(userId);
+      const isUserExists = await UserProfileRepo?.findUser(userId);
       if (!isUserExists) {
-        return this.errorResponse(res, "User not found", 404);
+        return this.errorResponse(res, `User with ID ${userId} not found`, 404);
+      }
+
+      const isUserIdAssigned = await UserProfileRepo?.isUserIdAssignedToProfile(
+        userId
+      );
+      if (isUserIdAssigned) {
+        return this.errorResponse(
+          res,
+          `User ID ${userId} is already assigned to another profile`,
+          400
+        );
       }
     }
 
-    const user = await UserProfileRepo.createUserProfile(req?.body);
+    const user = await UserProfileRepo?.createUserProfile(req?.body);
 
     return this.successResponse(res, user, "User Profile created successfully");
   };
@@ -138,13 +153,17 @@ class UserProfileController extends BaseController {
       return this.validationErrorResponse(res, validationResult.message);
     }
 
-    const isUserProfile = await UserProfileRepo.isUserProfileExists(id);
+    const isUserProfile = await UserProfileRepo?.isUserProfileExists(id);
 
     if (!isUserProfile) {
-      return this.errorResponse(res, "User Profile ID not found", 404);
+      return this.errorResponse(
+        res,
+        `User Profile with ID ${id} not found`,
+        404
+      );
     }
 
-    const user = await UserProfileRepo.updateUserProfile(req.body, id);
+    const user = await UserProfileRepo?.updateUserProfile(req.body, id);
     return this.successResponse(res, user, "User Profile updated successfully");
   };
 
@@ -152,15 +171,19 @@ class UserProfileController extends BaseController {
     let { id } = req?.params;
     let { type } = req?.query;
 
-    const isUserProfile = UserProfileRepo.isUserProfileExists(id);
+    const isUserProfile = UserProfileRepo?.isUserProfileExists(id);
 
     if (!isUserProfile) {
-      return this.errorResponse(res, "User Profile ID not found", 404);
+      return this.errorResponse(
+        res,
+        `User Profile with ID ${id} not found`,
+        404
+      );
     }
 
     type = type ? type : "soft";
 
-    const permission = await UserProfileRepo.deleteUserProfile(id, type);
+    const permission = await UserProfileRepo?.deleteUserProfile(id, type);
 
     return this.successResponse(
       res,

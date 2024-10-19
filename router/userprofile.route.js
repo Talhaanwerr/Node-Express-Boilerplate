@@ -5,27 +5,27 @@ const authorize = require("../middlewares/auth.middleware.js");
 
 router.get(
   "/get-all-user-profiles",
-  authorize("admin"),
+  // authorize("admin"),
   UserProfileController.getAllUserProfiles
 );
 router.get(
   "/get-user-profile/:id",
-  authorize("admin"),
+  // authorize("admin"),
   UserProfileController.getUserProfileById
 );
 router.post(
   "/create-user-profile",
-  authorize("user"),
+  // authorize("admin"),
   UserProfileController.createUserProfile
 );
 router.patch(
   "/update-user-profile/:id",
-  authorize("user"),
+  // authorize("user"),
   UserProfileController.updateUserProfile
 );
 router.delete(
   "/delete-user-profile/:id",
-  authorize("admin"),
+  // authorize("admin"),
   UserProfileController.deleteUserProfile
 );
 

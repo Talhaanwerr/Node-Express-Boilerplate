@@ -10,7 +10,7 @@ router.post(
   authorize("admin"),
   UserController.createUserWithProfile
 );
-router.post("/create-user", authorize("admin"), UserController.createUser);
+router.post("/create-user", UserController.createUser);
 router.patch("/update-user/:id", authorize("admin"), UserController.updateUser);
 router.delete(
   "/delete-user/:id",

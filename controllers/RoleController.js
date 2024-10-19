@@ -9,13 +9,14 @@ class RoleController extends BaseController {
   }
 
   createRole = async (req, res) => {
-    const validationResult = validateCreateRole(req.body);
+    const validationResult = validateCreateRole(req?.body);
 
     if (!validationResult.status) {
       return this.validationErrorResponse(res, validationResult.message);
     }
 
-    const role = await RoleRepo.createRole(req.body);
+    const role = await RoleRepo?.createRole(req?.body);
+
     return this.successResponse(res, role, "Role created successfully");
   };
 
@@ -27,7 +28,7 @@ class RoleController extends BaseController {
       limit = 10,
       search = "",
       filterByName,
-    } = req.query;
+    } = req?.query;
 
     const skip = (page - 1) * limit;
     const searchParams = {};
@@ -53,45 +54,56 @@ class RoleController extends BaseController {
       where: searchParams,
     };
 
-    const roles = await RoleRepo.getRoles(condition);
+    const roles = await RoleRepo?.getRoles(condition);
     return this.successResponse(res, roles, "Getting All Roles");
   };
 
   getRoleById = async (req, res) => {
-    const role = await RoleRepo.findRole(req.params.id);
+    const { id } = req?.params;
+    const role = await RoleRepo?.findRole(id);
     if (!role) {
-      return this.errorResponse(res, "Role not found", 404);
+      return this.errorResponse(res, `Role with ID ${id} not found`, 404);
     }
-    return this.successResponse(res, role, "Getting Role");
+    return this.successResponse(
+      res,
+      role,
+      `Role with ID ${id} retreived successfully`
+    );
   };
 
   updateRole = async (req, res) => {
-    const roleId = req.params.id;
+    const roleId = req?.params?.id;
 
-    const isRoleExist = await RoleRepo.isRoleExists(roleId);
+    const isRoleExist = await RoleRepo?.isRoleExists(roleId);
     if (!isRoleExist) {
-      return this.errorResponse(res, "Role not found", 404);
+      return this.errorResponse(res, `Role with ID ${roleId} not found`, 404);
     }
 
-    const validationResult = validateUpdateRole(req.body);
+    const validationResult = validateUpdateRole(req?.body);
     if (!validationResult.status) {
       return this.validationErrorResponse(res, validationResult.message);
     }
 
-    const updatedRole = await RoleRepo.updateRole(req.body, roleId);
-    return this.successResponse(res, updatedRole, "Role updated successfully");
+    const updatedRole = await RoleRepo?.updateRole(req?.body, roleId);
+    return this.successResponse(
+      res,
+      updatedRole,
+      `Role with ID ${roleId} updated successfully`
+    );
   };
 
   deleteRole = async (req, res) => {
-    const roleId = req.params.id;
+    const roleId = req?.params?.id;
 
-    const isRoleExist = await RoleRepo.isRoleExists(roleId);
+    const isRoleExist = await RoleRepo?.isRoleExists(roleId);
+
     if (!isRoleExist) {
       return this.errorResponse(res, "Role not found", 404);
     }
+    const { type = "soft" } = req?.query;
 
-    const { type = "soft" } = req.query;
-    const deletedRole = await RoleRepo.deleteRole(roleId, type);
+    const deletedRole = await RoleRepo?.deleteRole(roleId, type);
+
     return this.successResponse(res, deletedRole, "Role deleted successfully");
   };
 }
