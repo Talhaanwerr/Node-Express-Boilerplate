@@ -12,8 +12,8 @@ class DesignationRepo extends BaseRepository {
         try {
             return await this.findOne({ where: { id } });
         } catch (error) {
-            console.error(`Error finding designation by ID: ${id}`, error);
-            throw new Error("Database error occurred while fetching designation.");
+            console.error("Error finding designation by ID:", error.message);
+            throw new Error("Failed to find designation.");
         }
     }
 
@@ -22,8 +22,8 @@ class DesignationRepo extends BaseRepository {
         try {
             return await this.findAll(query);
         } catch (error) {
-            console.error("Error retrieving designations", error);
-            throw new Error("Database error occurred while fetching designations.");
+            console.error("Error getting designations:", error.message);
+            throw new Error("Failed to get designations.");
         }
     }
 
@@ -32,18 +32,26 @@ class DesignationRepo extends BaseRepository {
         try {
             return await this.count({ where: { isDeleted: false } });
         } catch (error) {
-            console.error("Error counting designations", error);
-            throw new Error("Database error occurred while counting designations.");
+            console.error("Error counting designations:", error.message);
+            throw new Error("Failed to count designations.");
         }
     }
 
     // Create new designation
     async createDesignation(data) {
         try {
+            console.log("Data being inserted:", data);
             return await this.create(data);
         } catch (error) {
-            console.error("Error creating designation", error);
-            throw new Error("Database error occurred while creating designation.");
+            console.error("Error creating designation:", error.message);
+
+
+            if (error.name === 'SequelizeValidationError') {
+                return { status: false, message: "Validation error: " + error.message, data: null };
+            }
+
+
+            throw new Error("Database error occurred: " + error.message);
         }
     }
 
@@ -54,8 +62,8 @@ class DesignationRepo extends BaseRepository {
                 where: { id }
             });
         } catch (error) {
-            console.error(`Error checking existence of designation ID: ${id}`, error);
-            throw new Error("Database error occurred while checking designation existence.");
+            console.error("Error checking if designation exists:", error.message);
+            throw new Error("Failed to check designation existence.");
         }
     }
 
@@ -64,8 +72,8 @@ class DesignationRepo extends BaseRepository {
         try {
             return await this.update(data, { where: { id } });
         } catch (error) {
-            console.error(`Error updating designation ID: ${id}`, error);
-            throw new Error("Database error occurred while updating designation.");
+            console.error("Error updating designation:", error.message);
+            throw new Error("Failed to update designation.");
         }
     }
 
@@ -78,8 +86,8 @@ class DesignationRepo extends BaseRepository {
                 return await this.destroy({ where: { id } });
             }
         } catch (error) {
-            console.error(`Error deleting designation ID: ${id}`, error);
-            throw new Error("Database error occurred while deleting designation.");
+            console.error("Error deleting designation:", error.message);
+            throw new Error("Failed to delete designation.");
         }
     }
 }

@@ -14,20 +14,20 @@ class DesignationController extends BaseController {
     // Get designation by ID
     getDesignationById = async(req, res) => {
         const { id } = req.params;
-        const designation = await DesignationRepo.findById(id);
+        try {
+            const designation = await DesignationRepo.findById(id);
 
-        if (!designation) {
-            return this.errorResponse(res, "Designation ID not found", 404);
+            if (!designation) {
+                return this.errorResponse(res, "Designation ID not found", 404);
+            }
+
+            return this.successResponse(res, designation, "Designation retrieved successfully");
+        } catch (error) {
+            return this.errorResponse(res, "An error occurred while retrieving the designation.", 500);
         }
-
-        return this.successResponse(
-            res,
-            designation,
-            "Designation retrieved successfully"
-        );
     };
 
-    // Get all designations with pagination, sorting and filtering
+    // Get all designations with pagination, sorting, and filtering
     getAllDesignations = async(req, res) => {
         const sortOrder = req.query.sortOrder || "id";
         const sortDirection = req.query.sortDirection || "DESC";
@@ -56,14 +56,15 @@ class DesignationController extends BaseController {
             };
         }
 
-        // Fetch designations and their count
-        const designations = await DesignationRepo.getDesignations(customQuery);
-        const count = await DesignationRepo.countDesignation();
+        try {
+            // Fetch designations and their count
+            const designations = await DesignationRepo.getDesignations(customQuery);
+            const count = await DesignationRepo.countDesignation();
 
-        return this.successResponse(
-            res, { designations, total: count, limit, offset },
-            "Designations retrieved successfully"
-        );
+            return this.successResponse(res, { designations, total: count, limit, offset }, "Designations retrieved successfully");
+        } catch (error) {
+            return this.errorResponse(res, "An error occurred while retrieving designations.", 500);
+        }
     };
 
     // Create new designation
@@ -74,20 +75,19 @@ class DesignationController extends BaseController {
             return this.validationErrorResponse(res, validationResult.message);
         }
 
-        // Check if designation name already exists
-        const existingDesignation = await DesignationRepo.isDesignationExists(req.body.designation_name);
-        if (existingDesignation) {
-            return this.errorResponse(res, "Designation name already exists", 400);
+        try {
+            // Check if designation name already exists
+            const existingDesignation = await DesignationRepo.isDesignationExists(req.body.designation_name);
+            if (existingDesignation) {
+                return this.errorResponse(res, "Designation name already exists", 400);
+            }
+
+            // Create the new designation
+            const designation = await DesignationRepo.createDesignation(req.body);
+            return this.successResponse(res, designation, "Designation created successfully");
+        } catch (error) {
+            return this.errorResponse(res, "An error occurred while creating the designation.", 500);
         }
-
-        // Create the new designation
-        const designation = await DesignationRepo.createDesignation(req.body);
-
-        return this.successResponse(
-            res,
-            designation,
-            "Designation created successfully"
-        );
     };
 
     // Update designation by ID
@@ -99,20 +99,19 @@ class DesignationController extends BaseController {
             return this.validationErrorResponse(res, validationResult.message);
         }
 
-        // Check if the designation exists
-        const isDesignation = await DesignationRepo.isDesignationExists(id);
-        if (!isDesignation) {
-            return this.errorResponse(res, "Designation ID not found", 404);
+        try {
+            // Check if the designation exists
+            const isDesignation = await DesignationRepo.isDesignationExists(id);
+            if (!isDesignation) {
+                return this.errorResponse(res, "Designation ID not found", 404);
+            }
+
+            // Update the designation
+            const designation = await DesignationRepo.updateDesignation(req.body, id);
+            return this.successResponse(res, designation, "Designation updated successfully");
+        } catch (error) {
+            return this.errorResponse(res, "An error occurred while updating the designation.", 500);
         }
-
-        // Update the designation
-        const designation = await DesignationRepo.updateDesignation(req.body, id);
-
-        return this.successResponse(
-            res,
-            designation,
-            "Designation updated successfully"
-        );
     };
 
     // Delete designation by ID
@@ -120,23 +119,22 @@ class DesignationController extends BaseController {
         const { id } = req.params;
         let { type } = req.query;
 
-        // Check if the designation exists
-        const isDesignation = await DesignationRepo.isDesignationExists(id);
-        if (!isDesignation) {
-            return this.errorResponse(res, "Designation ID not found", 404);
+        try {
+            // Check if the designation exists
+            const isDesignation = await DesignationRepo.isDesignationExists(id);
+            if (!isDesignation) {
+                return this.errorResponse(res, "Designation ID not found", 404);
+            }
+
+            // Default to soft delete if no type is provided
+            type = type && type !== "" ? type : "soft";
+
+            // Perform the deletion
+            const designation = await DesignationRepo.deleteDesignation(id, type);
+            return this.successResponse(res, designation, `Designation with ID ${id} deleted successfully`);
+        } catch (error) {
+            return this.errorResponse(res, "An error occurred while deleting the designation.", 500);
         }
-
-        // Default to soft delete if no type is provided
-        type = type && type !== "" ? type : "soft";
-
-        // Perform the deletion
-        const designation = await DesignationRepo.deleteDesignation(id, type);
-
-        return this.successResponse(
-            res,
-            designation,
-            `Designation with ID ${id} deleted successfully`
-        );
     };
 }
 
