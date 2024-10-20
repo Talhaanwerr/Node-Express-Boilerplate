@@ -3,7 +3,7 @@ const AttendanceRepo = require("../repos/AttendanceRepo.js");
 const {
     validateCreateAttendance,
     validateUpdateAttendance,
-} = require("../validators/AttendanceValidator.js");
+} = require("../validators/Attendance-by-idValidator.js");
 const BaseController = require("./BaseController.js");
 
 class AttendanceController extends BaseController {
