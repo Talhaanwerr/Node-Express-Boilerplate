@@ -99,9 +99,8 @@ class UserProfileController extends BaseController {
       ];
     }
 
-    console.log("customQuery", customQuery.where);
 
-    const userProfiles = await UserProfileRepo.getUserProfiles(customQuery);
+    const userProfiles = await UserProfileRepo?.getUserProfiles(customQuery);
 
     if (!userProfiles.length) {
       return this.errorResponse(res, "User Profiles not found", 404);

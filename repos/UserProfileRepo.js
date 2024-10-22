@@ -18,7 +18,14 @@ class UserProfileRepo extends BaseRepository {
         {
           model: db.User,
           as: "user",
-          attributes: ["firstName", "lastName", "email"],
+          attributes: ["firstName", "lastName", "email", "status"],
+          include: [
+            {
+              model: db.Designation,
+              as: "designation",
+              attributes: ["designation_name"],
+            },
+          ],
         },
       ],
     });

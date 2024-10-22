@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const RoleController = require("../controllers/RoleController.js");
-const authorize = require("../middlewares/auth.middleware.js");
+const { authorize } = require("../middlewares/auth.middleware.js");
 
 router.post(
   "/create-role",

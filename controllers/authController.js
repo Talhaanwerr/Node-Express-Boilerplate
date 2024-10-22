@@ -6,7 +6,6 @@ const { validateLoginUser } = require("../validators/AuthValidator.js");
 const { jwtSecret } = require("../config/config.js");
 const crypto = require("crypto");
 const transporter = require("../utils/email.js");
-const axios = require("axios");
 
 class AuthController extends BaseController {
   constructor() {
@@ -32,7 +31,7 @@ class AuthController extends BaseController {
       id: user.id,
       email: user.email,
       isNewUser: user.isNewUser,
-      roleName: user?.role?.roleName || "",
+      roleName: user?.role?.roleName,
       designationName: user?.designation?.designation_name,
     };
 
@@ -48,32 +47,18 @@ class AuthController extends BaseController {
 
     const { email, password } = req?.body;
 
-    const user = await UserRepo.findByEmailWithInclude(email);
+    const user = await UserRepo?.findByEmailWithInclude(email);
 
     if (!user) {
       return this.errorResponse(res, "User not found", 404);
     }
 
-    const passwordMatch = await bcrypt.compare(password, user.password);
+    const passwordMatch = await bcrypt.compare(password, user?.password);
 
     if (!passwordMatch) {
-      return this.errorResponse(res, "Invalid password", 401);
+      return this.errorResponse(res, "Invalid password", 404);
     }
 
-    // const token = jwt.sign(
-    //   { id: user.id, email: user.email, role: user.role.roleName },
-    //   jwtSecret,
-    //   {
-    //     expiresIn: "4h",
-    //   }
-    // );
-
-    // const options = {
-    //   maxAge: 1000 * 60 * 60 * 4,
-    //   httpOnly: true,
-    // };
-
-    // res.cookie("token", token, options);
     this.createSendResponse(user, 200, res, "login Successful");
   };
 
@@ -87,13 +72,21 @@ class AuthController extends BaseController {
       );
     }
 
-    const user = await UserRepo.findByEmailWithInclude(email);
+    if (oldPassword === newPassword) {
+      return this.errorResponse(
+        res,
+        "New Password should not equal to old Password",
+        404
+      );
+    }
+
+    const user = await UserRepo?.findByEmailWithInclude(email);
 
     if (!user) {
       return this.errorResponse(res, "User not found", 404);
     }
 
-    const passwordMatch = await bcrypt.compare(oldPassword, user.password);
+    const passwordMatch = await bcrypt.compare(oldPassword, user?.password);
 
     if (!passwordMatch) {
       return this.errorResponse(res, "Invalid old password", 401);
@@ -101,18 +94,18 @@ class AuthController extends BaseController {
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    await UserRepo.updateUserPassword(user?.id, hashedPassword);
+    await UserRepo?.updateUserPassword(user?.id, hashedPassword);
     user.isNewUser = false;
     user.password = undefined;
 
     const resetPasswordResponse = {
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      isNewUser: user.isNewUser,
-      roleName: user.role.roleName,
-      designationName: user.designation.designation_name,
+      id: user?.id,
+      firstName: user?.firstName,
+      lastName: user?.lastName,
+      email: user?.email,
+      isNewUser: user?.isNewUser,
+      roleName: user?.role?.roleName,
+      designationName: user?.designation?.designation_name,
     };
 
     return this.successResponse(
@@ -129,7 +122,7 @@ class AuthController extends BaseController {
       return this.validationErrorResponse(res, "Email is required");
     }
 
-    const user = await UserRepo.findUserByEmail(email);
+    const user = await UserRepo?.findUserByEmail(email);
 
     if (!user) {
       return this.errorResponse(res, "User not found", 404);
@@ -149,9 +142,7 @@ class AuthController extends BaseController {
       validateBeforeSave: false,
     });
 
-    const resetLink = `${req?.protocol}://${req?.get(
-      "host"
-    )}/reset-password?token=${resetToken}`;
+    const resetLink = `localhost:5173/reset-password?token=${resetToken}`;
 
     const mailOptions = {
       from: "ibad1657@gmail.com",
@@ -191,7 +182,7 @@ class AuthController extends BaseController {
                 dolorum voluptate voluptatem saepe dignissimos aliquam sint nobis
                 iste, nam fuga obcaecati fugit.
               </p>
-              <a href=${resetLink} style="font-size: 18px">Click here to Reset password</a>
+              <a href=${resetLink} style="font-size: 18px">${resetLink}</a>
               <p style="font-size: 18px">
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Praesentium,
                 doloribus.
@@ -205,10 +196,10 @@ class AuthController extends BaseController {
     await transporter.sendMail(mailOptions);
 
     const userResponse = {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
+      id: user?.id,
+      email: user?.email,
+      firstName: user?.firstName,
+      lastName: user?.lastName,
     };
 
     return this.successResponse(
@@ -234,9 +225,9 @@ class AuthController extends BaseController {
       .update(token)
       .digest("hex");
 
-    const user = await UserRepo.findUserByResetToken(encryptedToken);
+    const user = await UserRepo?.findUserByResetToken(encryptedToken);
 
-    if (!user || user.resetPasswordExpires < Date.now()) {
+    if (!user || user?.resetPasswordExpires < Date.now()) {
       return this.errorResponse(res, "Token is invalid or has expired", 400);
     }
 
@@ -246,10 +237,8 @@ class AuthController extends BaseController {
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
 
-    await user.save();
-    this.createSendResponse(user, 201, res, "Password reset successful");
-
-    return this.successResponse(res, {}, "Password reset successful");
+    await user?.save();
+    this.createSendResponse(user, 200, res, "Password reset successful");
   };
 
   // verifyToken = async (req, res) => {
@@ -274,10 +263,8 @@ class AuthController extends BaseController {
   // };
 
   logoutUser = async (req, res) => {
+
     res.clearCookie("jwt");
-
-    // id validation of user
-
     return this.successResponse(res, {}, "Logout successful");
   };
 

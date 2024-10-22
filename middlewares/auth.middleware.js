@@ -17,13 +17,7 @@ const authorize = (requiredRole) => {
       console.log("decoded : ", decoded);
 
       const user = await UserRepo.findByIdWithInclude(customQuery);
-
-      console.log("user.role.roleName : ", user?.role?.roleName);
-
       requiredRole = user?.role?.roleName;
-
-      console.log("requiredRole : ", requiredRole);
-
       if (!user) {
         return res.status(401).json({ message: "Unauthorized" });
       }
@@ -53,4 +47,21 @@ const authorize = (requiredRole) => {
   };
 };
 
-module.exports = authorize;
+const authMiddleware = (req, res, next) => {
+  const token = req?.cookies?.jwt || req?.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({ message: "Unauthorized: No token provided" });
+  }
+
+  jwt.verify(token, jwtSecret, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ message: "Invalid or expired token" });
+    }
+
+    req.user = decoded;
+    next();
+  });
+};
+
+module.exports = { authorize, authMiddleware };
