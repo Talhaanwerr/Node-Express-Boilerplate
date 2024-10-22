@@ -13,6 +13,9 @@ router.get(
   "/getAnnouncementsById/:id",
   AnnouncementController.getAnnouncementById
 );
-router.delete("/delete-announcements/:id",AnnouncementController.deleteAnnouncement);
+router.delete(
+  "/delete-announcements/:id",
+  AnnouncementController.deleteAnnouncement
+);
 
 module.exports = router;

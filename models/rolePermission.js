@@ -24,7 +24,6 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true, 
       },
 
-
       roleId: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -33,7 +32,6 @@ module.exports = (sequelize, DataTypes) => {
           key: "roleId",
         },
       },
-
 
       permissionId: {
         type: DataTypes.INTEGER,

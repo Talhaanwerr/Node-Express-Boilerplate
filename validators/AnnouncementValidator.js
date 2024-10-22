@@ -2,13 +2,7 @@ const Joi = require("joi");
 const BaseValidator = require("./BaseValidator.js");
 
 class AnnouncementValidator extends BaseValidator {
-  // constructor() {
-  //   const schema = Joi.object().keys({
-  //     // ...schema definition
-  //   });
-  //   super(schema);
-  // }
-
+ 
   validateCreateAnnouncement = (announcement) => {
     const schema = Joi.object().keys({
       name: Joi.string().required().label("Announcement Title"),

@@ -31,6 +31,22 @@ module.exports = (sequelize, DataTypes) => {
         as: "designation",
         onDelete: "SET NULL",
       });
+
+      User.belongsToMany(models.Permission, {
+        through: models.UserPermission,
+        foreignKey: "userId",
+        as: "Permissions",
+      });
+
+      User.hasMany(models.UserPermission, {
+        foreignKey: "userId",
+        as: "UserPermissions",
+      });
+
+      User.hasMany(models.Attendance, {
+        foreignKey: "userId",
+        as: "Attendance",
+      });
     }
   }
   User.init(
