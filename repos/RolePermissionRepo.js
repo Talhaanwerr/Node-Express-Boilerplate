@@ -18,8 +18,9 @@ class RolePermissionRepo extends BaseRepository {
     });
   }
 
-  async getRolesWithPermissions() {
+  async getRolesWithPermissions(searchQuery = {}) {
     return await this.findAll({
+      ...searchQuery,
       include: [
         {
           model: db.Role,
@@ -41,10 +42,8 @@ class RolePermissionRepo extends BaseRepository {
 
   async isRolePermissionExists(roleId, permissionId) {
     return this.findOne({
-      where: {
-        roleId,
-        permissionId,
-      },
+      roleId,
+      permissionId,
     });
   }
 
@@ -68,9 +67,23 @@ class RolePermissionRepo extends BaseRepository {
 
   async updateRolePermission(data, roleId, permissionId) {
     return this.update(data, {
+      roleId,
+      permissionId,
+    });
+  }
+
+  async isPermissionExists(permissions) {
+    return db.Permission.findAll({
+      where: {
+        id: permissions,
+      },
+    });
+  }
+
+  async isRoleExists(roleId) {
+    return db.Role.findOne({
       where: {
         roleId,
-        permissionId,
       },
     });
   }

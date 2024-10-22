@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         // Define associations here if needed
         Designation.hasMany(models.User, {
           foreignKey: "designationId",
-          as: "users",
+          as: "user",
           onDelete: "SET NULL",
         });
       }
@@ -25,6 +25,9 @@ module.exports = (sequelize, DataTypes) => {
           allowNull: false,
         },
         description: {
+          type: DataTypes.STRING,
+        },
+        type: {
           type: DataTypes.STRING,
         },
         isDeleted: {

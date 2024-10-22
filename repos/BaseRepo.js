@@ -59,16 +59,4 @@ module.exports = class BaseRepository {
       });
     }
   }
-
-  async runTransaction(callback) {
-    const transaction = await this.model.sequelize.transaction();
-    try {
-      const result = await callback(transaction);
-      await transaction.commit();
-      return result;
-    } catch (error) {
-      await transaction.rollback();
-      throw new Error("Transaction failed: " + error.message);
-    }
-  }
 };

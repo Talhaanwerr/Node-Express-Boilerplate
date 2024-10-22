@@ -10,10 +10,9 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Enable CORS for all routes
-app.use(cors());
-
-// Use routes for the API
+const allowedOrigins = "http://localhost:5173";
+app.use(cors({ origin: allowedOrigins }));
+// Use routes
 app.use("/api", routes);
 
 // Sample route for testing

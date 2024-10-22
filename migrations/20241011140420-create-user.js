@@ -47,7 +47,7 @@ module.exports = {
           model: "Designations",
           key: "id",
         },
-        onDelete: "CASCADE",
+        onDelete: "SET NULL",
       },
       reportingTo: {
         type: Sequelize.INTEGER,

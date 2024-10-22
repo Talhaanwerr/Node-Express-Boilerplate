@@ -20,12 +20,12 @@ class DesignationRepo extends BaseRepository {
 
   // Find Designation by ID
   async findById(id) {
-    return this.findOne({ where: { id } });
+    return this.findOne({ id });
   }
 
   // Update Designation by ID
   async updateDesignation(designation, id) {
-    await this.update(designation, { where: { id } });
+    await this.update(designation, { id });
     return this.findById(id);
   }
 
@@ -41,7 +41,7 @@ class DesignationRepo extends BaseRepository {
 
   // Check if a Designation exists by ID
   async isDesignationExists(id) {
-    return this.count({ where: { id } });
+    return this.count({ id });
   }
 }
 

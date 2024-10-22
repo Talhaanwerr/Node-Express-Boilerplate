@@ -18,8 +18,15 @@ class UserProfileRepo extends BaseRepository {
         {
           model: db.User,
           as: "user",
-          attributes: ["firstName", "lastName", "email"],
-        }
+          attributes: ["firstName", "lastName", "email", "status"],
+          include: [
+            {
+              model: db.Designation,
+              as: "designation",
+              attributes: ["designation_name"],
+            },
+          ],
+        },
       ],
     });
   }
@@ -69,6 +76,11 @@ class UserProfileRepo extends BaseRepository {
     return this.findByPk(id);
   }
 
+  async isUserIdAssignedToProfile(userId) {
+    return this.count({
+      userId,
+    });
+  }
 }
 
 module.exports = new UserProfileRepo();

@@ -12,17 +12,17 @@ class PermissionController extends BaseController {
   }
 
   getPermissionById = async (req, res) => {
-    const { id } = req.params;
-    const permission = await PermissionRepo.findById(id);
+    const { id } = req?.params;
+    const permission = await PermissionRepo?.findById(id);
 
     if (!permission) {
-      return this.errorResponse(res, "Permission ID not found", 404);
+      return this.errorResponse(res, `Permission with ID ${id} not found`, 404);
     }
 
     return this.successResponse(
       res,
       permission,
-      "Permission retrieved successfully"
+      `Permission with id ${id} retrieved successfully`
     );
   };
 
@@ -59,12 +59,11 @@ class PermissionController extends BaseController {
       };
     }
 
+    const permissions = await PermissionRepo?.getPermissions(customQuery);
 
-    const permissions = await PermissionRepo.getPermissions(customQuery);
+    const count = await PermissionRepo?.countPermission();
 
-    const count = await PermissionRepo.countPermission();
-
-    if (!permissions.length) {
+    if (!permissions?.length) {
       return this.errorResponse(res, "No matching permissions found", 404);
     }
 
@@ -79,13 +78,13 @@ class PermissionController extends BaseController {
   };
 
   createPermission = async (req, res) => {
-    const validationResult = validateCreatePermission(req.body);
+    const validationResult = validateCreatePermission(req?.body);
 
     if (!validationResult.status) {
       return this.validationErrorResponse(res, validationResult.message);
     }
 
-    const permission = await PermissionRepo.createPermission(req.body);
+    const permission = await PermissionRepo?.createPermission(req?.body);
 
     return this.successResponse(
       res,
@@ -96,24 +95,24 @@ class PermissionController extends BaseController {
 
   updatePermission = async (req, res) => {
     const { id } = req?.params;
-    const validationResult = validateUpdatePermission(req.body);
+    const validationResult = validateUpdatePermission(req?.body);
 
     if (!validationResult.status) {
       return this.validationErrorResponse(res, validationResult.message);
     }
 
-    const isPermission = PermissionRepo.isPermissionExists(id); // check if permission exists
+    const isPermission = PermissionRepo?.isPermissionExists(id);
 
     if (!isPermission) {
-      return this.errorResponse(res, "Permission ID not found", 404); // fix error message
+      return this.errorResponse(res, `Permission with ID ${id} not found`, 404);
     }
 
-    const permission = await PermissionRepo.updatePermission(req.body, id);
+    const permission = await PermissionRepo?.updatePermission(req?.body, id);
 
     return this.successResponse(
       res,
       permission,
-      "Permission updated successfully"
+      `Permission with ID ${id} updated successfully`
     );
   };
 
@@ -121,15 +120,15 @@ class PermissionController extends BaseController {
     let { id } = req?.params;
     let { type } = req?.query;
 
-    const isPermission = PermissionRepo.isPermissionExists(id); // check if permission exists
+    const isPermission = PermissionRepo?.isPermissionExists(id);
 
     if (!isPermission) {
-      return this.errorResponse(res, "Permission ID not found", 404); // fix error message
+      return this.errorResponse(res, `Permission with ID ${id} not found`, 404);
     }
 
     type = type ? type : "soft";
 
-    const permission = await PermissionRepo.deletePermission(id, type);
+    const permission = await PermissionRepo?.deletePermission(id, type);
 
     return this.successResponse(
       res,
