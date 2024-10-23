@@ -31,6 +31,10 @@ class AuthController extends BaseController {
       id: user.id,
       email: user.email,
       isNewUser: user.isNewUser,
+      status: user.status,
+      shiftTime: user.shiftTime,
+      primaryReporting: user?.primaryReporting,
+      secondaryReporting: user?.secondaryReporting,
       roleName: user?.role?.roleName,
       designationName: user?.designation?.designation_name,
     };
@@ -48,6 +52,8 @@ class AuthController extends BaseController {
     const { email, password } = req?.body;
 
     const user = await UserRepo?.findByEmailWithInclude(email);
+
+    console.log(JSON.stringify(user, null, 2));
 
     if (!user) {
       return this.errorResponse(res, "User not found", 404);

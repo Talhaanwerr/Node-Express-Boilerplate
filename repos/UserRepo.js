@@ -37,6 +37,11 @@ class UserRepo extends BaseRepository {
           as: "designation",
           attributes: ["designation_name"],
         },
+        // {
+        //   model: db.User,
+        //   as: "reportingTo",
+        //   attributes: ["firstName", "lastName"],
+        // },
       ],
     });
   }
@@ -89,6 +94,16 @@ class UserRepo extends BaseRepository {
           model: db.Designation,
           as: "designation",
           attributes: ["designation_name"],
+        },
+        {
+          model: db.User,
+          as: 'PrimaryReportees',
+          attributes: ["firstName", "lastName", "email"],
+        },
+        {
+          model: db.User,
+          as: 'SecondaryReportees',
+          attributes: ["firstName", "lastName", "email"],
         },
       ],
     });

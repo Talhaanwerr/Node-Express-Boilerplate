@@ -7,8 +7,8 @@ const {
 } = require("../middlewares/auth.middleware.js");
 
 router.post(
-  "/manage-attendance/:id?",
-  authMiddleware, 
+  "/manage-attendance",
+  authMiddleware,
   AttendanceController.manageAttendance
 );
 router.get("/get-all-attendances", AttendanceController.getAllAttendances);

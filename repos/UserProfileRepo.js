@@ -72,7 +72,6 @@ class UserProfileRepo extends BaseRepository {
   }
 
   async findUser(id) {
-    console.log(id);
     return this.findByPk(id);
   }
 

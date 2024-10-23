@@ -49,14 +49,6 @@ module.exports = {
         },
         onDelete: "SET NULL",
       },
-      reportingTo: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: "Users",
-          key: "id",
-        },
-        onDelete: "CASCADE",
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

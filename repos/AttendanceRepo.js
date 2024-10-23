@@ -1,5 +1,6 @@
 const BaseRepository = require("./BaseRepo");
 const db = require("../models/index");
+const { Op } = require("sequelize");
 
 class AttendanceRepo extends BaseRepository {
   constructor() {
@@ -9,6 +10,15 @@ class AttendanceRepo extends BaseRepository {
 
   async findById(id) {
     return this.findOne({ id });
+  }
+
+  async findByIdAndDate({ userId, date }) {
+    return this.findOneWithDateAndUserId({
+      userId,
+      date: {
+        [Op.eq]: date,
+      },
+    });
   }
 
   async findByIdWithInclude(id) {
