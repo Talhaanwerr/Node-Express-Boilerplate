@@ -6,14 +6,6 @@ const {
   authMiddleware,
 } = require("../middlewares/auth.middleware.js");
 
-<<<<<<< HEAD
-router.get("/get-user/:id",
-  //  authorize("admin"),
- UserController.getUserById);
-router.get("/get-all-users",
-  //  authorize("admin"), 
-   UserController.getAllUsers);
-=======
 router.get(
   "/get-user",
   // authorize("admin"),
@@ -21,7 +13,6 @@ router.get(
   UserController.getUserById
 );
 router.get("/get-all-users", authorize("admin"), UserController.getAllUsers);
->>>>>>> a86bc5f243dccae7030bce510a71b7e6f563fe4d
 router.post(
   "/create-user-with-profile",
   // authorize("admin"),

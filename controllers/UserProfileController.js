@@ -1,11 +1,7 @@
 const { Op } = require("sequelize");
 const db = require("../models/index.js");
 const UserProfileRepo = require("../repos/UserProfileRepo.js");
-<<<<<<< HEAD
 const UserRepo=require("../repos/UserRepo.js")
-=======
-const UserRepo = require("../repos/UserRepo.js");
->>>>>>> a86bc5f243dccae7030bce510a71b7e6f563fe4d
 const {
   validateUpdateUserProfile,
   validateCreateUserProfile,

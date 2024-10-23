@@ -1,4 +1,4 @@
-// const { Op } = require("sequelize");
+const { Op, fn, col } = require("sequelize");
 const {
   calculateAttendance,
   formatAttendanceResponse,
@@ -92,17 +92,51 @@ class AttendanceController extends BaseController {
       page = 1,
       limit = 10,
       date,
+      month,
+      year,
       sort = "date",
       order = "desc",
       search,
+      from,
+      to,
     } = req.query;
 
     const offset = (page - 1) * limit;
-
     const whereClause = {};
 
     if (date) {
-      whereClause.date = date;
+      const formattedDate = new Date(date).toISOString().split('T')[0]; 
+      whereClause.date = formattedDate;
+    }
+    if (from && to) {
+      whereClause.date = {
+        [Op.between]: [from, to],
+      };
+    } else if (from) {
+      whereClause.date = {
+        [Op.gte]: from,
+      };
+    } else if (to) {
+      whereClause.date = {
+        [Op.lte]: to,
+      };
+    }
+
+    if (month && year) {
+      whereClause.date = {
+        [Op.and]: [
+          sequelize.where(fn("MONTH", col("date")), month),
+          sequelize.where(fn("YEAR", col("date")), year),
+        ],
+      };
+    } else if (month) {
+      whereClause.date = {
+        [Op.and]: [sequelize.where(fn("MONTH", col("date")), month)],
+      };
+    } else if (year) {
+      whereClause.date = {
+        [Op.and]: [sequelize.where(fn("YEAR", col("date")), year)],
+      };
     }
 
     if (search) {
@@ -113,7 +147,7 @@ class AttendanceController extends BaseController {
       where: whereClause,
       limit: parseInt(limit),
       offset: parseInt(offset),
-      order: [[sort, order]],
+      order: [[sort === "id" ? "id" : "date", order]],
     });
 
     if (!attendances || attendances.length === 0) {
@@ -129,7 +163,6 @@ class AttendanceController extends BaseController {
       "Attendances retrieved successfully"
     );
   };
-
   getAttendanceById = async (req, res) => {
     const { id } = req?.params;
     const attendance = await AttendanceRepo?.findByIdWithInclude(id);

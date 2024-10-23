@@ -43,21 +43,23 @@ class AttendanceRepo extends BaseRepository {
     return this.findOne({ id });
   }
 
+  
   async getAttendance(options = {}) {
     return this.findAll({
-        where: options.where || {},
-        include: [
-            {
-                model: db.User,
-                as: "user",
-                attributes: ["firstName", "lastName"],
-            },
-        ],
-        limit: options.limit,
-        offset: options.offset,
-        order: options.order,
+      where: options.where || {},
+      include: [
+        {
+          model: db.User,
+          as: "user",
+          attributes: ["firstName", "lastName"],
+        },
+      ],
+      limit: options.limit,
+      offset: options.offset,
+      order: options.order, 
     });
-}
+  }
+  
 
   async findAttendance(attendanceId) {
     return this.findOne({ attendanceId });
