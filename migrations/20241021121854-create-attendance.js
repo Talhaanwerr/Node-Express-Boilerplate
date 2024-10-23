@@ -23,7 +23,7 @@ module.exports = {
         type: Sequelize.TIME,
       },
       date: {
-        type: Sequelize.DATEONLY,
+        type: Sequelize.DATEONLY, 
       },
       isDeleted: {
         allowNull: false,

@@ -32,27 +32,10 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: "SET NULL",
       });
 
-<<<<<<< HEAD
-      User.belongsToMany(models.Permission, {
-        through: models.UserPermission,
-        foreignKey: "userId",
-        as: "Permissions",
-      });
-
-      User.hasMany(models.UserPermission, {
-        foreignKey: "userId",
-        as: "UserPermissions",
-      });
-
-      User.hasMany(models.Attendance, {
-        foreignKey: "userId",
-        as: "Attendance",
-=======
       User.hasMany(models.Attendance, {
         foreignKey: "userId",
         as: "attendance",
         onDelete: "CASCADE",
->>>>>>> 7d9a7b9de81358e8643d133ef1cc9c65e94a85c6
       });
     }
   }

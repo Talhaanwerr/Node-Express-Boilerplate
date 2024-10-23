@@ -30,47 +30,84 @@ class DesignationController extends BaseController {
     );
   };
 
-  getAllDesignations = async (req, res) => {
-    const sortOrder = req?.query?.sortOrder || "id";
-    const sortDirection = req?.query?.sortDirection || "DESC";
+  // getAllDesignations = async (req, res) => {
+  //   const sortOrder = req?.query?.sortOrder || "id";
+  //   const sortDirection = req?.query?.sortDirection || "DESC";
 
-    const limit = parseInt(req?.query?.limit) || 10;
-    const offset = parseInt(req?.query?.skip) || 0;
+  //   const limit = parseInt(req?.query?.limit) || 10;
+  //   const offset = parseInt(req?.query?.skip) || 0;
+
+  //   if (limit < 1 || offset < 0) {
+  //     return this.validationErrorResponse(res, "Invalid pagination parameters");
+  //   }
+
+  //   const customQuery = {
+  //     order: [[sortOrder, sortDirection]],
+  //     where: {},
+  //     limit: limit,
+  //     offset: offset,
+  //   };
+
+  //   // Saari designations lena with pagination aur filtering
+  //   getAllDesignations = async(req, res) => {
+  //       const sortOrder = req.query.sortOrder || "id";
+  //       const sortDirection = req.query.sortDirection || "DESC";
+
+  //   if (req?.query?.designation_name) {
+  //     customQuery.where.designation_name = {
+  //       [Op.like]: `%${req?.query?.designation_name}%`,
+  //     };
+  //   }
+
+  //   const designations = await DesignationRepo?.getDesignations(customQuery);
+  //   const count = await DesignationRepo?.countDesignation();
+
+  //   return this.successResponse(
+  //     res,
+  //     {
+  //       designations,
+  //       total: count,
+  //     },
+  //     "Designations retrieved successfully"
+  //   );
+  // };
+
+  getAllDesignations = async (req, res) => {
+    const sortOrder = req.query.sortOrder || "id";
+    const sortDirection = req.query.sortDirection || "DESC";
+
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = parseInt(req.query.skip) || 0;
 
     if (limit < 1 || offset < 0) {
-      return this.validationErrorResponse(res, "Invalid pagination parameters");
+        return this.validationErrorResponse(res, "Invalid pagination parameters");
     }
 
     const customQuery = {
-      order: [[sortOrder, sortDirection]],
-      where: {},
-      limit: limit,
-      offset: offset,
+        order: [[sortOrder, sortDirection]],
+        where: {},
+        limit: limit,
+        offset: offset,
     };
 
-    // Saari designations lena with pagination aur filtering
-    getAllDesignations = async(req, res) => {
-        const sortOrder = req.query.sortOrder || "id";
-        const sortDirection = req.query.sortDirection || "DESC";
-
-    if (req?.query?.designation_name) {
-      customQuery.where.designation_name = {
-        [Op.like]: `%${req?.query?.designation_name}%`,
-      };
+    if (req.query.designation_name) {
+        customQuery.where.designation_name = {
+            [Op.like]: `%${req.query.designation_name}%`,
+        };
     }
 
-    const designations = await DesignationRepo?.getDesignations(customQuery);
-    const count = await DesignationRepo?.countDesignation();
+    const designations = await DesignationRepo.getDesignations(customQuery);
+    const count = await DesignationRepo.countDesignation();
 
     return this.successResponse(
-      res,
-      {
-        designations,
-        total: count,
-      },
-      "Designations retrieved successfully"
+        res,
+        {
+            designations,
+            total: count,
+        },
+        "Designations retrieved successfully"
     );
-  };
+};
 
   createDesignation = async (req, res) => {
     const validationResult = validateCreateDesignation(req?.body);
@@ -137,6 +174,6 @@ class DesignationController extends BaseController {
         
         }
     };
-}
+
 
 module.exports = new DesignationController();

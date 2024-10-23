@@ -8,7 +8,7 @@ const {
 
 router.post(
   "/manage-attendance/:id?",
-  authMiddleware,
+  authMiddleware, 
   AttendanceController.manageAttendance
 );
 router.get("/get-all-attendances", AttendanceController.getAllAttendances);
@@ -17,10 +17,6 @@ router.get(
   "/get-attendance-by-user/:userId",
   AttendanceController.getAttendanceByUserId
 );
-// router.post(
-//   "/create-attendance",
-//   authMiddleware,
-//   AttendanceController.createAttendance
-// );
+
 
 module.exports = router;

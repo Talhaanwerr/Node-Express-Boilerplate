@@ -16,7 +16,7 @@ class AttendanceValidator extends BaseValidator {
 
     return this.validate(schema, attendance);
   };
-
+ 
   validateUpdateAttendance = (attendance) => {
     const schema = Joi.object().keys({
       // userId: Joi.number().required(),

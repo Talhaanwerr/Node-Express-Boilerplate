@@ -3,18 +3,22 @@ const router = express.Router();
 const UserController = require("../controllers/UserController.js");
 const { authorize } = require("../middlewares/auth.middleware.js");
 
-router.get("/get-user/:id", authorize("admin"), UserController.getUserById);
-router.get("/get-all-users", authorize("admin"), UserController.getAllUsers);
+router.get("/get-user/:id",
+  //  authorize("admin"),
+ UserController.getUserById);
+router.get("/get-all-users",
+  //  authorize("admin"), 
+   UserController.getAllUsers);
 router.post(
   "/create-user-with-profile",
-  authorize("admin"),
+  // authorize("admin"),
   UserController.createUserWithProfile
 );
 router.post("/create-user", UserController.createUser);
 router.patch("/update-user/:id", authorize("admin"), UserController.updateUser);
 router.delete(
   "/delete-user/:id",
-  authorize("admin"),
+  // authorize("admin"),
   UserController.deleteUser
 );
 

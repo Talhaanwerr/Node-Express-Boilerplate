@@ -76,6 +76,10 @@ class UserProfileRepo extends BaseRepository {
     return this.findByPk(id);
   }
 
+  // async findUser(id) {
+  //   return db.User.findByPk(id);  
+  // }
+
   async isUserIdAssignedToProfile(userId) {
     return this.count({
       userId,

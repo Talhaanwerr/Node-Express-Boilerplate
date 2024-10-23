@@ -71,14 +71,39 @@ class AttendanceController extends BaseController {
   };
 
   getAllAttendances = async (req, res) => {
-    const attendances = await AttendanceRepo?.getAttendance();
+    const {
+      page = 1,
+      limit = 10,
+      date,
+      sort = "date",
+      order = "desc",
+      search,
+    } = req.query;
 
-    if (!attendances || attendances?.length === 0) {
+    const offset = (page - 1) * limit;
+
+    const whereClause = {};
+
+    if (date) {
+      whereClause.date = date;
+    }
+
+    if (search) {
+      whereClause["$user.firstName$"] = { [Op.like]: `%${search}%` };
+    }
+
+    const attendances = await AttendanceRepo.getAttendance({
+      where: whereClause,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [[sort, order]],
+    });
+
+    if (!attendances || attendances.length === 0) {
       return this.errorResponse(res, "No attendance found", 404);
     }
 
-    const updatedAttendances = attendances?.map(calculateAttendance);
-
+    const updatedAttendances = attendances.map(calculateAttendance);
     const attendanceResponse = formatAttendanceResponse(updatedAttendances);
 
     return this.successResponse(

@@ -1,6 +1,7 @@
 const { Op } = require("sequelize");
 const db = require("../models/index.js");
 const UserProfileRepo = require("../repos/UserProfileRepo.js");
+const UserRepo=require("../repos/UserRepo.js")
 const {
   validateUpdateUserProfile,
   validateCreateUserProfile,
@@ -122,7 +123,7 @@ class UserProfileController extends BaseController {
     const { userId } = req?.body;
 
     if (userId) {
-      const isUserExists = await UserProfileRepo?.findUser(userId);
+      const isUserExists = await UserRepo?.findById(userId);
       if (!isUserExists) {
         return this.errorResponse(res, `User with ID ${userId} not found`, 404);
       }
