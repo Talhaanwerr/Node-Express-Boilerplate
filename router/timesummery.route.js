@@ -1,5 +1,5 @@
 const express = require('express');
-const { getTimeSummary } = require('../controllers/timeSummaryController');
+const { getTimeSummary } = require('../controllers/Time-SummaryController');
 
 const router = express.Router();
 
