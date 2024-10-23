@@ -1,5 +1,5 @@
 const employees = require('../models/time-summery');
-const { Op } = require('sequelize');
+const { Op, Sequelize } = require('sequelize');
 
 // Standard working hours per day 
 const standardDailyHours = 8;
@@ -22,36 +22,81 @@ const calculateActivityLevel = (timeWorkedHours, timeWorkedMinutes, workDays) =>
     return ((totalWorkedMinutes / totalPossibleMinutes) * 100).toFixed(2) + '%';
 };
 
-// Controller function to return time summary
-const getTimeSummary = async(req, res) => {
-    const { team, month, day } = req.query;
+// Controller function to return time summary with filtering, searching, sorting, and pagination
+const getTimeSummary = async (req, res) => {
+    const { team, month, day, date, week, search, sortBy, order = 'DESC', page = 1, limit = 10 } = req.query;
 
-    // Get the current date and month for filtering
+    // Get the current date for filtering
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth() + 1;
     const currentYear = currentDate.getFullYear();
 
     let whereCondition = {};
 
+    // Month filtering
     if (month === 'current') {
-        // Filter by current month
         whereCondition.workDate = {
             [Op.and]: [
-                sequelize.where(sequelize.fn('MONTH', sequelize.col('workDate')), currentMonth),
-                sequelize.where(sequelize.fn('YEAR', sequelize.col('workDate')), currentYear)
+                Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('workDate')), currentMonth),
+                Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('workDate')), currentYear)
+            ]
+        };
+    } else if (month) {
+        whereCondition.workDate = {
+            [Op.and]: [
+                Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('workDate')), month),
+                Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('workDate')), currentYear)
             ]
         };
     }
 
+    // Day filtering
     if (day === 'current') {
-        // Filter by current day
         whereCondition.workDate = {
             [Op.eq]: currentDate
         };
     }
 
+    // Date filtering
+    if (date) {
+        whereCondition.workDate = {
+            [Op.eq]: new Date(date)
+        };
+    }
+
+    // Week filtering (assuming the week starts on Monday)
+    if (week) {
+        const startOfWeek = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 1)); // Monday
+        const endOfWeek = new Date(currentDate.setDate(startOfWeek.getDate() + 6)); // Sunday
+        whereCondition.workDate = {
+            [Op.between]: [startOfWeek, endOfWeek]
+        };
+    }
+
+    // Search functionality by name or role
+    if (search) {
+        whereCondition[Op.or] = [
+            { name: { [Op.like]: `%${search}%` } },
+            { role: { [Op.like]: `%${search}%` } }
+        ];
+    }
+
+    // Sorting by a specified column in descending order
+    let orderBy = [['name', order]]; // Default sort by name
+    if (sortBy === 'role') {
+        orderBy = [['role', order]];
+    }
+
+    // Pagination logic
+    const offset = (page - 1) * limit;
+    const pagination = { limit: parseInt(limit), offset: parseInt(offset) };
+
     try {
-        const employees = await Employee.findAll({ where: whereCondition });
+        const employees = await Employee.findAll({
+            where: whereCondition,
+            order: orderBy,
+            ...pagination
+        });
 
         const timeSummary = employees.map(emp => {
             const { balancedHours, remainingMinutes } = calculateBalancedTime(emp.workDays, emp.timeWorkedHours, emp.timeWorkedMinutes);
@@ -73,5 +118,4 @@ const getTimeSummary = async(req, res) => {
     }
 };
 
-// Export the controller function
 module.exports = { getTimeSummary };

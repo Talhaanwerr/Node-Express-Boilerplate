@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: "Users", // Should match the User model's table name
+                model: "Users",
                 key: "userId",
             },
         },
@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: "Permissions", // Should match the Permission model's table name
+                model: "Permissions", 
                 key: "id",
             },
         },
@@ -54,9 +54,9 @@ module.exports = (sequelize, DataTypes) => {
         },
     }, {
         sequelize,
-        modelName: "UserPermission", // Model name is UserPermission
-        tableName: "user-permissions", // Table name for UserPermissions
-        timestamps: true, // Enable createdAt and updatedAt
+        modelName: "UserPermission",
+        tableName: "user-permissions", 
+        timestamps: true,
     });
 
     return UserPermission;
