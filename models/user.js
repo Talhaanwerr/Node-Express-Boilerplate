@@ -14,12 +14,6 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: "CASCADE",
       });
 
-      User.hasOne(models.User, {
-        foreignKey: "reportingTo",
-        as: "user",
-        onDelete: "CASCADE",
-      });
-
       User.belongsTo(models.Role, {
         foreignKey: "roleId",
         as: "role",
@@ -36,6 +30,26 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "userId",
         as: "attendance",
         onDelete: "CASCADE",
+      });
+
+      User.hasOne(models.User, {
+        foreignKey: "primaryReporting",
+        as: "PrimaryReportees",
+      });
+
+      User.hasOne(models.User, {
+        foreignKey: "secondaryReporting",
+        as: "SecondaryReportees",
+      });
+
+      User.belongsTo(models.User, {
+        foreignKey: "primaryReporting",
+        as: "PrimaryReporting",
+      });
+
+      User.belongsTo(models.User, {
+        foreignKey: "secondaryReporting",
+        as: "SecondaryReporting",
       });
     }
   }
@@ -65,9 +79,19 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      reportingTo: {
+      primaryReporting: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        references: {
+          model: "Users",
+          key: "primaryReportees",
+        },
+      },
+      secondaryReporting: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: "Users",
+          key: "secondaryReportees",
+        },
       },
       isDeleted: {
         type: DataTypes.BOOLEAN,

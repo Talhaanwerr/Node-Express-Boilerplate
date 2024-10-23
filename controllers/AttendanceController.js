@@ -10,6 +10,7 @@ const {
 } = require("../validators/AttendanceValidator.js");
 const BaseController = require("./BaseController.js");
 const UserRepo = require("../repos/UserRepo.js");
+const { sequelize } = require("../models");
 
 class AttendanceController extends BaseController {
   constructor() {
@@ -17,8 +18,12 @@ class AttendanceController extends BaseController {
   }
 
   manageAttendance = async (req, res) => {
-    const { checkIn, checkOut, date } = req?.body;
-    const userId = req?.user?.id;
+    let { checkIn, checkOut, date } = req?.body;
+    let userId = req?.user?.id;
+
+    if (!date) {
+      return this.errorResponse(res, "Date is required", 400);
+    }
 
     const isCheckIn = !!checkIn;
     const isCheckOut = !!checkOut;
@@ -51,11 +56,23 @@ class AttendanceController extends BaseController {
     }
 
     if (isCheckOut) {
-      const { id } = req?.params;
-      const updatedAttendance = await AttendanceRepo?.updateAttendance(
-        req?.body,
-        id
+      const [attendance] = await sequelize.query(
+        `SELECT * FROM Attendances WHERE userId = :userId AND date = :date`,
+        {
+          replacements: { userId, date },
+          type: sequelize.QueryTypes.SELECT,
+        }
       );
+
+      if (!attendance) {
+        return this.errorResponse(res, "Attendance record not found", 404);
+      }
+
+      const updatedAttendance = await AttendanceRepo?.updateAttendance(
+        { checkOut },
+        attendance?.id
+      );
+
       return this.successResponse(
         res,
         updatedAttendance,

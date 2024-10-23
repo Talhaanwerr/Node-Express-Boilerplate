@@ -19,7 +19,7 @@ class UserController extends BaseController {
   }
 
   getUserById = async (req, res) => {
-    const { id } = req?.params;
+    const id = req?.user?.id;
     const customQuery = { id };
 
     const user = await UserRepo?.findByIdWithInclude(customQuery);
