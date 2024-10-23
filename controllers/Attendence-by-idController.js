@@ -1,5 +1,5 @@
 // controllers/AttendanceController.js
-const AttendanceRepo = require("../repos/AttendanceRepo.js");
+const AttendanceRepo = require("../repos/Attendance-by-idRepo.js");
 const {
     validateCreateAttendance,
     validateUpdateAttendance,
