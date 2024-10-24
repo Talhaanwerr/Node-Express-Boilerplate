@@ -90,7 +90,7 @@ class AttendanceController extends BaseController {
   getAllAttendances = async (req, res) => {
     const {
       page = 1,
-      limit = 10,
+      limit = 15,
       date,
       month,
       year,
@@ -99,29 +99,33 @@ class AttendanceController extends BaseController {
       search,
       from,
       to,
+      status, 
     } = req.query;
-
+  
     const offset = (page - 1) * limit;
     const whereClause = {};
-
+  
     if (date) {
-      const formattedDate = new Date(date).toISOString().split('T')[0]; 
-      whereClause.date = formattedDate;
+      const formattedDate = new Date(date).toISOString();
+      whereClause.date = {
+        [Op.eq]: formattedDate,
+      };
+    } else {
+      if (from && to) {
+        whereClause.date = {
+          [Op.between]: [new Date(from), new Date(to)],
+        };
+      } else if (from) {
+        whereClause.date = {
+          [Op.gte]: new Date(from),
+        };
+      } else if (to) {
+        whereClause.date = {
+          [Op.lte]: new Date(to),
+        };
+      }
     }
-    if (from && to) {
-      whereClause.date = {
-        [Op.between]: [from, to],
-      };
-    } else if (from) {
-      whereClause.date = {
-        [Op.gte]: from,
-      };
-    } else if (to) {
-      whereClause.date = {
-        [Op.lte]: to,
-      };
-    }
-
+  
     if (month && year) {
       whereClause.date = {
         [Op.and]: [
@@ -138,31 +142,44 @@ class AttendanceController extends BaseController {
         [Op.and]: [sequelize.where(fn("YEAR", col("date")), year)],
       };
     }
-
+  
     if (search) {
-      whereClause["$user.firstName$"] = { [Op.like]: `%${search}%` };
+      whereClause["$user.firstName$"] = {
+        [Op.like]: `%${search}%`,
+      };
+      
     }
-
+  
     const attendances = await AttendanceRepo.getAttendance({
       where: whereClause,
       limit: parseInt(limit),
       offset: parseInt(offset),
       order: [[sort === "id" ? "id" : "date", order]],
     });
-
+  
     if (!attendances || attendances.length === 0) {
       return this.errorResponse(res, "No attendance found", 404);
     }
-
+  
     const updatedAttendances = attendances.map(calculateAttendance);
-    const attendanceResponse = formatAttendanceResponse(updatedAttendances);
-
+  
+    const filteredAttendances = status
+      ? updatedAttendances.filter((attendance) => attendance.status === status)
+      : updatedAttendances;
+  
+    if (filteredAttendances.length === 0) {
+      return this.errorResponse(res, "No attendance found with the specified status", 404);
+    }
+  
+    const attendanceResponse = formatAttendanceResponse(filteredAttendances);
+  
     return this.successResponse(
       res,
       attendanceResponse,
       "Attendances retrieved successfully"
     );
   };
+  
   getAttendanceById = async (req, res) => {
     const { id } = req?.params;
     const attendance = await AttendanceRepo?.findByIdWithInclude(id);
@@ -198,7 +215,7 @@ class AttendanceController extends BaseController {
     return this.successResponse(
       res,
       attendanceResponse,
-      `Attendance for user with ID ${userId} retrieved successfully`
+      `Attendance for user with Id ${userId} retrieved successfully`
     );
   };
 

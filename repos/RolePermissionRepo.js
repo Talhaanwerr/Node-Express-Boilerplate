@@ -37,19 +37,21 @@ class RolePermissionRepo extends BaseRepository {
   }
 
   async findById(id) {
-    return this.findAll({ id });
+    return this.findOne({ where: { id } });
   }
 
   async isRolePermissionExists(roleId, permissionId) {
     return this.findOne({
-      roleId,
-      permissionId,
+      where: {
+        roleId,
+        permissionId,
+      },
     });
   }
 
   async findOneWithInclude(roleId) {
     return this.findAll({
-      where: { roleId: roleId },
+      where: { roleId },
       include: [
         {
           model: db.Role,
@@ -67,8 +69,10 @@ class RolePermissionRepo extends BaseRepository {
 
   async updateRolePermission(data, roleId, permissionId) {
     return this.update(data, {
-      roleId,
-      permissionId,
+      where: {
+        roleId,
+        permissionId,
+      },
     });
   }
 
@@ -83,10 +87,24 @@ class RolePermissionRepo extends BaseRepository {
   async isRoleExists(roleId) {
     return db.Role.findOne({
       where: {
-        roleId,
+        id: roleId,
       },
     });
   }
+
+
+  async findByRoleId(roleId) {
+    return this.findAll({ where: { roleId } });
+  }
+
+  async deleteById(rolePermissionId){
+    return this.model.destroy({
+      where: { id: rolePermissionId },
+    });
+  }
+
+
+
 }
 
 module.exports = new RolePermissionRepo();

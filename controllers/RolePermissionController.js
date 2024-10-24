@@ -1,5 +1,5 @@
-const role = require("../models/role");
 const RolePermissionRepo = require("../repos/RolePermissionRepo");
+const RoleRepo = require("../repos/RoleRepo");
 const RolePermissionValidator = require("../validators/RolePermissionValidator");
 const BaseController = require("./BaseController");
 const db = require("../models");
@@ -8,6 +8,57 @@ class RolePermissionController extends BaseController {
   constructor() {
     super();
   }
+
+  // assignPermissions = async (req, res) => {
+  //   const validationResult = RolePermissionValidator.validateAssignPermissions(
+  //     req?.body
+  //   );
+
+  //   if (!validationResult.status) {
+  //     return this.validationErrorResponse(res, validationResult.message);
+  //   }
+
+  //   const { roleName, permissions } = req?.body;
+
+  //   const role = await RoleRepo?.findByName(roleName);
+
+  //   const {roleId} = role;
+
+  //   const isRoleExist = await RolePermissionRepo?.isRoleExists(roleId);
+
+  //   if (!isRoleExist) {
+  //     return this.errorResponse(res, `Role with ID ${roleId} not found`, 404);
+  //   }
+
+  //   const permissionsExistPromises = permissions.map((permissionId) =>
+  //     RolePermissionRepo.isPermissionExists([permissionId])
+  //   );
+
+  //   const permissionsExistResults = await Promise.all(permissionsExistPromises);
+
+  //   const invalidPermissions = permissions?.filter(
+  //     (permissionId, index) => permissionsExistResults[index].length === 0
+  //   );
+
+  //   if (invalidPermissions?.length > 0) {
+  //     return this.errorResponse(
+  //       res,
+  //       `Permissions not found: ${invalidPermissions.join(", ")}`,
+  //       404
+  //     );
+  //   }
+
+  //   const rolePermission = await RolePermissionRepo?.assignPermissions(
+  //     roleId,
+  //     permissions
+  //   );
+
+  //   return this.successResponse(
+  //     res,
+  //     rolePermission,
+  //     "Permissions assigned successfully"
+  //   );
+  // };
 
   assignPermissions = async (req, res) => {
     const validationResult = RolePermissionValidator.validateAssignPermissions(
@@ -18,29 +69,56 @@ class RolePermissionController extends BaseController {
       return this.validationErrorResponse(res, validationResult.message);
     }
 
-    const { roleId, permissions } = req?.body;
+    const { roleName, permissions } = req?.body;
 
-    const isRoleExist = await RolePermissionRepo?.isRoleExists(roleId);
+    const role = await RoleRepo?.findByName(roleName);
 
-    if (!isRoleExist) {
-      return this.errorResponse(res, `Role with ID ${roleId} not found`, 404);
+    if (!role) {
+      return this.errorResponse(
+        res,
+        `Role with name ${roleName} not found`,
+        404
+      );
     }
+
+    const { roleId } = role;
+
+    // const isRoleExist = await RolePermissionRepo?.isRoleExists(roleId);
+
+    // if (!isRoleExist) {
+    //   return this.errorResponse(res, `Role with ID ${roleId} not found`, 404);
+    // }
 
     const permissionsExistPromises = permissions.map((permissionId) =>
       RolePermissionRepo.isPermissionExists([permissionId])
     );
-
     const permissionsExistResults = await Promise.all(permissionsExistPromises);
 
     const invalidPermissions = permissions?.filter(
       (permissionId, index) => permissionsExistResults[index].length === 0
     );
 
-    if (invalidPermissions.length > 0) {
+    if (invalidPermissions?.length > 0) {
       return this.errorResponse(
         res,
         `Permissions not found: ${invalidPermissions.join(", ")}`,
         404
+      );
+    }
+
+    const existingRolePermissions = await RolePermissionRepo?.findByRoleId(
+      roleId
+    );
+
+    if (existingRolePermissions && existingRolePermissions.length > 0) {
+      const rolePermissionIds = existingRolePermissions.map((item) => {
+        return item.id;
+      });
+
+      await Promise.all(
+        rolePermissionIds.map((rolePermissionId) =>
+          RolePermissionRepo?.deleteById(rolePermissionId)
+        )
       );
     }
 
@@ -52,51 +130,11 @@ class RolePermissionController extends BaseController {
     return this.successResponse(
       res,
       rolePermission,
-      "Permissions assigned successfully"
+      "Permissions overwritten successfully"
     );
   };
 
   getRolesWithPermissions = async (req, res) => {
-    // const sortOrder = req?.query?.sortOrder || "id";
-    // const sortDirection = req?.query?.sortDirection || "Desc";
-
-    // const customQuery = {
-    //   order: [[sortOrder, sortDirection]],
-    //   where: {
-    //     isDeleted: false,
-    //   },
-    //   limit: parseInt(req?.query?.limit) || 10,
-    //   offset: parseInt(req?.query?.skip) || 0,
-    //   include: [
-    //     {
-    //       model: db.Role,
-    //       as: "Role",
-    //       attributes: ["roleName"],
-    //       where: {},
-    //     },
-    //     {
-    //       model: db.Permission,
-    //       as: "Permission",
-    //       attributes: ["name"],
-    //       where: {},
-    //     },
-    //   ],
-    // };
-
-    // // Add search conditions if roleName is provided in query params
-    // if (req?.query?.roleName) {
-    //   customQuery.include[0].where.roleName = {
-    //     [db.Sequelize.Op.like]: `%${req?.query?.roleName}%`,
-    //   };
-    // }
-
-    // // Add search conditions if permissionName is provided in query params
-    // if (req?.query?.permissionName) {
-    //   customQuery.include[1].where.name = {
-    //     [db.Sequelize.Op.like]: `%${req?.query?.permissionName}%`,
-    //   };
-    // }
-
     const roleWithPermissions =
       await RolePermissionRepo?.getRolesWithPermissions();
 
