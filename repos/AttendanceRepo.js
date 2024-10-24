@@ -45,8 +45,9 @@ class AttendanceRepo extends BaseRepository {
 
   
   async getAttendance(options = {}) {
+    console.log(options);
     return this.findAll({
-      where: options.where || {},
+      where: options.where,
       include: [
         {
           model: db.User,
@@ -56,7 +57,7 @@ class AttendanceRepo extends BaseRepository {
       ],
       limit: options.limit,
       offset: options.offset,
-      order: options.order, 
+      order: options.order,
     });
   }
   

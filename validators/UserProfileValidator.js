@@ -17,6 +17,14 @@ class UserProfileValidator extends BaseValidator {
       joinedDate: Joi.date().iso().required().label("Joined Date"),
       branch: Joi.string().required().label("Branch"),
       userId: Joi.number().required().label("User ID"),
+      employeeType: Joi.string().required().label("Employee Type"),
+      department: Joi.string().required().label("Department"),
+      totalExperience: Joi.string().required().label("Total Experience"),
+      maritalStatus: Joi.string().required().label("Marital Status"),
+      aboutMe: Joi.string().optional().label("About Me"),
+      emergencyContactName: Joi.string()
+        .required()
+        .label("Emergency Contact Name"),
       isDeleted: Joi.boolean().optional(),
     });
 

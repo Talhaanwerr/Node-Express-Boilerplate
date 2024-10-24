@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const UserProfileController = require("../controllers/UserProfileController.js");
-const authorize = require("../middlewares/auth.middleware.js");
+const {
+  authorize,
+  authMiddleware,
+} = require("../middlewares/auth.middleware.js");
 
 router.get(
   "/get-all-user-profiles",
@@ -9,8 +12,8 @@ router.get(
   UserProfileController.getAllUserProfiles
 );
 router.get(
-  "/get-user-profile/:id",
-  // authorize("admin"),
+  "/get-user-profile",
+  authMiddleware,
   UserProfileController.getUserProfileById
 );
 router.post(

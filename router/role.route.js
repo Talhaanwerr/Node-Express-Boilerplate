@@ -19,7 +19,7 @@ router.delete(
   // authorize("admin"),
   RoleController.deleteRole
 );
-router.get("/get-all-roles", authorize("admin"), RoleController.getRoles);
+router.get("/get-all-roles", RoleController.getRoles);
 router.get(
   "/get-role-by-id/:id",
   // authorize("admin"),

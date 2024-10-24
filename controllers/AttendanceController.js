@@ -99,27 +99,39 @@ class AttendanceController extends BaseController {
       search,
       from,
       to,
-    } = req.query;
+    } = req?.query;
 
-    const offset = (page - 1) * limit;
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+
+    if (pageNum < 1 || limitNum < 1) {
+      return this.errorResponse(
+        res,
+        "Page and limit must be positive integers",
+        400
+      );
+    }
+
+    const offset = (pageNum - 1) * limitNum;
     const whereClause = {};
 
     if (date) {
-      const formattedDate = new Date(date).toISOString().split('T')[0]; 
+      const formattedDate = new Date(date).toISOString().split("T")[0];
       whereClause.date = formattedDate;
-    }
-    if (from && to) {
-      whereClause.date = {
-        [Op.between]: [from, to],
-      };
-    } else if (from) {
-      whereClause.date = {
-        [Op.gte]: from,
-      };
-    } else if (to) {
-      whereClause.date = {
-        [Op.lte]: to,
-      };
+    } else {
+      if (from && to) {
+        whereClause.date = {
+          [Op.between]: [new Date(from), new Date(to)],
+        };
+      } else if (from) {
+        whereClause.date = {
+          [Op.gte]: new Date(from),
+        };
+      } else if (to) {
+        whereClause.date = {
+          [Op.lte]: new Date(to),
+        };
+      }
     }
 
     if (month && year) {
@@ -140,29 +152,41 @@ class AttendanceController extends BaseController {
     }
 
     if (search) {
-      whereClause["$user.firstName$"] = { [Op.like]: `%${search}%` };
+      whereClause["$user.firstName$"] = {
+        [Op.like]: `%${search.toLowerCase()}%`,
+      };
     }
 
-    const attendances = await AttendanceRepo.getAttendance({
-      where: whereClause,
-      limit: parseInt(limit),
-      offset: parseInt(offset),
-      order: [[sort === "id" ? "id" : "date", order]],
-    });
+    try {
+      const attendances = await AttendanceRepo.getAttendance({
+        where: whereClause,
+        limit: limitNum,
+        offset: offset,
+        order: [[sort === "id" ? "id" : "date", order.toLowerCase()]],
+      });
 
-    if (!attendances || attendances.length === 0) {
-      return this.errorResponse(res, "No attendance found", 404);
+      if (!attendances || attendances.length === 0) {
+        return this.errorResponse(res, "No attendance records found", 404);
+      }
+
+      const updatedAttendances = attendances.map(calculateAttendance);
+      const attendanceResponse = formatAttendanceResponse(updatedAttendances);
+
+      return this.successResponse(
+        res,
+        attendanceResponse,
+        "Attendances retrieved successfully"
+      );
+    } catch (error) {
+      console.error("Error fetching attendances: ", error);
+      return this.errorResponse(
+        res,
+        "Something went wrong while fetching attendances",
+        500
+      );
     }
-
-    const updatedAttendances = attendances.map(calculateAttendance);
-    const attendanceResponse = formatAttendanceResponse(updatedAttendances);
-
-    return this.successResponse(
-      res,
-      attendanceResponse,
-      "Attendances retrieved successfully"
-    );
   };
+
   getAttendanceById = async (req, res) => {
     const { id } = req?.params;
     const attendance = await AttendanceRepo?.findByIdWithInclude(id);
