@@ -208,6 +208,7 @@ class AttendanceController extends BaseController {
 
   getAttendanceByUserId = async (req, res) => {
     const { userId } = req?.params;
+    const id = req.user.id;
 
     const attendance = await AttendanceRepo?.findByUserId(userId);
 
