@@ -14,17 +14,19 @@ class UserProfileController extends BaseController {
   }
 
   getUserProfileById = async (req, res) => {
-    const { id } = req?.params;
-    const user = await UserProfileRepo?.findByIdWithInclude(id);
+    const userId = req?.user?.id;
+
+    const user = await UserProfileRepo?.findByIdWithInclude(userId);
+    console.log("user", user);
 
     if (!user) {
-      return this.errorResponse(res, `User with ID ${id} not found`, 404);
+      return this.errorResponse(res, `User with ID ${userId} not found`, 404);
     }
 
     return this.successResponse(
       res,
       user,
-      `User with ID ${id} retrieved successfully`
+      `User with ID ${userId} retrieved successfully`
     );
   };
 
@@ -68,6 +70,7 @@ class UserProfileController extends BaseController {
         [Op.like]: `%${req?.query?.branch}%`,
       };
     }
+    
     // if (req?.query?.search) {
     //   customQuery.where[Op.or] = [
     //     { firstName: { [Op.like]: `%${req?.query?.search}%` } },

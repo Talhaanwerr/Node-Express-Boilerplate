@@ -269,7 +269,6 @@ class AuthController extends BaseController {
   // };
 
   logoutUser = async (req, res) => {
-
     res.clearCookie("jwt");
     return this.successResponse(res, {}, "Logout successful");
   };

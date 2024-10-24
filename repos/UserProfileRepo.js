@@ -18,12 +18,26 @@ class UserProfileRepo extends BaseRepository {
         {
           model: db.User,
           as: "user",
-          attributes: ["firstName", "lastName", "email", "status"],
+          attributes: [
+            "firstName",
+            "lastName",
+            "email",
+            "status",
+            "shiftTime",
+            "profilePicture",
+            "primaryReporting",
+            "secondaryReporting",
+          ],
           include: [
             {
               model: db.Designation,
               as: "designation",
               attributes: ["designation_name"],
+            },
+            {
+              model: db.Role,
+              as: "role",
+              attributes: ["roleName"],
             },
           ],
         },
@@ -58,14 +72,35 @@ class UserProfileRepo extends BaseRepository {
     });
   }
 
-  async findByIdWithInclude(id) {
+  async findByIdWithInclude(userId) {
     return this.findOneWithInclude({
-      where: { id },
+      where: { userId },
       include: [
         {
           model: db.User,
           as: "user",
-          attributes: ["firstName", "lastName", "email"],
+          attributes: [
+            "firstName",
+            "lastName",
+            "email",
+            "status",
+            "shiftTime",
+            "profilePicture",
+            "primaryReporting",
+            "secondaryReporting",
+          ],
+          include: [
+            {
+              model: db.Designation,
+              as: "designation",
+              attributes: ["designation_name"],
+            },
+            {
+              model: db.Role,
+              as: "role",
+              attributes: ["roleName"],
+            },
+          ],
         },
       ],
     });
@@ -76,7 +111,7 @@ class UserProfileRepo extends BaseRepository {
   }
 
   // async findUser(id) {
-  //   return db.User.findByPk(id);  
+  //   return db.User.findByPk(id);
   // }
 
   async isUserIdAssignedToProfile(userId) {

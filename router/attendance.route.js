@@ -18,5 +18,4 @@ router.get(
   AttendanceController.getAttendanceByUserId
 );
 
-
 module.exports = router;

@@ -58,6 +58,34 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BLOB,
         allowNull: true,
       },
+      userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      employeeType: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      department: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      totalExperience: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      maritalStatus: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      aboutMe: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      emergencyContactName: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       isDeleted: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,

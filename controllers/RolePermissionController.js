@@ -83,12 +83,6 @@ class RolePermissionController extends BaseController {
 
     const { roleId } = role;
 
-    // const isRoleExist = await RolePermissionRepo?.isRoleExists(roleId);
-
-    // if (!isRoleExist) {
-    //   return this.errorResponse(res, `Role with ID ${roleId} not found`, 404);
-    // }
-
     const permissionsExistPromises = permissions.map((permissionId) =>
       RolePermissionRepo.isPermissionExists([permissionId])
     );

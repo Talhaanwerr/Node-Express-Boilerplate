@@ -84,13 +84,6 @@ class RolePermissionRepo extends BaseRepository {
     });
   }
 
-  async isRoleExists(roleId) {
-    return db.Role.findOne({
-      where: {
-        id: roleId,
-      },
-    });
-  }
 
 
   async findByRoleId(roleId) {
