@@ -45,14 +45,14 @@ class UserProfileValidator extends BaseValidator {
       address: Joi.string().optional().label("Address"),
       joinedDate: Joi.date().iso().optional().label("Joined Date"),
       branch: Joi.string().optional().label("Branch"),
-      userId: Joi.number().required().label("User ID"),
-      employeeType: Joi.string().required().label("Employee Type"),
-      department: Joi.string().required().label("Department"),
-      totalExperience: Joi.string().required().label("Total Experience"),
-      maritalStatus: Joi.string().required().label("Marital Status"),
+      userId: Joi.number().optional().label("User ID"),
+      employeeType: Joi.string().optional().label("Employee Type"),
+      department: Joi.string().optional().label("Department"),
+      totalExperience: Joi.string().optional().label("Total Experience"),
+      maritalStatus: Joi.string().optional().label("Marital Status"),
       aboutMe: Joi.string().optional().label("About Me"),
       emergencyContactName: Joi.string()
-        .required()
+        .optional()
         .label("Emergency Contact Name"),
       isDeleted: Joi.boolean().optional(),
     });

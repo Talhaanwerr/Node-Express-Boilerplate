@@ -17,7 +17,6 @@ class UserProfileController extends BaseController {
     const userId = req?.user?.id;
 
     const user = await UserProfileRepo?.findByIdWithInclude(userId);
-    console.log("user", user);
 
     if (!user) {
       return this.errorResponse(res, `User with ID ${userId} not found`, 404);
@@ -70,7 +69,7 @@ class UserProfileController extends BaseController {
         [Op.like]: `%${req?.query?.branch}%`,
       };
     }
-    
+
     // if (req?.query?.search) {
     //   customQuery.where[Op.or] = [
     //     { firstName: { [Op.like]: `%${req?.query?.search}%` } },
@@ -147,12 +146,15 @@ class UserProfileController extends BaseController {
   };
 
   updateUserProfile = async (req, res) => {
-    const { id } = req?.params;
+    const userId = req?.user?.id;
+
     const validationResult = validateUpdateUserProfile(req?.body);
 
     if (!validationResult.status) {
       return this.validationErrorResponse(res, validationResult.message);
     }
+
+    const { id } = await UserProfileRepo?.getProfileIdByUserId(userId);
 
     const isUserProfile = await UserProfileRepo?.isUserProfileExists(id);
 
@@ -165,6 +167,11 @@ class UserProfileController extends BaseController {
     }
 
     const user = await UserProfileRepo?.updateUserProfile(req.body, id);
+
+    user.password = undefined;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordToken = undefined;
+
     return this.successResponse(res, user, "User Profile updated successfully");
   };
 

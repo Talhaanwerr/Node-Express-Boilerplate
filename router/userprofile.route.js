@@ -22,8 +22,9 @@ router.post(
   UserProfileController.createUserProfile
 );
 router.patch(
-  "/update-user-profile/:id",
+  "/update-user-profile",
   // authorize("user"),
+  authMiddleware,
   UserProfileController.updateUserProfile
 );
 router.delete(

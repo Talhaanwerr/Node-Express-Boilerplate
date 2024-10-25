@@ -2,10 +2,10 @@ const BaseRepository = require("./BaseRepo");
 const db = require("../models/index");
 const { Op } = require("sequelize");
 
-class AttendanceRepo extends BaseRepository {
+class LogTimeRepo extends BaseRepository {
   constructor() {
-    super(db.Attendance);
-    this.model = db.Attendance;
+    super(db.LogTime);
+    this.model = db.LogTime;
   }
 
   async findById(id) {
@@ -34,8 +34,8 @@ class AttendanceRepo extends BaseRepository {
     });
   }
 
-  async createAttendance(attendance) {
-    return this.create(attendance);
+  async createLogTime(logTime) {
+    return this.create(logTime);
   }
 
   async updateAttendance(attendance, id) {
@@ -43,7 +43,6 @@ class AttendanceRepo extends BaseRepository {
     return this.findOne({ id });
   }
 
-  
   async getAttendance(options = {}) {
     return this.findAll({
       where: options.where,
@@ -59,7 +58,6 @@ class AttendanceRepo extends BaseRepository {
       order: options.order,
     });
   }
-  
 
   async findAttendance(attendanceId) {
     return this.findOne({ attendanceId });
@@ -85,4 +83,4 @@ class AttendanceRepo extends BaseRepository {
   }
 }
 
-module.exports = new AttendanceRepo();
+module.exports = new LogTimeRepo();

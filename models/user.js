@@ -32,6 +32,12 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: "CASCADE",
       });
 
+      User.hasMany(models.LogTime, {
+        foreignKey: "userId",
+        as: "logTime",
+        onDelete: "CASCADE",
+      });
+      
       User.hasOne(models.User, {
         foreignKey: "primaryReporting",
         as: "PrimaryReportees",

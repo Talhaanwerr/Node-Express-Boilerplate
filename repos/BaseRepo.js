@@ -9,13 +9,10 @@ module.exports = class BaseRepository {
   }
 
   async findOne(condition) {
-    console.log("condition", condition);
     return this.model.findOne({ where: condition });
   }
 
   async findOneWithDateAndUserId({ userId, date }) {
-    console.log("userId", userId);
-    console.log("date", date);
     return this.model.findOne({
       where: {
         userId,

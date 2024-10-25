@@ -14,7 +14,6 @@ const authorize = (requiredRole) => {
     try {
       const decoded = jwt.verify(token, jwtSecret);
       const customQuery = { id: decoded?.id };
-      console.log("decoded : ", decoded);
 
       const user = await UserRepo.findByIdWithInclude(customQuery);
       requiredRole = user?.role?.roleName;

@@ -4,6 +4,7 @@ const {
   formatAttendanceResponse,
 } = require("../utils/attendance.js");
 const AttendanceRepo = require("../repos/AttendanceRepo.js");
+const LogTimeRepo = require("../repos/LogTimeRepo.js");
 const {
   validateCreateAttendance,
   validateUpdateAttendance,
@@ -97,7 +98,7 @@ class AttendanceController extends BaseController {
   getAllAttendances = async (req, res) => {
     const {
       page = 1,
-      limit = 50,
+      limit = 10,
       date,
       month,
       year,
@@ -156,21 +157,23 @@ class AttendanceController extends BaseController {
       };
     }
 
-    const attendances = await AttendanceRepo.getAttendance({
+    const attendances = await AttendanceRepo?.getAttendance({
       where: whereClause,
       limit: parseInt(limit),
       offset: parseInt(offset),
       order: [[sort === "id" ? "id" : "date", order]],
     });
 
-    if (!attendances || attendances.length === 0) {
+    if (!attendances || attendances?.length === 0) {
       return this.errorResponse(res, "No attendance found", 404);
     }
 
-    const updatedAttendances = attendances.map(calculateAttendance);
+    const updatedAttendances = attendances?.map(calculateAttendance);
 
     const filteredAttendances = status
-      ? updatedAttendances.filter((attendance) => attendance.status === status)
+      ? updatedAttendances?.filter(
+          (attendance) => attendance?.status === status
+        )
       : updatedAttendances;
 
     if (filteredAttendances.length === 0) {
@@ -181,11 +184,11 @@ class AttendanceController extends BaseController {
       );
     }
 
-    const workingDaysMap = filteredAttendances.reduce((acc, attendance) => {
+    const workingDaysMap = filteredAttendances?.reduce((acc, attendance) => {
       if (attendance?.checkIn) {
-        const dateKey = attendance.userId + "-" + attendance.date;
+        const dateKey = attendance?.userId + "-" + attendance?.date;
         if (!acc[attendance.userId]) {
-          acc[attendance.userId] = new Set();
+          acc[attendance?.userId] = new Set();
         }
         acc[attendance.userId].add(dateKey);
       }
@@ -198,8 +201,6 @@ class AttendanceController extends BaseController {
         datesSet.size,
       ])
     );
-
-    console.log("workingDaysCount", workingDaysCount);
 
     const attendanceResponse = formatAttendanceResponse(
       filteredAttendances,
@@ -233,7 +234,7 @@ class AttendanceController extends BaseController {
   };
 
   getAttendanceByUserId = async (req, res) => {
-    const { userId } = req.params;
+    // const { userId } = req?.params;
     const {
       page = 1,
       limit = 10,
@@ -312,13 +313,23 @@ class AttendanceController extends BaseController {
     );
   };
 
-  createAttendance = async (req, res) => {
+  updateAttendance = async (req, res) => {
+    const { date, checkIn, checkOut, reason, description } = req?.body;
     const userId = req?.user?.id;
 
     const validationResult = validateUpdateAttendance(req?.body);
 
     if (!validationResult.status) {
       return this.validationErrorResponse(res, validationResult.message);
+    }
+
+    const currentDate = new Date();
+    const inputDate = new Date(date);
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(currentDate.getDate() - 7);
+
+    if (inputDate < sevenDaysAgo) {
+      return this.errorResponse(res, "Date cannot be older than 7 days", 400);
     }
 
     const isUser = await UserRepo?.findById(userId);
@@ -328,18 +339,49 @@ class AttendanceController extends BaseController {
     }
 
     const attendanceData = {
-      ...req.body,
+      ...req?.body,
       userId,
     };
 
-    const updatedAttendance = await AttendanceRepo?.createAttendance(
-      attendanceData
+    const [attendance] = await sequelize.query(
+      `SELECT * FROM Attendances WHERE userId = :userId AND date = :date`,
+      {
+        replacements: { userId, date },
+        type: sequelize.QueryTypes.SELECT,
+      }
     );
+
+    if (!attendance) {
+      return this.errorResponse(
+        res,
+        `Attendance record not found for user with ID ${userId} on ${date}`,
+        404
+      );
+    }
+
+    const updatedAttendance = await AttendanceRepo?.updateAttendance(
+      attendanceData,
+      attendance?.id
+    );
+
+    const forLogTime = {
+      checkIn,
+      checkOut,
+      date,
+      reason,
+      description,
+    };
+
+    const logTime = await LogTimeRepo?.createLogTime(forLogTime);
+
+    if (!logTime) {
+      return this.serverErrorResponse(res, "Log time not created", 500);
+    }
 
     return this.successResponse(
       res,
       updatedAttendance,
-      `Attendance created successfully`
+      `Attendance updated successfully`
     );
   };
 }

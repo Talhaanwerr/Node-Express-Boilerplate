@@ -119,6 +119,12 @@ class UserProfileRepo extends BaseRepository {
       userId,
     });
   }
+
+  async getProfileIdByUserId(userId) {
+    return this.findOne({
+      userId,
+    });
+  }
 }
 
 module.exports = new UserProfileRepo();
