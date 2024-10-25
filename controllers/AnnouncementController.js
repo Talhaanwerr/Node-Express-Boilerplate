@@ -26,6 +26,46 @@ class AnnouncementController extends BaseController {
       "Announcement created successfully"
     );
   };
+  getAnnouncement = async (req, res) => {
+    const {
+      sortBy = "id",
+      sortOrder = "DESC",
+      page = 1,
+      limit = 10,
+      search = "",
+      filterByName,
+    } = req.query;
+    const skip = (page - 1) * limit;
+    const searchParams = {};
+    if (search) {
+      searchParams[db.Sequelize.Op.or] = [
+        { name: { [db.Sequelize.Op.like]: `%${search}%` } },
+      ];
+    }
+    if (filterByName) {
+      searchParams.name = {
+        [db.Sequelize.Op.like]: `%${filterByName}%`,
+      };
+    }
+    searchParams.isDeleted = false;
+    const condition = {
+      order: [[sortBy, sortOrder]],
+      limit: parseInt(limit),
+      offset: skip,
+      where: searchParams,
+    };
+    const announcement = await AnnouncementRepo.getAnnouncement(condition);
+    return this.successResponse(res, announcement, "Getting All Announcements");
+  };
+  getAnnouncementById = async (req, res) => {
+    const announcement = await AnnouncementRepo.findAnnouncements(
+      req.params.id
+    );
+    if (!announcement) {
+      return this.errorResponse(res, "Announcement not found", 404);
+    }
+    return this.successResponse(res, announcement, "Getting Announcement");
+  };
 
   updateAnnouncement = async (req, res) => {
     const { id } = req.params;

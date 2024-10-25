@@ -42,21 +42,20 @@ function calculateAttendance(attendance) {
 
   return attendance;
 }
-
-function formatAttendanceResponse(attendance, workingDays) {
+function formatAttendanceResponse(attendance, workingDays = {}) {
   if (Array.isArray(attendance)) {
     return attendance?.map((att) =>
-      formatSingleAttendanceResponse(att, workingDays[att.userId])
+      formatSingleAttendanceResponse(att, workingDays[att.userId] || 0)
     );
   } else {
     return formatSingleAttendanceResponse(
       attendance,
-      workingDays[attendance?.userId]
+      workingDays[attendance?.userId] || 0
     );
   }
 }
 
-function formatSingleAttendanceResponse(attendance, workingDays) {
+function formatSingleAttendanceResponse(attendance, workingDays = 0) {
   return {
     id: attendance?.id,
     userId: attendance?.userId,

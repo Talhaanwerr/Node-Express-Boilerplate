@@ -57,13 +57,6 @@ class AttendanceController extends BaseController {
     }
 
     if (isCheckOut) {
-      if (date) {
-        const [year, month, day] = date.split("-");
-        const monthIndex = new Date(`${month} 1, ${year}`).getMonth() + 1;
-        const formattedMonth = monthIndex < 10 ? `0${monthIndex}` : monthIndex;
-        date = `${year}-${formattedMonth}-${day}`;
-      }
-
       const [attendance] = await sequelize.query(
         `SELECT * FROM Attendances WHERE userId = :userId AND date = :date`,
         {
@@ -234,7 +227,16 @@ class AttendanceController extends BaseController {
   };
 
   getAttendanceByUserId = async (req, res) => {
-    // const { userId } = req?.params;
+    // const { userId } = req.params;
+
+    const userId = req.params.userId || req.user?.id;
+    console.log("userId : ", userId);
+
+
+    if (!userId) {
+      return this.errorResponse(res, "User ID is required", 400);
+    }
+
     const {
       page = 1,
       limit = 10,
@@ -305,7 +307,29 @@ class AttendanceController extends BaseController {
       );
     }
 
-    const attendanceResponse = formatAttendanceResponse(filteredAttendances);
+    const workingDaysMap = filteredAttendances.reduce((acc, attendance) => {
+      if (attendance?.checkIn) {
+        const dateKey = attendance.userId + "-" + attendance.date;
+        if (!acc[attendance.userId]) {
+          acc[attendance.userId] = new Set();
+        }
+        acc[attendance.userId].add(dateKey);
+      }
+      return acc;
+    }, {});
+
+    const workingDaysCount = Object.fromEntries(
+      Object.entries(workingDaysMap).map(([userId, datesSet]) => [
+        userId,
+        datesSet.size,
+      ])
+    );
+
+    const attendanceResponse = formatAttendanceResponse(
+      filteredAttendances,
+      workingDaysCount
+    );
+
     return this.successResponse(
       res,
       attendanceResponse,

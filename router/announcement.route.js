@@ -13,5 +13,10 @@ router.patch(
   // authorize("admin"),
   AnnouncementController.updateAnnouncement
 );
+router.get("/get-announcements", AnnouncementController.getAnnouncement);
+router.get(
+  "/getAnnouncementsById/:id",
+  AnnouncementController.getAnnouncementById
+);
 
 module.exports = router;
