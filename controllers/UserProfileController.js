@@ -70,6 +70,7 @@ class UserProfileController extends BaseController {
         [Op.like]: `%${req?.query?.branch}%`,
       };
     }
+    
     // if (req?.query?.search) {
     //   customQuery.where[Op.or] = [
     //     { firstName: { [Op.like]: `%${req?.query?.search}%` } },

@@ -56,6 +56,13 @@ class AttendanceController extends BaseController {
     }
 
     if (isCheckOut) {
+      if (date) {
+        const [year, month, day] = date.split("-");
+        const monthIndex = new Date(`${month} 1, ${year}`).getMonth() + 1;
+        const formattedMonth = monthIndex < 10 ? `0${monthIndex}` : monthIndex;
+        date = `${year}-${formattedMonth}-${day}`;
+      }
+
       const [attendance] = await sequelize.query(
         `SELECT * FROM Attendances WHERE userId = :userId AND date = :date`,
         {
@@ -90,7 +97,7 @@ class AttendanceController extends BaseController {
   getAllAttendances = async (req, res) => {
     const {
       page = 1,
-      limit = 10,
+      limit = 50,
       date,
       month,
       year,
@@ -99,25 +106,17 @@ class AttendanceController extends BaseController {
       search,
       from,
       to,
+      status,
     } = req?.query;
 
-    const pageNum = parseInt(page);
-    const limitNum = parseInt(limit);
-
-    if (pageNum < 1 || limitNum < 1) {
-      return this.errorResponse(
-        res,
-        "Page and limit must be positive integers",
-        400
-      );
-    }
-
-    const offset = (pageNum - 1) * limitNum;
+    const offset = (page - 1) * limit;
     const whereClause = {};
 
     if (date) {
-      const formattedDate = new Date(date).toISOString().split("T")[0];
-      whereClause.date = formattedDate;
+      const formattedDate = new Date(date).toISOString();
+      whereClause.date = {
+        [Op.eq]: formattedDate,
+      };
     } else {
       if (from && to) {
         whereClause.date = {
@@ -153,38 +152,65 @@ class AttendanceController extends BaseController {
 
     if (search) {
       whereClause["$user.firstName$"] = {
-        [Op.like]: `%${search.toLowerCase()}%`,
+        [Op.like]: `%${search}%`,
       };
     }
 
-    try {
-      const attendances = await AttendanceRepo.getAttendance({
-        where: whereClause,
-        limit: limitNum,
-        offset: offset,
-        order: [[sort === "id" ? "id" : "date", order.toLowerCase()]],
-      });
+    const attendances = await AttendanceRepo.getAttendance({
+      where: whereClause,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [[sort === "id" ? "id" : "date", order]],
+    });
 
-      if (!attendances || attendances.length === 0) {
-        return this.errorResponse(res, "No attendance records found", 404);
-      }
+    if (!attendances || attendances.length === 0) {
+      return this.errorResponse(res, "No attendance found", 404);
+    }
 
-      const updatedAttendances = attendances.map(calculateAttendance);
-      const attendanceResponse = formatAttendanceResponse(updatedAttendances);
+    const updatedAttendances = attendances.map(calculateAttendance);
 
-      return this.successResponse(
-        res,
-        attendanceResponse,
-        "Attendances retrieved successfully"
-      );
-    } catch (error) {
-      console.error("Error fetching attendances: ", error);
+    const filteredAttendances = status
+      ? updatedAttendances.filter((attendance) => attendance.status === status)
+      : updatedAttendances;
+
+    if (filteredAttendances.length === 0) {
       return this.errorResponse(
         res,
-        "Something went wrong while fetching attendances",
-        500
+        "No attendance found with the specified status",
+        404
       );
     }
+
+    const workingDaysMap = filteredAttendances.reduce((acc, attendance) => {
+      if (attendance?.checkIn) {
+        const dateKey = attendance.userId + "-" + attendance.date;
+        if (!acc[attendance.userId]) {
+          acc[attendance.userId] = new Set();
+        }
+        acc[attendance.userId].add(dateKey);
+      }
+      return acc;
+    }, {});
+
+    const workingDaysCount = Object.fromEntries(
+      Object.entries(workingDaysMap).map(([userId, datesSet]) => [
+        userId,
+        datesSet.size,
+      ])
+    );
+
+    console.log("workingDaysCount", workingDaysCount);
+
+    const attendanceResponse = formatAttendanceResponse(
+      filteredAttendances,
+      workingDaysCount
+    );
+
+    return this.successResponse(
+      res,
+      { attendanceResponse },
+      "Attendances retrieved successfully"
+    );
   };
 
   getAttendanceById = async (req, res) => {
@@ -207,19 +233,78 @@ class AttendanceController extends BaseController {
   };
 
   getAttendanceByUserId = async (req, res) => {
-    const { userId } = req?.params;
-    const id = req.user.id;
+    const { userId } = req.params;
+    const {
+      page = 1,
+      limit = 10,
+      date,
+      month,
+      year,
+      sort = "date",
+      order = "desc",
+      search,
+      from,
+      to,
+      status,
+    } = req.query;
 
-    const attendance = await AttendanceRepo?.findByUserId(userId);
+    const offset = (page - 1) * limit;
+    const whereClause = { userId };
 
-    if (!attendance || attendance.length === 0) {
-      return this.errorResponse(res, "Attendance not found", 404);
+    if (date) {
+      whereClause.date = { [Op.eq]: new Date(date) };
+    } else if (from || to) {
+      whereClause.date = {};
+      if (from) whereClause.date[Op.gte] = new Date(from);
+      if (to) whereClause.date[Op.lte] = new Date(to);
     }
 
-    const updatedAttendances = attendance?.map(calculateAttendance);
+    if (month && year) {
+      whereClause.date = {
+        [Op.and]: [
+          sequelize.where(fn("MONTH", col("date")), month),
+          sequelize.where(fn("YEAR", col("date")), year),
+        ],
+      };
+    } else if (month) {
+      whereClause.date = sequelize.where(fn("MONTH", col("date")), month);
+    } else if (year) {
+      whereClause.date = sequelize.where(fn("YEAR", col("date")), year);
+    }
 
-    const attendanceResponse = formatAttendanceResponse(updatedAttendances);
+    if (search) {
+      whereClause[Op.or] = [
+        { "$user.firstName$": { [Op.like]: `%${search}%` } },
+        { "$user.lastName$": { [Op.like]: `%${search}%` } },
+      ];
+    }
 
+    const attendances = await AttendanceRepo.getAttendance({
+      where: whereClause,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [[sort === "id" ? "id" : "date", order]],
+      include: [{ model: UserRepo.model, required: true }],
+    });
+
+    if (!attendances || attendances.length === 0) {
+      return this.errorResponse(res, "No attendance found for this user", 404);
+    }
+
+    const updatedAttendances = attendances.map(calculateAttendance);
+    const filteredAttendances = status
+      ? updatedAttendances.filter((attendance) => attendance.status === status)
+      : updatedAttendances;
+
+    if (filteredAttendances.length === 0) {
+      return this.errorResponse(
+        res,
+        "No attendance found with the specified status",
+        404
+      );
+    }
+
+    const attendanceResponse = formatAttendanceResponse(filteredAttendances);
     return this.successResponse(
       res,
       attendanceResponse,
