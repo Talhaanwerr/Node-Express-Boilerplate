@@ -7,36 +7,56 @@ function calculateAttendance(attendance) {
     : null;
 
   let hours = 0;
+  let minutes = 0;
+  const standardWorkingHours = 8;
+
   if (checkIn && checkOut) {
     const timeDifference = checkOut - checkIn;
-    hours = timeDifference / 1000 / 60 / 60;
-    hours = parseFloat(hours.toFixed(2));
+    hours = Math.floor(timeDifference / 1000 / 60 / 60);
+    minutes = Math.floor((timeDifference / 1000 / 60) % 60);
   }
 
-  attendance.workingHours = hours;
+  attendance.workingHours = `${hours} hours ${minutes} minutes`;
 
-  if (hours < 8) {
-    attendance.underTime = parseFloat((8 - hours).toFixed(2));
+  const totalWorkedTime = hours + minutes / 60;
+
+  if (totalWorkedTime < standardWorkingHours) {
+    const undertimeHours = Math.floor(standardWorkingHours - totalWorkedTime);
+    const undertimeMinutes =
+      Math.round((standardWorkingHours - totalWorkedTime) * 60) % 60;
+    attendance.underTime = `${undertimeHours} hours ${undertimeMinutes} minutes`;
+    attendance.overTime = "0 hours 0 minutes";
     attendance.status = "undertime";
-  } else if (hours > 8) {
-    attendance.overTime = parseFloat((hours - 8).toFixed(2));
+  } else if (totalWorkedTime > standardWorkingHours) {
+    const overtimeHours = Math.floor(totalWorkedTime - standardWorkingHours);
+    const overtimeMinutes =
+      Math.round((totalWorkedTime - standardWorkingHours) * 60) % 60;
+    attendance.overTime = `${overtimeHours} hours ${overtimeMinutes} minutes`;
+    attendance.underTime = "0 hours 0 minutes";
     attendance.status = "overtime";
   } else {
+    attendance.underTime = "0 hours 0 minutes";
+    attendance.overTime = "0 hours 0 minutes";
     attendance.status = "regular";
   }
 
   return attendance;
 }
 
-function formatAttendanceResponse(attendance) {
+function formatAttendanceResponse(attendance, workingDays) {
   if (Array.isArray(attendance)) {
-    return attendance?.map(formatSingleAttendanceResponse);
+    return attendance?.map((att) =>
+      formatSingleAttendanceResponse(att, workingDays[att.userId])
+    );
   } else {
-    return formatSingleAttendanceResponse(attendance);
+    return formatSingleAttendanceResponse(
+      attendance,
+      workingDays[attendance?.userId]
+    );
   }
 }
 
-function formatSingleAttendanceResponse(attendance) {
+function formatSingleAttendanceResponse(attendance, workingDays) {
   return {
     id: attendance?.id,
     userId: attendance?.userId,
@@ -44,6 +64,9 @@ function formatSingleAttendanceResponse(attendance) {
     checkOut: attendance?.checkOut,
     date: attendance?.date,
     workingHours: attendance?.workingHours,
+    underTime: attendance?.underTime,
+    overTime: attendance?.overTime,
+    workingDays,
     status: attendance?.status,
     user: {
       firstName: attendance?.user?.firstName,

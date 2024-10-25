@@ -15,6 +15,7 @@
 12) announcemnet -> heading, description, type
 
 6) User_permission(user_id {fk}, permission_id {fk})
+
 *8) User_details (id {pk}, user_id {fk}, working_day, time_worked, balanced_time, activity_level, total_working_hours)
 
 

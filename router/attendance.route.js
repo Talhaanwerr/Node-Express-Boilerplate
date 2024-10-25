@@ -14,7 +14,8 @@ router.post(
 router.get("/get-all-attendances", AttendanceController.getAllAttendances);
 router.get("/get-attendance-by-id/:id", AttendanceController.getAttendanceById);
 router.get(
-  "/get-attendance-by-user/:userId",
+  "/get-attendance-by-user/:userId?",
+  authMiddleware,
   AttendanceController.getAttendanceByUserId
 );
 
