@@ -90,7 +90,7 @@ class AttendanceController extends BaseController {
   getAllAttendances = async (req, res) => {
     const {
       page = 1,
-      limit = 15,
+      limit = 50,
       date,
       month,
       year,
@@ -100,7 +100,7 @@ class AttendanceController extends BaseController {
       from,
       to,
       status,
-    } = req.query;
+    } = req?.query;
 
     const offset = (page - 1) * limit;
     const whereClause = {};
@@ -174,11 +174,34 @@ class AttendanceController extends BaseController {
       );
     }
 
-    const attendanceResponse = formatAttendanceResponse(filteredAttendances);
+    const workingDaysMap = filteredAttendances.reduce((acc, attendance) => {
+      if (attendance?.checkIn) {
+        const dateKey = attendance.userId + "-" + attendance.date;
+        if (!acc[attendance.userId]) {
+          acc[attendance.userId] = new Set();
+        }
+        acc[attendance.userId].add(dateKey);
+      }
+      return acc;
+    }, {});
+
+    const workingDaysCount = Object.fromEntries(
+      Object.entries(workingDaysMap).map(([userId, datesSet]) => [
+        userId,
+        datesSet.size,
+      ])
+    );
+
+    console.log("workingDaysCount", workingDaysCount);
+
+    const attendanceResponse = formatAttendanceResponse(
+      filteredAttendances,
+      workingDaysCount
+    );
 
     return this.successResponse(
       res,
-      attendanceResponse,
+      { attendanceResponse },
       "Attendances retrieved successfully"
     );
   };
@@ -202,9 +225,17 @@ class AttendanceController extends BaseController {
     );
   };
 
- 
   getAttendanceByUserId = async (req, res) => {
-    const { userId } = req.params;
+    // const { userId } = req.params;
+
+    const userId = req.params.userId || req.user?.id;
+    console.log("userId : ", userId);
+
+
+    if (!userId) {
+      return this.errorResponse(res, "User ID is required", 400);
+    }
+
     const {
       page = 1,
       limit = 10,
@@ -268,13 +299,43 @@ class AttendanceController extends BaseController {
       : updatedAttendances;
 
     if (filteredAttendances.length === 0) {
-      return this.errorResponse(res, "No attendance found with the specified status", 404);
+      return this.errorResponse(
+        res,
+        "No attendance found with the specified status",
+        404
+      );
     }
 
-    const attendanceResponse = formatAttendanceResponse(filteredAttendances);
-    return this.successResponse(res, attendanceResponse, `Attendance for user with ID ${userId} retrieved successfully`);
+    const workingDaysMap = filteredAttendances.reduce((acc, attendance) => {
+      if (attendance?.checkIn) {
+        const dateKey = attendance.userId + "-" + attendance.date;
+        if (!acc[attendance.userId]) {
+          acc[attendance.userId] = new Set();
+        }
+        acc[attendance.userId].add(dateKey);
+      }
+      return acc;
+    }, {});
+
+    const workingDaysCount = Object.fromEntries(
+      Object.entries(workingDaysMap).map(([userId, datesSet]) => [
+        userId,
+        datesSet.size,
+      ])
+    );
+
+    const attendanceResponse = formatAttendanceResponse(
+      filteredAttendances,
+      workingDaysCount
+    );
+
+    return this.successResponse(
+      res,
+      attendanceResponse,
+      `Attendance for user with ID ${userId} retrieved successfully`
+    );
   };
-  
+
   createAttendance = async (req, res) => {
     const userId = req?.user?.id;
 
