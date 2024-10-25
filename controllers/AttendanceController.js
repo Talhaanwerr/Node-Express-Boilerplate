@@ -204,7 +204,13 @@ class AttendanceController extends BaseController {
 
  
   getAttendanceByUserId = async (req, res) => {
-    const { userId } = req.params;
+
+    const userId = req.params.userId || req.user?.userId;
+  
+    if (!userId) {
+      return this.errorResponse(res, "User ID is required", 400);
+    }
+
     const {
       page = 1,
       limit = 10,
