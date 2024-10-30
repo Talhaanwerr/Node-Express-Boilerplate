@@ -31,7 +31,8 @@ const RolePermissionRoutes = require("./rolepermission.route.js");
 const userRoutes = require("./user.route.js");
 const userProfileRoutes = require("./userprofile.route.js");
 const authRoutes = require("./auth.route.js");
-const timeSummaryRoutes = require("./timesmmary.route.js"); 
+const timeSummaryRoutes = require("./timesummary.route.js"); 
+const leaveRoutes=require("./leave.route.js");
 
 router.use("/announcements", announcementRoutes);
 router.use("/roles", roleRoutes);
@@ -41,6 +42,7 @@ router.use("/users", userRoutes);
 router.use("/user-profiles", userProfileRoutes);
 router.use("/designations", designationRoute);
 router.use("/auth", authRoutes);
-router.use("/employees", timeSummaryRoutes); 
+router.use("/timesummary", timeSummaryRoutes); 
+router.use("/leave",leaveRoutes);
 
 module.exports = router;
