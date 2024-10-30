@@ -81,8 +81,4 @@ class AnnouncementController extends BaseController {
   };
 }
 
-
-
-
-
 module.exports = new AnnouncementController();
