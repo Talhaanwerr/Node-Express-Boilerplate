@@ -2,27 +2,28 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('LeaveSummaries', {
+    await queryInterface.createTable('Leaves', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      employeeName: {
+
+      type_of_leave: {
         type: Sequelize.STRING
       },
-      leaveDay: {
+      available: {
         type: Sequelize.INTEGER
       },
-      fromDate: {
-        type: Sequelize.DATEONLY
+      used: {
+        type: Sequelize.INTEGER
       },
-      toDate: {
-        type: Sequelize.DATEONLY
+      booked: {
+        type: Sequelize.INTEGER
       },
-      activity: {
-        type: Sequelize.STRING
+      user_id: {
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,
@@ -35,6 +36,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('LeaveSummaries');
+    await queryInterface.dropTable('Leaves');
   }
 };

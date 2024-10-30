@@ -23,7 +23,7 @@
 
 9. Team_category(id {pk}, user_id, designation_id {fk})
 
-10. Leave(id {pk}, type_of_leave, available, used, booked, user_id {fk}
+10. Leave(id {pk}, type_of_leave, available, used, booked, user_id {fk})
 
 13) Attendance -> user_id, checkin, checkout, worked_hours, created_at, updated_at
 
