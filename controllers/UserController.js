@@ -47,7 +47,7 @@ class UserController extends BaseController {
       where: {
         isDeleted: false,
       },
-      limit: parseInt(req?.query?.limit) || 10,
+      limit: parseInt(req?.query?.limit) || 50,
       offset: parseInt(req?.query?.skip) || 0,
       attributes: { exclude: ["password"] },
     };
@@ -171,31 +171,63 @@ class UserController extends BaseController {
       return this.validationErrorResponse(res, validationResult.message);
     }
 
-    const { profile, ...userData } = req?.body;
+    console.log("req.body : ", req?.body);
 
-    const [designationExists, roleExists] = await Promise.all([
-      userData.designationId
-        ? DesignationRepo.findById(userData?.designationId)
-        : Promise.resolve(null),
-      userData.roleId
-        ? RoleRepo.findById(userData?.roleId)
-        : Promise.resolve(null),
-    ]);
+    const {
+      profile,
+      designationName,
+      roleName,
+      primaryReportingName,
+      secondaryReportingName,
+      password = "Demo12345",
+      ...userData
+    } = req?.body;
 
-    if (!designationExists) {
-      return this.errorResponse(res, "Designation ID not found", 404);
+    const saltRounds = 10;
+    userData.password = await bcrypt.hash(password, saltRounds);
+
+    const [designation, role, primaryReporting, secondaryReporting] =
+      await Promise.all([
+        designationName
+          ? DesignationRepo.findByName(designationName)
+          : Promise.resolve(null),
+        roleName ? RoleRepo.findByName(roleName) : Promise.resolve(null),
+        primaryReportingName
+          ? UserRepo.findUserByName(primaryReportingName)
+          : Promise.resolve(null),
+        secondaryReportingName
+          ? UserRepo.findUserByName(secondaryReportingName)
+          : Promise.resolve(null),
+      ]);
+
+    if (!designation) {
+      return this.errorResponse(res, "Designation not found", 404);
     }
 
-    if (!roleExists) {
-      return this.errorResponse(res, "Role ID not found", 404);
+    if (!role) {
+      return this.errorResponse(res, "Role not found", 404);
+    }
+
+    if (primaryReportingName && !primaryReporting) {
+      return this.errorResponse(res, "Primary reporting user not found", 404);
+    }
+
+    if (secondaryReportingName && !secondaryReporting) {
+      return this.errorResponse(res, "Secondary reporting user not found", 404);
     }
 
     const user = await UserRepo?.createUserAndProfile({
       ...userData,
+      designationId: designation.id,
+      roleId: role.roleId,
+      primaryReporting: primaryReporting ? primaryReporting.id : null,
+      secondaryReporting: secondaryReporting ? secondaryReporting.id : null,
       profile: {
         ...profile,
       },
     });
+
+    console.log("user : ", user);
 
     return this.successResponse(
       res,

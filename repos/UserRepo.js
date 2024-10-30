@@ -13,12 +13,15 @@ class UserRepo extends BaseRepository {
   }
 
   async createUserAndProfile(user) {
-    return this.runTransaction(async (transaction) => {
+    return db.sequelize.transaction(async (transaction) => {
       const createdUser = await this.create(user, { transaction });
       const createdProfile = await db.UserProfile.create(
         { ...user.profile, userId: createdUser.id },
         { transaction }
       );
+
+      createdUser.password = undefined;
+
       return { user: createdUser, profile: createdProfile };
     });
   }
@@ -77,6 +80,18 @@ class UserRepo extends BaseRepository {
           as: "designation",
           attributes: ["designation_name"],
         },
+
+        {
+          model: db.User,
+          as: "PrimaryReportees",
+          attributes: ["firstName", "lastName", "email"],
+        },
+        {
+          model: db.User,
+          as: "SecondaryReportees",
+          attributes: ["firstName", "lastName", "email"],
+        },
+
       ],
     });
   }
@@ -97,12 +112,12 @@ class UserRepo extends BaseRepository {
         },
         {
           model: db.User,
-          as: 'PrimaryReportees',
-          attributes: ["firstName", "lastName", "email"],
+          as: "PrimaryReportees",
+          attributes: ["firstName"]//, "lastName", "email"],
         },
         {
           model: db.User,
-          as: 'SecondaryReportees',
+          as: "SecondaryReportees",
           attributes: ["firstName", "lastName", "email"],
         },
       ],
@@ -151,6 +166,10 @@ class UserRepo extends BaseRepository {
 
   async findUserByEmail(email) {
     return this.findOne({ email });
+  }
+
+  async findUserByName(firstName) {
+    return this.findOne({ firstName });
   }
 }
 

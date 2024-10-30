@@ -23,6 +23,7 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "mysql2": "^3.11.3",
+    "node-cron": "^3.0.3",
     "nodemailer": "^6.9.15",
     "sequelize": "^6.37.3",
     "sequelize-cli": "^6.6.2",

@@ -6,27 +6,20 @@ const { validateLoginUser } = require("../validators/AuthValidator.js");
 const { jwtSecret } = require("../config/config.js");
 const crypto = require("crypto");
 const transporter = require("../utils/email.js");
+const { constants } = require("../utils/constant.js");
 
 class AuthController extends BaseController {
   constructor() {
     super();
   }
 
-  signToken = (id, email, role) => {
-    return jwt.sign({ id, email, role }, jwtSecret, {
-      expiresIn: "4h",
+  signToken = (userResponse) => {
+    return jwt.sign(userResponse, jwtSecret, {
+      expiresIn: constants.expiresIn,
     });
   };
 
   createSendResponse = (user, statusCode, res, msg) => {
-    let token = this.signToken(user?.id, user?.email, user.role?.roleName);
-    const options = {
-      maxAge: 1000 * 60 * 60 * 4,
-      httpOnly: true,
-    };
-    res.cookie("jwt", token, options);
-    user.password = undefined;
-
     const userResponse = {
       id: user.id,
       email: user.email,
@@ -39,7 +32,14 @@ class AuthController extends BaseController {
       designationName: user?.designation?.designation_name,
     };
 
-    return this.successResponse(res, { userResponse, token }, msg);
+    let token = this.signToken(userResponse);
+    const options = {
+      maxAge: constants.maxAge,
+      httpOnly: true,
+    };
+    res.cookie("jwt", token, options);
+
+    return this.successResponse(res, { user, token }, msg);
   };
 
   loginUser = async (req, res) => {
@@ -52,7 +52,6 @@ class AuthController extends BaseController {
     const { email, password } = req?.body;
 
     const user = await UserRepo?.findByEmailWithInclude(email);
-
 
     if (!user) {
       return this.errorResponse(res, "User not found", 404);
@@ -97,11 +96,10 @@ class AuthController extends BaseController {
       return this.errorResponse(res, "Invalid old password", 401);
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const hashedPassword = await bcrypt.hash(newPassword, constants.saltRounds);
 
     await UserRepo?.updateUserPassword(user?.id, hashedPassword);
     user.isNewUser = false;
-    user.password = undefined;
 
     const resetPasswordResponse = {
       id: user?.id,
@@ -133,7 +131,7 @@ class AuthController extends BaseController {
       return this.errorResponse(res, "User not found", 404);
     }
 
-    const resetToken = crypto.randomBytes(32).toString("hex"); // encoded token
+    const resetToken = crypto.randomBytes(constants.hexCode).toString("hex"); // encoded token
 
     const encryptedToken = crypto
       .createHash("sha256")
@@ -147,10 +145,10 @@ class AuthController extends BaseController {
       validateBeforeSave: false,
     });
 
-    const resetLink = `localhost:5173/reset-password?token=${resetToken}`;
+    const resetLink = `${constants.frontEndUrl}/reset-password?token=${resetToken}`;
 
     const mailOptions = {
-      from: "ibad1657@gmail.com",
+      from: process.env.EMAIL,
       to: email,
       subject: "Password reset link",
       html: `
@@ -236,7 +234,7 @@ class AuthController extends BaseController {
       return this.errorResponse(res, "Token is invalid or has expired", 400);
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const hashedPassword = await bcrypt.hash(newPassword, constants.saltRounds);
     user.password = hashedPassword;
 
     user.resetPasswordToken = undefined;

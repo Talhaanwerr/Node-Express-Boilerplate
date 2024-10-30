@@ -12,15 +12,52 @@ const {
 const BaseController = require("./BaseController.js");
 const UserRepo = require("../repos/UserRepo.js");
 const { sequelize } = require("../models");
+const cron = require("node-cron");
 
 class AttendanceController extends BaseController {
   constructor() {
     super();
+    this.scheduleDailyCheckIn();
+  }
+
+  scheduleDailyCheckIn() {
+    cron.schedule("0 0 * * *", async () => {
+      try {
+        const today = new Date().toISOString().split("T")[0];
+
+        const users = await UserRepo?.findAll();
+
+        for (const user of users) {
+          const existingAttendance = await sequelize.query(
+            `SELECT * FROM Attendances WHERE userId = :userId AND date = :date`,
+            {
+              replacements: { userId: user?.id, date: today },
+              type: sequelize.QueryTypes.SELECT,
+            }
+          );
+
+          if (!existingAttendance?.length) {
+            await AttendanceRepo?.createAttendance({
+              userId: user?.id,
+              date: today,
+              checkIn: null,
+              checkOut: null,
+            });
+          }
+        }
+
+        console.log("Daily attendance check completed.");
+      } catch (error) {
+        console.error("Error in daily attendance check:", error);
+      }
+    });
   }
 
   manageAttendance = async (req, res) => {
     let { checkIn, checkOut, date } = req?.body;
     let userId = req?.user?.id;
+
+    date = new Date(date).toISOString().split("T")[0];
 
     if (!date) {
       return this.errorResponse(res, "Date is required", 400);
@@ -44,6 +81,26 @@ class AttendanceController extends BaseController {
     }
 
     if (isCheckIn) {
+      const [existingAttendance] = await sequelize.query(
+        `SELECT * FROM Attendances WHERE userId = :userId AND date = :date`,
+        {
+          replacements: { userId, date },
+          type: sequelize.QueryTypes.SELECT,
+        }
+      );
+
+      if (existingAttendance) {
+        const updatedAttendance = await AttendanceRepo?.updateAttendance(
+          { checkIn },
+          existingAttendance.id
+        );
+        return this.successResponse(
+          res,
+          updatedAttendance,
+          "Check-in time updated successfully"
+        );
+      }
+
       const newAttendance = await AttendanceRepo?.createAttendance({
         userId,
         checkIn,
@@ -67,6 +124,18 @@ class AttendanceController extends BaseController {
 
       if (!attendance) {
         return this.errorResponse(res, "Attendance record not found", 404);
+      }
+
+      if (attendance.checkOut) {
+        const updatedAttendance = await AttendanceRepo?.updateAttendance(
+          { checkOut },
+          attendance?.id
+        );
+        return this.successResponse(
+          res,
+          updatedAttendance,
+          "Check-out time updated successfully"
+        );
       }
 
       const updatedAttendance = await AttendanceRepo?.updateAttendance(
@@ -101,10 +170,15 @@ class AttendanceController extends BaseController {
       from,
       to,
       status,
+      user,
     } = req?.query;
 
     const offset = (page - 1) * limit;
     const whereClause = {};
+
+    if (user) {
+      whereClause.userId = user;
+    }
 
     if (date) {
       const formattedDate = new Date(date).toISOString();
@@ -227,11 +301,9 @@ class AttendanceController extends BaseController {
   };
 
   getAttendanceByUserId = async (req, res) => {
-    // const { userId } = req.params;
+    const userId = req?.params?.userId || req?.user?.id;
 
-    const userId = req.params.userId || req.user?.id;
-    console.log("userId : ", userId);
-
+    console.log("req.body : ", req?.body);
 
     if (!userId) {
       return this.errorResponse(res, "User ID is required", 400);
@@ -340,6 +412,8 @@ class AttendanceController extends BaseController {
   updateAttendance = async (req, res) => {
     const { date, checkIn, checkOut, reason, description } = req?.body;
     const userId = req?.user?.id;
+
+    console.log("req.body from update attendance : ", req.body);
 
     const validationResult = validateUpdateAttendance(req?.body);
 

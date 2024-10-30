@@ -27,28 +27,43 @@ class UserValidator extends BaseValidator {
       firstName: Joi.string().required().label("First Name"),
       lastName: Joi.string().required().label("Last Name"),
       email: Joi.string().email().required().label("Email"),
-      password: Joi.string().required().label("Password"),
+      password: Joi.string().optional().label("Password"),
       shiftTime: Joi.string().optional().label("Shift Time"),
       status: Joi.string().optional().label("Status"),
-      reportingTo: Joi.number().optional().label("Reporting To"),
-      designationId: Joi.number().required().label("Designation ID"),
-      roleId: Joi.number().required().label("Role ID"),
+      primaryReportingName: Joi.string()
+        .optional()
+        .label("Primary Reporting To"),
+      secondaryReportingName: Joi.string()
+        .optional()
+        .label("Secondary Reporting To"),
+      designationName: Joi.string().optional().label("Designation ID"),
+      roleName: Joi.string().required().label("Role ID"),
       profilePicture: Joi.binary().optional().label("Profile Picture"),
       isDeleted: Joi.boolean().optional(),
+      isNewUser: Joi.boolean().optional(),
       profile: Joi.object()
         .keys({
-          contactNo: Joi.string().required().label("Contact Number"),
-          emergencyContact: Joi.string().required().label("Emergency Contact"),
+          contactNo: Joi.string().optional().label("Contact Number"),
+          emergencyContact: Joi.string().optional().label("Emergency Contact"),
           cnicNo: Joi.string().required().label("CNIC"),
           dateOfBirth: Joi.date().iso().required().label("Date of Birth"),
-          city: Joi.string().required().label("City"),
+          city: Joi.string().optional().label("City"),
           gender: Joi.string()
             .valid("Male", "Female", "Other")
-            .required()
+            .optional()
             .label("Gender"),
-          address: Joi.string().required().label("Address"),
-          joinedDate: Joi.date().iso().required().label("Joined Date"),
-          branch: Joi.string().required().label("Branch"),
+          address: Joi.string().optional().label("Address"),
+          joinedDate: Joi.date().iso().optional().label("Joined Date"),
+          branch: Joi.string().optional().label("Branch"),
+          employeeType: Joi.string().optional().label("Employee Type"),
+          department: Joi.string().optional().label("Department"),
+          totalExperience: Joi.string().optional().label("Total Experience"),
+          maritalStatus: Joi.string().optional().label("Marital Status"),
+          aboutMe: Joi.string().optional().label("About Me"),
+          emergencyContactName: Joi.string()
+            .optional()
+            .label("Emergency Contact Name"),
+
           isDeleted: Joi.boolean().optional(),
         })
         .required()

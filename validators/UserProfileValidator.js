@@ -33,8 +33,11 @@ class UserProfileValidator extends BaseValidator {
 
   validateUpdateUserProfile = (userProfile) => {
     const schema = Joi.object().keys({
-      contactNo: Joi.string().optional().label("Contact No"),
-      emergencyContact: Joi.string().optional().label("Emergency Contact"),
+      contactNo: Joi.string().optional().max(11).label("Contact No"),
+      emergencyContact: Joi.string()
+        .optional()
+        .max(11)
+        .label("Emergency Contact"),
       cnicNo: Joi.string().optional().label("CNIC"),
       dateOfBirth: Joi.date().iso().optional().label("Date of Birth"),
       city: Joi.string().optional().label("City"),

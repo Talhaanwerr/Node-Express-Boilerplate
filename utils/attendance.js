@@ -16,7 +16,7 @@ function calculateAttendance(attendance) {
     minutes = Math.floor((timeDifference / 1000 / 60) % 60);
   }
 
-  attendance.workingHours = `${hours} hours ${minutes} minutes`;
+  attendance.workingHours = `${hours} h ${minutes} m`;
 
   const totalWorkedTime = hours + minutes / 60;
 
@@ -24,14 +24,14 @@ function calculateAttendance(attendance) {
     const undertimeHours = Math.floor(standardWorkingHours - totalWorkedTime);
     const undertimeMinutes =
       Math.round((standardWorkingHours - totalWorkedTime) * 60) % 60;
-    attendance.underTime = `${undertimeHours} hours ${undertimeMinutes} minutes`;
+    attendance.underTime = `${undertimeHours} h ${undertimeMinutes} m`;
     attendance.overTime = "0 hours 0 minutes";
     attendance.status = "undertime";
   } else if (totalWorkedTime > standardWorkingHours) {
     const overtimeHours = Math.floor(totalWorkedTime - standardWorkingHours);
     const overtimeMinutes =
       Math.round((totalWorkedTime - standardWorkingHours) * 60) % 60;
-    attendance.overTime = `${overtimeHours} hours ${overtimeMinutes} minutes`;
+    attendance.overTime = `${overtimeHours} h ${overtimeMinutes} m`;
     attendance.underTime = "0 hours 0 minutes";
     attendance.status = "overtime";
   } else {
@@ -42,6 +42,7 @@ function calculateAttendance(attendance) {
 
   return attendance;
 }
+
 function formatAttendanceResponse(attendance, workingDays = {}) {
   if (Array.isArray(attendance)) {
     return attendance?.map((att) =>
@@ -70,6 +71,7 @@ function formatSingleAttendanceResponse(attendance, workingDays = 0) {
     user: {
       firstName: attendance?.user?.firstName,
       lastName: attendance?.user?.lastName,
+      designation: attendance?.user?.designation?.designation_name,
     },
   };
 }

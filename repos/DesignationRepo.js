@@ -16,11 +16,11 @@ class DesignationRepo extends BaseRepository {
   // Get all Designations with optional search query
   async getDesignations(searchQuery = {}) {
     if (!searchQuery.where) {
-        searchQuery.where = {};
+      searchQuery.where = {};
     }
     searchQuery.where.isDeleted = false;
     return this.findAll(searchQuery);
-}
+  }
 
   // Find Designation by ID
   async findById(id) {
@@ -46,6 +46,10 @@ class DesignationRepo extends BaseRepository {
   // Check if a Designation exists by ID
   async isDesignationExists(id) {
     return this.count({ id });
+  }
+
+  async findByName(designation_name) {
+    return this.findOne({ designation_name });
   }
 }
 

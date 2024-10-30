@@ -52,6 +52,13 @@ class AttendanceRepo extends BaseRepository {
           model: db.User,
           as: "user",
           attributes: ["firstName", "lastName"],
+          include: [
+            {
+              model: db.Designation,
+              as: "designation",
+              attributes: ["designation_name"],
+            },
+          ],
         },
       ],
       limit: options.limit,

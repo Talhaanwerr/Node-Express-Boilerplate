@@ -12,7 +12,7 @@ router.get(
   authMiddleware,
   UserController.getUserById
 );
-router.get("/get-all-users", authorize("admin"), UserController.getAllUsers);
+router.get("/get-all-users", UserController.getAllUsers);
 router.post(
   "/create-user-with-profile",
   // authorize("admin"),
