@@ -12,12 +12,6 @@ module.exports = {
             designation_name: {
                 type: Sequelize.STRING,
             },
-            // description: {
-            //   type: Sequelize.STRING,
-            // },
-            // type: {
-            //   type: Sequelize.STRING,
-            // },
             isDeleted: {
                 type: Sequelize.BOOLEAN,
                 defaultValue: false,

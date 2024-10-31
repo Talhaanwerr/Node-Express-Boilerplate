@@ -29,6 +29,9 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
+      date: {
+        type: DataTypes.DATE,
+      },
     },
     {
       sequelize,
