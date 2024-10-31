@@ -14,6 +14,10 @@ class HolidayRepo extends BaseRepository {
     return this.create(holiday);
   }
 
+  async getAllHolidays(condition = {}) {
+    return this.findAll(condition);
+  }
+
   async updateHoliday(holiday, id) {
     await this.update(holiday, { id });
     return this.findOne({ id });

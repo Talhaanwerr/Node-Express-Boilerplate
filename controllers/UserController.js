@@ -171,7 +171,6 @@ class UserController extends BaseController {
       return this.validationErrorResponse(res, validationResult.message);
     }
 
-    console.log("req.body : ", req?.body);
 
     const {
       profile,

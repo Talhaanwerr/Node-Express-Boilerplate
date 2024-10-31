@@ -21,7 +21,10 @@ const authorize = (requiredRole) => {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      if (user?.role?.roleName === "admin") {
+      if (
+        user?.role?.roleName === "admin" ||
+        user?.role?.roleName === "Super Admin"
+      ) {
         return next();
       }
 

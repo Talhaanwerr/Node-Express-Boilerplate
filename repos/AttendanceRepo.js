@@ -1,6 +1,7 @@
 const BaseRepository = require("./BaseRepo");
 const db = require("../models/index");
 const { Op } = require("sequelize");
+const { date } = require("joi");
 
 class AttendanceRepo extends BaseRepository {
   constructor() {
@@ -43,7 +44,26 @@ class AttendanceRepo extends BaseRepository {
     return this.findOne({ id });
   }
 
-  
+  async getAttendanceTest(options = {}) {
+    return this.findAll({
+      where: options.where,
+      include: [
+        {
+          model: db.User,
+          as: "user",
+          attributes: ["firstName", "lastName"],
+          include: [
+            {
+              model: db.Designation,
+              as: "designation",
+              attributes: ["designation_name"],
+            },
+          ],
+        },
+      ],
+    });
+  }
+
   async getAttendance(options = {}) {
     return this.findAll({
       where: options.where,
@@ -66,7 +86,6 @@ class AttendanceRepo extends BaseRepository {
       order: options.order,
     });
   }
-  
 
   async findAttendance(attendanceId) {
     return this.findOne({ attendanceId });

@@ -4,6 +4,7 @@ const AttendanceController = require("../controllers/AttendanceController.js");
 const {
   // authorize,
   authMiddleware,
+  authorize,
 } = require("../middlewares/auth.middleware.js");
 
 router.post(
@@ -11,8 +12,17 @@ router.post(
   authMiddleware,
   AttendanceController.manageAttendance
 );
-router.get("/get-all-attendances", AttendanceController.getAllAttendances);
+router.get(
+  "/get-all-attendances",
+  authorize("Super Admin"),
+  AttendanceController.getAllAttendances
+);
 router.get("/get-attendance-by-id/:id", AttendanceController.getAttendanceById);
+router.get(
+  "/get-attendance-dashboard",
+  AttendanceController.getAllAttendancesDashboard
+);
+
 router.get(
   "/get-attendance-by-user/:userId?",
   authMiddleware,

@@ -43,8 +43,17 @@ function calculateAttendance(attendance) {
   return attendance;
 }
 
-function formatAttendanceResponse(attendance, workingDays = {}) {
-  if (Array.isArray(attendance)) {
+function formatAttendanceResponse(attendance, workingDays = {}, bool) {
+  if (bool === true && Array.isArray(attendance)) {
+    return attendance?.map((att) =>
+      formatAttendanceResponseDashboard(att, workingDays[att.userId] || 0)
+    );
+  } else if (bool === true && !Array.isArray(attendance)) {
+    return formatSingleAttendanceResponseDashboard(
+      attendance,
+      workingDays[attendance?.userId] || 0
+    );
+  } else if (Array.isArray(attendance)) {
     return attendance?.map((att) =>
       formatSingleAttendanceResponse(att, workingDays[att.userId] || 0)
     );
@@ -55,6 +64,27 @@ function formatAttendanceResponse(attendance, workingDays = {}) {
     );
   }
 }
+
+function formatAttendanceResponseDashboard(attendance, workingDays = 0) {
+  return {
+    id: attendance?.id,
+    checkIn: attendance?.checkIn,
+    checkOut: attendance?.checkOut,
+    firstName: attendance?.user?.firstName,
+    lastName: attendance?.user?.lastName,
+  };
+}
+
+function formatSingleAttendanceResponseDashboard(attendance, workingDays = 0) {
+  return {
+    id: attendance?.id,
+    checkIn: attendance?.checkIn,
+    checkOut: attendance?.checkOut,
+    firstName: attendance?.user?.firstName,
+    lastName: attendance?.user?.lastName,
+  };
+}
+
 
 function formatSingleAttendanceResponse(attendance, workingDays = 0) {
   return {

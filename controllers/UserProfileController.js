@@ -146,7 +146,6 @@ class UserProfileController extends BaseController {
   };
 
   updateUserProfile = async (req, res) => {
-    console.log("req.body : ", req?.body);
     const userId = req?.user?.id;
 
     const validationResult = validateUpdateUserProfile(req?.body);

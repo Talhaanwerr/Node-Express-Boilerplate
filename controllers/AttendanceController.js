@@ -1,4 +1,4 @@
-const { Op, fn, col } = require("sequelize");
+const { Op, fn, col, where } = require("sequelize");
 const {
   calculateAttendance,
   formatAttendanceResponse,
@@ -57,7 +57,11 @@ class AttendanceController extends BaseController {
     let { checkIn, checkOut, date } = req?.body;
     let userId = req?.user?.id;
 
-    date = new Date(date).toISOString().split("T")[0];
+    const dateObj = new Date(date);
+    date = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}-${String(dateObj.getDate()).padStart(2, "0")}`;
 
     if (!date) {
       return this.errorResponse(res, "Date is required", 400);
@@ -281,6 +285,32 @@ class AttendanceController extends BaseController {
     );
   };
 
+  getAllAttendancesDashboard = async (req, res) => {
+    const customquery = {};
+    const date = new Date().toISOString().split("T")[0];
+    customquery.where = {
+      date: {
+        [Op.eq]: new Date(date).toISOString(),
+      },
+    };
+    const attendances = await AttendanceRepo.getAttendanceTest({
+      where: customquery.where,
+    });
+
+    if (!attendances || attendances.length === 0) {
+      return this.errorResponse(res, "No attendance found", 404);
+    }
+
+    const bool = true;
+    const attendanceResponse = formatAttendanceResponse(attendances, 0, bool);
+
+    return this.successResponse(
+      res,
+      attendanceResponse,
+      "Attendances retrieved successfully"
+    );
+  };
+
   getAttendanceById = async (req, res) => {
     const { id } = req?.params;
     const attendance = await AttendanceRepo?.findByIdWithInclude(id);
@@ -302,8 +332,6 @@ class AttendanceController extends BaseController {
 
   getAttendanceByUserId = async (req, res) => {
     const userId = req?.params?.userId || req?.user?.id;
-
-    console.log("req.body : ", req?.body);
 
     if (!userId) {
       return this.errorResponse(res, "User ID is required", 400);
@@ -412,8 +440,6 @@ class AttendanceController extends BaseController {
   updateAttendance = async (req, res) => {
     const { date, checkIn, checkOut, reason, description } = req?.body;
     const userId = req?.user?.id;
-
-    console.log("req.body from update attendance : ", req.body);
 
     const validationResult = validateUpdateAttendance(req?.body);
 

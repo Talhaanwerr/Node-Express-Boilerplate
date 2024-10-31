@@ -7,8 +7,8 @@ class HolidayValidator extends BaseValidator {
       name: Joi.string().required().label("Holiday Name"),
       description: Joi.string().optional().label("Description"),
       type: Joi.string().optional().label("Type"),
-      startDate: Joi.date().required().label("Start Date"),
-      endDate: Joi.date().required().label("End Date"),
+      startDate: Joi.date().optional().label("Start Date"),
+      endDate: Joi.date().optional().label("End Date"),
       isDeleted: Joi.boolean().optional().label("Deleted Record"),
     });
 
