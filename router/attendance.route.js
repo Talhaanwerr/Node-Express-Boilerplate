@@ -1,17 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const AttendanceController = require("../controllers/AttendanceController.js");
-const {
-  // authorize,
-  authMiddleware,
-  authorize,
-} = require("../middlewares/auth.middleware.js");
+const { authorize } = require("../middlewares/auth.middleware.js");
 
-router.post(
-  "/manage-attendance",
-  authMiddleware,
-  AttendanceController.manageAttendance
-);
+router.post("/manage-attendance", AttendanceController.manageAttendance);
 router.get(
   "/get-all-attendances",
   authorize("Super Admin"),
@@ -25,13 +17,8 @@ router.get(
 
 router.get(
   "/get-attendance-by-user/:userId?",
-  authMiddleware,
   AttendanceController.getAttendanceByUserId
 );
-router.patch(
-  "/update-attendance",
-  authMiddleware,
-  AttendanceController.updateAttendance
-);
+router.patch("/update-attendance", AttendanceController.updateAttendance);
 
 module.exports = router;

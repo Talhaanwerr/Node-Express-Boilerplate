@@ -1,20 +1,32 @@
-//
+1) User(id {pk}, first_name, last_name, email, password, isNewUser(bool), resetPasswordToken, resetPasswordExpires, shift_time, profile_picture, updatedAt, createdAt, status, role_id {fk}, designation_id {fk}, primary_reporting(fk), secondary_reporting {fk})
 
-1) User(id {pk}, first_name, last_name, email, password, isNewUser(bool), shift_time, updatedAt, createdAt, status, role_id {fk}, designation_id {fk}, reporting_to {fk})
+2) Role(id {pk}, name, description, createdAt, updatedAt)
 
-11) User_Profile (user_id, contactNo, emergency_contact, cnic_no, date_of_birth, city, gender, Address, joined_date, branch (country))
+3) Designation(id {pk}, designation_name, description createdAt, updatedAt)
 
-2) Role(id {pk}, role_name, createdAt, updatedAt)
-
-3) Designation(id {pk}, designation_name, createdAt, updatedAt)
-
-4) Permission(id {pk}, permission_name, createdAt, updatedAt)
+4) Permission(id {pk}, permission_name, module, createdAt, updatedAt)
 
 5) Role_permission(role_id {fk}, permission_id {fk})
 
-12) announcemnet -> heading, description, type
-
 6) User_permission(user_id {fk}, permission_id {fk})
+
+11) User_Profile (user_id, contactNo, emergency_contact, cnic_no, date_of_birth, city, gender, Address, joined_date, branch (country), employeeType, department, totalExperience, maritalStatus, aboutMe, emergencyContactName)
+
+12) announcemnet -> heading, description, , date
+
+
+13) Attendance -> user_id, checkin, checkout, worked_hours, created_at, updated_at
+
+15) Holiday  -> (name, description, type, startDate, endDate)
+
+
+
+
+
+
+
+
+
 
 *8) User_details (id {pk}, user_id {fk}, working_day, time_worked, balanced_time, activity_level, total_working_hours)
 
@@ -27,6 +39,5 @@
 
 10. Leave(id {pk}, type_of_leave, available, used, booked, user_id {fk})
 
-13) Attendance -> user_id, checkin, checkout, worked_hours, created_at, updated_at
 
 14) Shift -> user_id, checkin, checkintime

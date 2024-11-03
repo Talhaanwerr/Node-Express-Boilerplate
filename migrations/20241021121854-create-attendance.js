@@ -22,8 +22,20 @@ module.exports = {
       checkOut: {
         type: Sequelize.TIME,
       },
+      workedHours: {
+        type: Sequelize.TIME,
+      },
       date: {
         type: Sequelize.DATEONLY, 
+      },
+      reason: {
+        type: Sequelize.TEXT,
+      },
+      description: {
+        type: Sequelize.TEXT,
+      },
+      type: {
+        type: Sequelize.STRING,
       },
       isDeleted: {
         allowNull: false,

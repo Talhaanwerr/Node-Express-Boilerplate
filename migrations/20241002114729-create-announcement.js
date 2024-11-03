@@ -9,8 +9,21 @@ module.exports = {
                 primaryKey: true,
                 type: Sequelize.INTEGER,
             },
-            designation_name: {
+            name: {
                 type: Sequelize.STRING,
+                allowNull: false,
+            },
+            description: {
+                type: Sequelize.STRING,
+                allowNull: true,
+            },
+            date: {
+                type: Sequelize.DATE,
+                allowNull: true,
+            },
+            type: {
+                type: Sequelize.STRING,
+                allowNull: true,
             },
             isDeleted: {
                 type: Sequelize.BOOLEAN,

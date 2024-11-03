@@ -8,6 +8,8 @@ const crypto = require("crypto");
 const transporter = require("../utils/email.js");
 const { constants } = require("../utils/constant.js");
 
+//ibad: do not create custom response in controller, delete password from response
+
 class AuthController extends BaseController {
   constructor() {
     super();
@@ -51,7 +53,33 @@ class AuthController extends BaseController {
 
     const { email, password } = req?.body;
 
-    const user = await UserRepo?.findByEmailWithInclude(email);
+    const customQuery = {
+      where: { email },
+      include: [
+        {
+          model: db.Role,
+          as: "role",
+          attributes: ["roleName"],
+        },
+        {
+          model: db.Designation,
+          as: "designation",
+          attributes: ["designation_name"],
+        },
+        {
+          model: db.User,
+          as: "PrimaryReportees",
+          attributes: ["firstName"]//, "lastName", "email"],
+        },
+        {
+          model: db.User,
+          as: "SecondaryReportees",
+          attributes: ["firstName", "lastName", "email"],
+        },
+      ],
+    }
+
+    const user = await UserRepo?.findByEmailWithInclude(customQuery);
 
     if (!user) {
       return this.errorResponse(res, "User not found", 404);
@@ -98,7 +126,7 @@ class AuthController extends BaseController {
 
     const hashedPassword = await bcrypt.hash(newPassword, constants.saltRounds);
 
-    await UserRepo?.updateUserPassword(user?.id, hashedPassword);
+    await UserRepo?.updateUserPassword(user?.id, hashedPassword); //ibad: use updateUser function
     user.isNewUser = false;
 
     const resetPasswordResponse = {

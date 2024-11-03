@@ -1,3 +1,9 @@
+1. include ko controller me likhyn 
+2. hr api me auth middleware lagaen
+3. apna kam update kren w.r.t new migrations
+
+
+
 sortOrder=asc/desc
 sortColumn=name
 search=

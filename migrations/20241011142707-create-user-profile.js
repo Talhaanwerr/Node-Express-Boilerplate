@@ -10,16 +10,34 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       contactNo: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
       emergencyContact: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
+      },
+      emergencyContactName: {
+        type: Sequelize.STRING,
       },
       cnicNo: {
-        type: Sequelize.BIGINT,
+        type: Sequelize.STRING,
       },
       dateOfBirth: {
         type: Sequelize.DATEONLY,
+      },
+      employeeType: {
+        type: Sequelize.STRING,
+      },
+      department: {
+        type: Sequelize.STRING,
+      },
+      totalExperience: {
+        type: Sequelize.STRING,
+      },
+      maritalStatus: {
+        type: Sequelize.STRING,
+      },
+      aboutMe: {
+        type: Sequelize.TEXT,
       },
       city: {
         type: Sequelize.STRING,
@@ -28,16 +46,13 @@ module.exports = {
         type: Sequelize.STRING,
       },
       address: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
       },
       joinedDate: {
         type: Sequelize.DATE,
       },
       branch: {
         type: Sequelize.STRING,
-      },
-      profilePicture: {
-        type: Sequelize.BLOB,
       },
       userId: {
         type: Sequelize.INTEGER,

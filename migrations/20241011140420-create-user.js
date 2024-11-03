@@ -21,14 +21,27 @@ module.exports = {
       password: {
         type: Sequelize.STRING,
       },
+      isNewUser: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+      },
       shiftTime: {
         type: Sequelize.TIME,
       },
       profilePicture: {
-        type: Sequelize.BLOB,
+        type: Sequelize.STRING,
       },
       status: {
         type: Sequelize.STRING,
+      },
+      resetPasswordToken: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      resetPasswordExpires: {
+        type: Sequelize.DATE,
+        allowNull: true,
       },
       isDeleted: {
         type: Sequelize.BOOLEAN,
@@ -37,7 +50,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         references: {
           model: "Roles",
-          key: "roleId",
+          key: "id",
         },
         onDelete: "SET NULL",
       },

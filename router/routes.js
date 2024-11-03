@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { authMiddleware } = require("../middlewares/auth.middleware.js");
 const announcementRoutes = require("./announcement.route.js");
 const designationRoute = require("./designation.route.js");
 const roleRoutes = require("./role.route.js");
@@ -19,6 +20,6 @@ router.use("/users", userRoutes);
 router.use("/user-profiles", userProfileRoutes);
 router.use("/designation", designationRoute);
 router.use("/auth", authRoutes);
-router.use("/attendance", attendanceRoutes);
-router.use("/holiday",holidayRoutes)
+router.use("/attendance", authMiddleware, attendanceRoutes);
+router.use("/holiday", holidayRoutes);
 module.exports = router;

@@ -91,37 +91,12 @@ class UserRepo extends BaseRepository {
           as: "SecondaryReportees",
           attributes: ["firstName", "lastName", "email"],
         },
-
       ],
     });
   }
 
-  async findByEmailWithInclude(email) {
-    return this.findOneWithInclude({
-      where: { email },
-      include: [
-        {
-          model: db.Role,
-          as: "role",
-          attributes: ["roleName"],
-        },
-        {
-          model: db.Designation,
-          as: "designation",
-          attributes: ["designation_name"],
-        },
-        {
-          model: db.User,
-          as: "PrimaryReportees",
-          attributes: ["firstName"]//, "lastName", "email"],
-        },
-        {
-          model: db.User,
-          as: "SecondaryReportees",
-          attributes: ["firstName", "lastName", "email"],
-        },
-      ],
-    });
+  async findByEmailWithInclude(customQuery) {
+    return this.findOneWithInclude(customQuery);
   }
 
   async getRolePermissions(roleId) {

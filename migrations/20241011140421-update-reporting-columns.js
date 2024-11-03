@@ -24,22 +24,10 @@ module.exports = {
       onUpdate: "CASCADE",
       onDelete: "SET NULL",
     });
-
-    await queryInterface.removeColumn("Users", "reportingTo");
   },
 
   async down(queryInterface, Sequelize) {
     await queryInterface.removeColumn("Users", "secondaryReporting");
     await queryInterface.removeColumn("Users", "primaryReporting");
-    await queryInterface.addColumn("Users", "reportingTo", {
-      type: Sequelize.INTEGER,
-      allowNull: true,
-      references: {
-        model: "Users",
-        key: "id",
-      },
-      onUpdate: "CASCADE",
-      onDelete: "SET NULL",
-    });
   },
 };
