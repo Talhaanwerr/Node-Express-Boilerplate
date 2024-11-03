@@ -2,6 +2,7 @@ const UserRepo = require("../repos/UserRepo.js");
 const jwt = require("jsonwebtoken");
 const { jwtSecret } = require("../config/config.js");
 
+// ibad:
 const authorize = (requiredRole) => {
   return async (req, res, next) => {
     const token =
