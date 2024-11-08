@@ -12,37 +12,7 @@ class UserProfileRepo extends BaseRepository {
   }
 
   async getUserProfiles(searchQuery = {}) {
-    return this.findAll({
-      ...searchQuery,
-      include: [
-        {
-          model: db.User,
-          as: "user",
-          attributes: [
-            "firstName",
-            "lastName",
-            "email",
-            "status",
-            "shiftTime",
-            "profilePicture",
-            "primaryReporting",
-            "secondaryReporting",
-          ],
-          include: [
-            {
-              model: db.Designation,
-              as: "designation",
-              attributes: ["designation_name"],
-            },
-            {
-              model: db.Role,
-              as: "role",
-              attributes: ["roleName"],
-            },
-          ],
-        },
-      ],
-    });
+    return this.findAll(searchQuery);
   }
 
   async updateUserProfile(userprofile, id) {
@@ -93,12 +63,22 @@ class UserProfileRepo extends BaseRepository {
             {
               model: db.Designation,
               as: "designation",
-              attributes: ["designation_name"],
+              attributes: ["name"],
             },
             {
               model: db.Role,
               as: "role",
-              attributes: ["roleName"],
+              attributes: ["name"],
+            },
+            {
+              model: db.User,
+              as: "primaryReport",
+              attributes: ["firstName", "lastName", "email"],
+            },
+            {
+              model: db.User,
+              as: "secondaryReport",
+              attributes: ["firstName", "lastName", "email"],
             },
           ],
         },
@@ -125,6 +105,13 @@ class UserProfileRepo extends BaseRepository {
       userId,
     });
   }
+
+  async findUserByCnic(cnicNo) {
+    return this.findOne({ cnicNo });
+  }
+
+
+
 }
 
 module.exports = new UserProfileRepo();

@@ -80,34 +80,34 @@ class DesignationController extends BaseController {
     const offset = parseInt(req.query.skip) || 0;
 
     if (limit < 1 || offset < 0) {
-        return this.validationErrorResponse(res, "Invalid pagination parameters");
+      return this.validationErrorResponse(res, "Invalid pagination parameters");
     }
 
     const customQuery = {
-        order: [[sortOrder, sortDirection]],
-        where: {},
-        limit: limit,
-        offset: offset,
+      order: [[sortOrder, sortDirection]],
+      where: {},
+      limit: limit,
+      offset: offset,
     };
 
     if (req.query.designation_name) {
-        customQuery.where.designation_name = {
-            [Op.like]: `%${req.query.designation_name}%`,
-        };
+      customQuery.where.name = {
+        [Op.like]: `%${req.query.designation_name}%`,
+      };
     }
 
     const designations = await DesignationRepo.getDesignations(customQuery);
     const count = await DesignationRepo.countDesignation();
 
     return this.successResponse(
-        res,
-        {
-            designations,
-            total: count,
-        },
-        "Designations retrieved successfully"
+      res,
+      {
+        designations,
+        total: count,
+      },
+      "Designations retrieved successfully"
     );
-};
+  };
 
   createDesignation = async (req, res) => {
     const validationResult = validateCreateDesignation(req?.body);
@@ -166,14 +166,16 @@ class DesignationController extends BaseController {
       );
     }
 
-            type = (type && type !== "") ? type : "soft"; // Default to soft delete
+    type = type && type !== "" ? type : "soft"; // Default to soft delete
 
-          const designation = await DesignationRepo?.deleteDesignation(id, type);
+    const designation = await DesignationRepo?.deleteDesignation(id, type);
 
-            return this.successResponse(res, designation, `Designation with ID ${id} deleted successfully`);
-        
-        }
-    };
-
+    return this.successResponse(
+      res,
+      designation,
+      `Designation with ID ${id} deleted successfully`
+    );
+  };
+}
 
 module.exports = new DesignationController();

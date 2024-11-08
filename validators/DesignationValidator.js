@@ -2,46 +2,39 @@ const Joi = require("joi");
 const BaseValidator = require("./BaseValidator.js");
 
 class DesignationValidator extends BaseValidator {
-    // Constructor is not necessary if we're not defining any specific schema here
-    // constructor() {
-    //   const schema = Joi.object().keys({
-    //     // ...schema definition
-    //   });
-    //   super(schema);
-    // }
+  // Constructor is not necessary if we're not defining any specific schema here
+  // constructor() {
+  //   const schema = Joi.object().keys({
+  //     // ...schema definition
+  //   });
+  //   super(schema);
+  // }
 
-    validateCreateDesignation = (designation) => {
-        const schema = Joi.object().keys({
-          designation_name: Joi.string().required().label("Designation Name"), // Required field for the designation title
-          description: Joi.string().optional().label("Description"), // Optional description field
-          type: Joi.string().optional().label("Type"), // Required field for the type of designation
-          isDeleted: Joi.boolean().optional().default(false), // Optional isDeleted field with a default value of false
-          createdAt: Joi.date().optional(), // Optional field to track when the designation was created
-          updatedAt: Joi.date().optional(), // Optional field to track when the designation was last updated
-        });
+  validateCreateDesignation = (designation) => {
+    const schema = Joi.object().keys({
+      name: Joi.string().required().label("Designation Name"),
+      description: Joi.string().optional().label("Description"),
+    });
 
-        return this.validate(schema, designation); // Validate the input against the schema
-    };
+    return this.validate(schema, designation);
+  };
 
-    validateUpdateDesignation = (designation) => {
-        const schema = Joi.object().keys({
-            designation_name: Joi.string().optional().label("Designation Name"), // Optional update for designation title
-            description: Joi.string().optional().label("Description"), // Optional update for description
-            // type: Joi.string().optional().label("Type"), // Optional update for type
-            isDeleted: Joi.boolean().optional(), // Optional update for isDeleted field
-            updatedAt: Joi.date().optional() // Optional field to track updates
-        });
+  validateUpdateDesignation = (designation) => {
+    const schema = Joi.object().keys({
+      name: Joi.string().optional().label("Designation Name"),
+      description: Joi.string().optional().label("Description"),
+    });
 
-        return this.validate(schema, designation); // Validate the input against the update schema
-    };
+    return this.validate(schema, designation);
+  };
 
-    validateId = (id) => {
-        const schema = Joi.object().keys({
-            id: Joi.number().integer().positive().required().label("ID") // Ensure the ID is a positive integer
-        });
+  validateId = (id) => {
+    const schema = Joi.object().keys({
+      id: Joi.number().integer().positive().required().label("ID"),
+    });
 
-        return this.validate(schema, { id }); // Validate the ID against the schema
-    };
+    return this.validate(schema, { id });
+  };
 }
 
-module.exports = new DesignationValidator(); // Export an instance of the validator
+module.exports = new DesignationValidator();

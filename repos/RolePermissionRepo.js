@@ -18,22 +18,8 @@ class RolePermissionRepo extends BaseRepository {
     });
   }
 
-  async getRolesWithPermissions(searchQuery = {}) {
-    return await this.findAll({
-      ...searchQuery,
-      include: [
-        {
-          model: db.Role,
-          as: "Role",
-          attributes: ["roleName"],
-        },
-        {
-          model: db.Permission,
-          as: "Permission",
-          attributes: ["name", "module"],
-        },
-      ],
-    });
+  async getRolesWithPermissions(customQuery = {}) {
+    return await this.findAll(customQuery);
   }
 
   async findById(id) {
@@ -49,22 +35,8 @@ class RolePermissionRepo extends BaseRepository {
     });
   }
 
-  async findOneWithInclude(roleId) {
-    return this.findAll({
-      where: { roleId },
-      include: [
-        {
-          model: db.Role,
-          as: "Role",
-          attributes: ["roleName"],
-        },
-        {
-          model: db.Permission,
-          as: "Permission",
-          attributes: ["name", "module"],
-        },
-      ],
-    });
+  async findOneWithInclude(customQuery) {
+    return this.findAll(customQuery);
   }
 
   async updateRolePermission(data, roleId, permissionId) {
@@ -84,20 +56,15 @@ class RolePermissionRepo extends BaseRepository {
     });
   }
 
-
-
   async findByRoleId(roleId) {
     return this.findAll({ where: { roleId } });
   }
 
-  async deleteById(rolePermissionId){
+  async deleteById(rolePermissionId) {
     return this.model.destroy({
       where: { id: rolePermissionId },
     });
   }
-
-
-
 }
 
 module.exports = new RolePermissionRepo();

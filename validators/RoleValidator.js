@@ -4,7 +4,8 @@ const BaseValidator = require("./BaseValidator.js");
 class RoleValidator extends BaseValidator {
   validateCreateRole = (role) => {
     const schema = Joi.object({
-      roleName: Joi.string().required().label("Role Title"),
+      name: Joi.string().required().label("Role Title"),
+      description: Joi.string().required().label("Role Description"),
       isDeleted: Joi.boolean().optional().label("Deleted Record"),
     });
 
@@ -13,7 +14,8 @@ class RoleValidator extends BaseValidator {
 
   validateUpdateRole = (role) => {
     const schema = Joi.object({
-      roleName: Joi.string().optional().label("Role Title"),
+      name: Joi.string().optional().label("Role Title"),
+      description: Joi.string().optional().label("Role Description"),
       isDeleted: Joi.boolean().optional().label("Deleted Record"),
     });
 

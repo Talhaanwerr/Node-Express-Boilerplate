@@ -1,4 +1,3 @@
-const { Op } = require("sequelize");
 module.exports = class BaseRepository {
   constructor(model) {
     this.model = model;
@@ -26,7 +25,6 @@ module.exports = class BaseRepository {
   }
 
   async findAll(condition = {}) {
-    console.log(condition);
     return this.model.findAll(condition);
   }
 

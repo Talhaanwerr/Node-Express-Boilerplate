@@ -6,19 +6,20 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Permission.belongsToMany(models.Role, {
         through: models.RolePermission,
-        foreignKey: 'id',
-        as: 'Roles',
+        foreignKey: "id",
+        as: "Roles",
+      });
+
+      Permission.belongsToMany(models.User, {
+        through: models.UserPermission,
+        foreignKey: "id",
+        as: "Users",
       });
     }
   }
 
   Permission.init(
     {
-      id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-      },
       name: {
         type: DataTypes.STRING,
       },

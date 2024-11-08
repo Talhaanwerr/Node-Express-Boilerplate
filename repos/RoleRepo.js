@@ -57,12 +57,9 @@ class RoleRepo extends BaseRepository {
     });
   }
 
-  async findByName(roleName){
-    return this.findOne({roleName});
+  async findByName(name) {
+    return this.findOne({ name });
   }
-
- 
-
 }
 
 module.exports = new RoleRepo();

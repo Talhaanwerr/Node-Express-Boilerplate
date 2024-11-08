@@ -1,35 +1,31 @@
-'use strict';
-
+"use strict";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('RolePermissions', {
+    await queryInterface.createTable("Announcements", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      roleId: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'Roles',
-          key: 'id',
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
+      name: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
-      permissionId: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'Permissions',
-          key: 'id',
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
+      description: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      date: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
+      type: {
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       isDeleted: {
-        allowNull: false,
         type: Sequelize.BOOLEAN,
         defaultValue: false,
       },
@@ -41,10 +37,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
       },
-    }); 
+    });
   },
-
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('RolePermissions');
+    await queryInterface.dropTable("Announcements");
   },
 };

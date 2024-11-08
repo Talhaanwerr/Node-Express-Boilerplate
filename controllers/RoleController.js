@@ -22,7 +22,7 @@ class RoleController extends BaseController {
 
   getRoles = async (req, res) => {
     const {
-      sortBy = "roleId",
+      sortBy = "id",
       sortOrder = "DESC",
       page = 1,
       limit = 10,

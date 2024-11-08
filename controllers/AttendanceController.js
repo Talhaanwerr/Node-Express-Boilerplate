@@ -1,4 +1,5 @@
 const { Op, fn, col, where } = require("sequelize");
+const db = require("../models");
 const {
   calculateAttendance,
   formatAttendanceResponse,
@@ -54,7 +55,7 @@ class AttendanceController extends BaseController {
   }
 
   manageAttendance = async (req, res) => {
-    let { checkIn, checkOut, date } = req?.body;
+    let { checkIn, checkOut, date } = req.body;
     let userId = req?.user?.id;
 
     const dateObj = new Date(date);
@@ -175,7 +176,7 @@ class AttendanceController extends BaseController {
       to,
       status,
       user,
-    } = req?.query;
+    } = req.query;
 
     const offset = (page - 1) * limit;
     const whereClause = {};
@@ -233,6 +234,20 @@ class AttendanceController extends BaseController {
       limit: parseInt(limit),
       offset: parseInt(offset),
       order: [[sort === "id" ? "id" : "date", order]],
+      include: [
+        {
+          model: db.User,
+          as: "user",
+          attributes: ["firstName", "lastName"],
+          include: [
+            {
+              model: db.Designation,
+              as: "designation",
+              attributes: ["name"],
+            },
+          ],
+        },
+      ],
     });
 
     if (!attendances || attendances?.length === 0) {
@@ -387,7 +402,6 @@ class AttendanceController extends BaseController {
       limit: parseInt(limit),
       offset: parseInt(offset),
       order: [[sort === "id" ? "id" : "date", order]],
-      include: [{ model: UserRepo.model, required: true }],
     });
 
     if (!attendances || attendances.length === 0) {
@@ -488,19 +502,19 @@ class AttendanceController extends BaseController {
       attendance?.id
     );
 
-    const forLogTime = {
-      checkIn,
-      checkOut,
-      date,
-      reason,
-      description,
-    };
+    // const forLogTime = {
+    //   checkIn,
+    //   checkOut,
+    //   date,
+    //   reason,
+    //   description,
+    // };
 
-    const logTime = await LogTimeRepo?.createLogTime(forLogTime);
+    // const logTime = await LogTimeRepo?.createLogTime(forLogTime);
 
-    if (!logTime) {
-      return this.serverErrorResponse(res, "Log time not created", 500);
-    }
+    // if (!logTime) {
+    //   return this.serverErrorResponse(res, "Log time not created", 500);
+    // }
 
     return this.successResponse(
       res,

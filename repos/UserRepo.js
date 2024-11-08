@@ -27,31 +27,12 @@ class UserRepo extends BaseRepository {
   }
 
   async getUsers(searchQuery = {}) {
-    return this.findAll({
-      ...searchQuery,
-      include: [
-        {
-          model: db.Role,
-          as: "role",
-          attributes: ["roleName"],
-        },
-        {
-          model: db.Designation,
-          as: "designation",
-          attributes: ["designation_name"],
-        },
-        // {
-        //   model: db.User,
-        //   as: "reportingTo",
-        //   attributes: ["firstName", "lastName"],
-        // },
-      ],
-    });
+    return this.findAll(searchQuery);
   }
 
   async updateUser(user, id) {
-    // R&D on find by id and update
-    return this.update(user, { id }), this.findById(id);
+    await this.update(user, { id });
+    return this.findById(id);
   }
 
   async findById(id) {
@@ -67,32 +48,7 @@ class UserRepo extends BaseRepository {
   }
 
   async findByIdWithInclude(customQuery) {
-    return this.findOneWithInclude({
-      where: { ...customQuery },
-      include: [
-        {
-          model: db.Role,
-          as: "role",
-          attributes: ["roleName"],
-        },
-        {
-          model: db.Designation,
-          as: "designation",
-          attributes: ["designation_name"],
-        },
-
-        {
-          model: db.User,
-          as: "PrimaryReportees",
-          attributes: ["firstName", "lastName", "email"],
-        },
-        {
-          model: db.User,
-          as: "SecondaryReportees",
-          attributes: ["firstName", "lastName", "email"],
-        },
-      ],
-    });
+    return this.findOneWithInclude(customQuery);
   }
 
   async findByEmailWithInclude(customQuery) {
@@ -143,8 +99,12 @@ class UserRepo extends BaseRepository {
     return this.findOne({ email });
   }
 
-  async findUserByName(firstName) {
-    return this.findOne({ firstName });
+  async findUserByName(lastName) {
+    return this.findOne({ lastName });
+  }
+
+  async findUsersByDateOfBirth() {
+    return this.findAll();
   }
 }
 

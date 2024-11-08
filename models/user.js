@@ -2,11 +2,6 @@
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
       User.hasOne(models.UserProfile, {
         foreignKey: "userId",
@@ -26,36 +21,28 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: "SET NULL",
       });
 
+      User.belongsToMany(models.Permission, {
+        through: models.UserPermission,
+        foreignKey: "userId",
+        as: "permissions",
+      });
+
       User.hasMany(models.Attendance, {
         foreignKey: "userId",
         as: "attendance",
         onDelete: "CASCADE",
       });
 
-      User.hasMany(models.LogTime, {
-        foreignKey: "userId",
-        as: "logTime",
-        onDelete: "CASCADE",
-      });
-      
-      User.hasOne(models.User, {
-        foreignKey: "primaryReporting",
-        as: "PrimaryReportees",
-      });
-
-      User.hasOne(models.User, {
-        foreignKey: "secondaryReporting",
-        as: "SecondaryReportees",
-      });
-
       User.belongsTo(models.User, {
         foreignKey: "primaryReporting",
-        as: "PrimaryReporting",
+        as: "primaryReport",
+        onDelete: "SET NULL",
       });
 
       User.belongsTo(models.User, {
         foreignKey: "secondaryReporting",
-        as: "SecondaryReporting",
+        as: "secondaryReport",
+        onDelete: "SET NULL",
       });
     }
   }
@@ -77,7 +64,16 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      isNewUser: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+      },
+
       shiftTime: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      profilePicture: {
         type: DataTypes.STRING,
         allowNull: true,
       },
@@ -85,35 +81,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      primaryReporting: {
-        type: DataTypes.INTEGER,
-        references: {
-          model: "Users",
-          key: "primaryReportees",
-        },
-      },
-      secondaryReporting: {
-        type: DataTypes.INTEGER,
-        references: {
-          model: "Users",
-          key: "secondaryReportees",
-        },
-      },
-      isDeleted: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
-      isNewUser: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
       resetPasswordToken: {
         type: DataTypes.STRING,
         allowNull: true,
       },
+
       resetPasswordExpires: {
         type: DataTypes.DATE,
         allowNull: true,
+      },
+      isDeleted: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
       },
     },
     {

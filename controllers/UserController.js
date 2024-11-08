@@ -12,24 +12,49 @@ const {
 const BaseController = require("./BaseController.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const UserProfileRepo = require("../repos/UserProfileRepo.js");
 
 class UserController extends BaseController {
-  constructor() {
-    super();
-  }
+  // constructor() {
+  //   super();
+  // }
 
   getUserById = async (req, res) => {
-    const id = req?.user?.id;
-    const customQuery = { id };
+    const id = req.user.id;
+    const customQuery = {
+      where: { id },
+      attributes: {
+        exclude: ["password", "resetPasswordToken", "resetPasswordExpires"],
+      },
+      include: [
+        {
+          model: db.Role,
+          as: "role",
+          attributes: ["name"],
+        },
+        {
+          model: db.Designation,
+          as: "designation",
+          attributes: ["name"],
+        },
+        {
+          model: db.User,
+          as: "primaryReport",
+          attributes: ["firstName", "lastName", "email"],
+        },
+        {
+          model: db.User,
+          as: "secondaryReport",
+          attributes: ["firstName", "lastName", "email"],
+        },
+      ],
+    };
 
-    const user = await UserRepo?.findByIdWithInclude(customQuery);
+    const user = await UserRepo.findByIdWithInclude(customQuery);
+
     if (!user) {
       return this.errorResponse(res, `User with ID ${id} not found`, 404);
     }
-
-    user.password = undefined;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpires = undefined;
 
     return this.successResponse(
       res,
@@ -49,7 +74,31 @@ class UserController extends BaseController {
       },
       limit: parseInt(req?.query?.limit) || 50,
       offset: parseInt(req?.query?.skip) || 0,
-      attributes: { exclude: ["password"] },
+      attributes: {
+        exclude: ["password", "resetPasswordToken", "resetPasswordExpires"],
+      },
+      include: [
+        {
+          model: db.Role,
+          as: "role",
+          attributes: ["name"],
+        },
+        {
+          model: db.Designation,
+          as: "designation",
+          attributes: ["name"],
+        },
+        {
+          model: db.User,
+          as: "primaryReport",
+          attributes: ["firstName", "lastName", "email"],
+        },
+        {
+          model: db.User,
+          as: "secondaryReport",
+          attributes: ["firstName", "lastName", "email"],
+        },
+      ],
     };
 
     if (req?.query?.firstName) {
@@ -100,6 +149,14 @@ class UserController extends BaseController {
 
     const users = await UserRepo?.getUsers(customQuery);
 
+    const sanitizedUsers = users.map((user) => {
+      const userObj = user.toJSON();
+      delete userObj.password;
+      delete userObj.resetPasswordToken;
+      delete userObj.resetPasswordExpires;
+      return userObj;
+    });
+
     const count = await UserRepo?.countUsers();
 
     if (!users?.length) {
@@ -109,7 +166,7 @@ class UserController extends BaseController {
     return this.successResponse(
       res,
       {
-        users,
+        users: sanitizedUsers,
         total: count,
       },
       "Users retrieved successfully"
@@ -123,13 +180,7 @@ class UserController extends BaseController {
       return this.validationErrorResponse(res, validationResult.message);
     }
 
-    const {
-      roleId,
-      designationId,
-      password = "demo123",
-      email,
-      id,
-    } = req?.body;
+    const { roleId, designationId, password = "demo123", email } = req.body;
 
     const saltRounds = 10;
     req.body.password = await bcrypt.hash(password, saltRounds);
@@ -171,7 +222,6 @@ class UserController extends BaseController {
       return this.validationErrorResponse(res, validationResult.message);
     }
 
-
     const {
       profile,
       designationName,
@@ -179,25 +229,57 @@ class UserController extends BaseController {
       primaryReportingName,
       secondaryReportingName,
       password = "Demo12345",
+      email,
       ...userData
-    } = req?.body;
+    } = req.body;
+
+    if (!email) {
+      return this.validationErrorResponse(res, "Email is required.");
+    }
 
     const saltRounds = 10;
     userData.password = await bcrypt.hash(password, saltRounds);
+    userData.email = email;
 
-    const [designation, role, primaryReporting, secondaryReporting] =
-      await Promise.all([
-        designationName
-          ? DesignationRepo.findByName(designationName)
-          : Promise.resolve(null),
-        roleName ? RoleRepo.findByName(roleName) : Promise.resolve(null),
-        primaryReportingName
-          ? UserRepo.findUserByName(primaryReportingName)
-          : Promise.resolve(null),
-        secondaryReportingName
-          ? UserRepo.findUserByName(secondaryReportingName)
-          : Promise.resolve(null),
-      ]);
+    const [
+      designation,
+      role,
+      primaryReporting,
+      secondaryReporting,
+      existingUserByEmail,
+      existingUserByCnic,
+    ] = await Promise.all([
+      designationName
+        ? DesignationRepo.findByName(designationName)
+        : Promise.resolve(null),
+      roleName ? RoleRepo.findByName(roleName) : Promise.resolve(null),
+      primaryReportingName
+        ? UserRepo.findUserByName(primaryReportingName)
+        : Promise.resolve(null),
+      secondaryReportingName
+        ? UserRepo.findUserByName(secondaryReportingName)
+        : Promise.resolve(null),
+      email ? UserRepo.findUserByEmail(email) : Promise.resolve(null),
+      profile.cnicNo
+        ? UserProfileRepo.findUserByCnic(profile.cnicNo)
+        : Promise.resolve(null),
+    ]);
+
+    if (existingUserByEmail) {
+      return this.errorResponse(
+        res,
+        "User with this email already exists",
+        409
+      );
+    }
+
+    if (profile.cnicNo && existingUserByCnic) {
+      return this.errorResponse(
+        res,
+        "User with this CNIC number already exists",
+        409
+      );
+    }
 
     if (!designation) {
       return this.errorResponse(res, "Designation not found", 404);
@@ -218,15 +300,13 @@ class UserController extends BaseController {
     const user = await UserRepo?.createUserAndProfile({
       ...userData,
       designationId: designation.id,
-      roleId: role.roleId,
+      roleId: role.id,
       primaryReporting: primaryReporting ? primaryReporting.id : null,
       secondaryReporting: secondaryReporting ? secondaryReporting.id : null,
       profile: {
         ...profile,
       },
     });
-
-    console.log("user : ", user);
 
     return this.successResponse(
       res,
@@ -236,7 +316,7 @@ class UserController extends BaseController {
   };
 
   updateUser = async (req, res) => {
-    const { id } = req?.params;
+    const { id } = req.params;
     const validationResult = validateUpdateUser(req?.body);
 
     if (!validationResult.status) {
@@ -258,8 +338,8 @@ class UserController extends BaseController {
   };
 
   deleteUser = async (req, res) => {
-    let { id } = req?.params;
-    let { type } = req?.query;
+    let { id } = req.params;
+    let { type } = req.query;
 
     const isUser = await UserRepo?.isUserExists(id);
 
@@ -267,7 +347,7 @@ class UserController extends BaseController {
       return this.errorResponse(res, `User with ID ${id} not found`, 404);
     }
 
-    type = type ? type : "soft";
+    type = type || "soft";
 
     const user = await UserRepo?.deleteUser(id, type);
     return this.successResponse(

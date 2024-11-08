@@ -21,25 +21,7 @@ module.exports = (sequelize, DataTypes) => {
       id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
-        primaryKey: true, 
-      },
-
-      roleId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: "Roles",
-          key: "roleId",
-        },
-      },
-
-      permissionId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: "Permissions",
-          key: "id",
-        },
+        primaryKey: true,
       },
       isDeleted: {
         type: DataTypes.BOOLEAN,
@@ -56,7 +38,6 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
 
-    
     {
       sequelize,
       modelName: "RolePermission",

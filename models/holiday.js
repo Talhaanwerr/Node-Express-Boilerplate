@@ -1,8 +1,5 @@
 'use strict';
-const {
-  Model,
-  DATE
-} = require('sequelize');
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Holiday extends Model {
     /**

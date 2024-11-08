@@ -4,94 +4,92 @@ const UserPermissionValidator = require("../validators/UserPermissionValidator")
 const BaseController = require("./BaseController");
 
 class UserPermissionController extends BaseController {
-    constructor() {
-        super();
+  constructor() {
+    super();
+  }
+
+  assignPermissions = async (req, res) => {
+    const validationResult = UserPermissionValidator.validateAssignPermissions(
+      req.body
+    );
+
+    if (!validationResult.status) {
+      return this.validationErrorResponse(res, validationResult.message);
     }
 
-    assignPermissions = async(req, res) => {
-        const validationResult = UserPermissionValidator.validateAssignPermissions(
-            req.body
-        );
+    const { userId, permissions } = req.body;
 
-        if (!validationResult.status) {
-            return this.validationErrorResponse(res, validationResult.message);
-        }
+    const userPermission = await UserPermissionRepo.assignPermissions(
+      userId,
+      permissions
+    );
 
-        const { userId, permissions } = req.body;
+    return this.successResponse(
+      res,
+      userPermission,
+      "Permissions assigned successfully to the user"
+    );
+  };
 
-        const userPermission = await UserPermissionRepo.assignPermissions(
-            userId,
-            permissions
-        );
+  getUsersWithPermissions = async (req, res) => {
+    const usersWithPermissions =
+      await UserPermissionRepo.getUsersWithPermissions();
 
-        return this.successResponse(
-            res,
-            userPermission,
-            "Permissions assigned successfully to the user"
-        );
-    };
+    if (!usersWithPermissions || usersWithPermissions.length === 0) {
+      return this.errorResponse(res, "User Not Found", 404);
+    }
 
-    getUsersWithPermissions = async(req, res) => {
-        const usersWithPermissions = await UserPermissionRepo.getUsersWithPermissions();
+    return this.successResponse(
+      res,
+      usersWithPermissions,
+      "Getting all Users with Permissions"
+    );
+  };
 
-        if (!usersWithPermissions || usersWithPermissions.length === 0) {
-            return this.errorResponse(res, "User Not Found", 404);
-        }
+  getUsersWithPermissionsById = async (req, res) => {
+    const { userId } = req.params;
 
-        return this.successResponse(
-            res,
-            usersWithPermissions,
-            "Getting all Users with Permissions"
-        );
-    };
+    const userWithPermissions = await UserPermissionRepo.findOneWithInclude(
+      userId
+    );
 
-    getUsersWithPermissionsById = async(req, res) => {
-        const { userId } = req.params;
+    if (!userWithPermissions || userWithPermissions.length === 0) {
+      return this.errorResponse(res, "User Not Found", 404);
+    }
 
-        const userWithPermissions = await UserPermissionRepo.findOneWithInclude(
-            userId
-        );
+    return this.successResponse(
+      res,
+      userWithPermissions,
+      "Getting User with Permissions"
+    );
+  };
 
-        if (!userWithPermissions || userWithPermissions.length === 0) {
-            return this.errorResponse(res, "User Not Found", 404);
-        }
+  updateUserPermission = async (req, res) => {
+    const { userId, permissionId } = req.params;
 
-        return this.successResponse(
-            res,
-            userWithPermissions,
-            "Getting User with Permissions"
-        );
-    };
+    const isUserPermissionExist =
+      await UserPermissionRepo.isUserPermissionExists(userId, permissionId);
+    if (!isUserPermissionExist) {
+      return this.errorResponse(res, "User Permission not found", 404);
+    }
 
-    updateUserPermission = async(req, res) => {
-        const { userId, permissionId } = req.params;
+    const validationResult =
+      UserPermissionValidator.validateUpdateUserPermission(req.body);
+    if (!validationResult.status) {
+      return this.validationErrorResponse(res, validationResult.message);
+    }
 
-        const isUserPermissionExist = await UserPermissionRepo.isUserPermissionExists(
-            userId,
-            permissionId
-        );
-        if (!isUserPermissionExist) {
-            return this.errorResponse(res, "User Permission not found", 404);
-        }
-
-        const validationResult = UserPermissionValidator.validateUpdateUserPermission(
-            req.body
-        );
-        if (!validationResult.status) {
-            return this.validationErrorResponse(res, validationResult.message);
-        }
-
-        const updatedUserPermission = await UserPermissionRepo.updateUserPermission(
-            req.body,
-            userId,
-            permissionId
-        );
-        return this.successResponse(
-            res,
-            updatedUserPermission,
-            "User Permission updated successfully"
-        );
-    };
+    const updatedUserPermission = await UserPermissionRepo.updateUserPermission(
+      req.body,
+      userId,
+      permissionId
+    );
+    return this.successResponse(
+      res,
+      updatedUserPermission,
+      "User Permission updated successfully"
+    );
+  };
 }
 
 module.exports = new UserPermissionController();

@@ -1,7 +1,7 @@
 const { Op } = require("sequelize");
 const db = require("../models/index.js");
 const UserProfileRepo = require("../repos/UserProfileRepo.js");
-const UserRepo=require("../repos/UserRepo.js")
+const UserRepo = require("../repos/UserRepo.js");
 const {
   validateUpdateUserProfile,
   validateCreateUserProfile,
@@ -40,6 +40,44 @@ class UserProfileController extends BaseController {
       },
       limit: parseInt(req.query.limit) || 10,
       offset: parseInt(req.query.skip) || 0,
+      include: [
+        {
+          model: db.User,
+          as: "user",
+          attributes: [
+            "firstName",
+            "lastName",
+            "email",
+            "status",
+            "shiftTime",
+            "profilePicture",
+            "primaryReporting",
+            "secondaryReporting",
+          ],
+          include: [
+            {
+              model: db.Designation,
+              as: "designation",
+              attributes: ["name"],
+            },
+            {
+              model: db.Role,
+              as: "role",
+              attributes: ["name"],
+            },
+            {
+              model: db.User,
+              as: "primaryReport",
+              attributes: ["firstName", "lastName", "email"],
+            },
+            {
+              model: db.User,
+              as: "secondaryReport",
+              attributes: ["firstName", "lastName", "email"],
+            },
+          ],
+        },
+      ],
     };
 
     if (req?.query?.contactNo) {

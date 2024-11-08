@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const AnnouncementController = require("../controllers/AnnouncementController.js");
-const { authorize } = require("../middlewares/auth.middleware.js");
+const {
+  authorize,
+  authMiddleware,
+} = require("../middlewares/auth.middleware.js");
 
 router.post(
   "/create-announcement",
@@ -18,5 +21,6 @@ router.get(
   "/getAnnouncementsById/:id",
   AnnouncementController.getAnnouncementById
 );
+router.get("/get-birthday", authMiddleware, AnnouncementController.getBirthday);
 
 module.exports = router;

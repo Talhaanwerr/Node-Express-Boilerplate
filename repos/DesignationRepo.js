@@ -48,8 +48,8 @@ class DesignationRepo extends BaseRepository {
     return this.count({ id });
   }
 
-  async findByName(designation_name) {
-    return this.findOne({ designation_name });
+  async findByName(name) {
+    return this.findOne({ name });
   }
 }
 

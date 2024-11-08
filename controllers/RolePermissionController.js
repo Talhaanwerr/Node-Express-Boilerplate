@@ -9,57 +9,6 @@ class RolePermissionController extends BaseController {
     super();
   }
 
-  // assignPermissions = async (req, res) => {
-  //   const validationResult = RolePermissionValidator.validateAssignPermissions(
-  //     req?.body
-  //   );
-
-  //   if (!validationResult.status) {
-  //     return this.validationErrorResponse(res, validationResult.message);
-  //   }
-
-  //   const { roleName, permissions } = req?.body;
-
-  //   const role = await RoleRepo?.findByName(roleName);
-
-  //   const {roleId} = role;
-
-  //   const isRoleExist = await RolePermissionRepo?.isRoleExists(roleId);
-
-  //   if (!isRoleExist) {
-  //     return this.errorResponse(res, `Role with ID ${roleId} not found`, 404);
-  //   }
-
-  //   const permissionsExistPromises = permissions.map((permissionId) =>
-  //     RolePermissionRepo.isPermissionExists([permissionId])
-  //   );
-
-  //   const permissionsExistResults = await Promise.all(permissionsExistPromises);
-
-  //   const invalidPermissions = permissions?.filter(
-  //     (permissionId, index) => permissionsExistResults[index].length === 0
-  //   );
-
-  //   if (invalidPermissions?.length > 0) {
-  //     return this.errorResponse(
-  //       res,
-  //       `Permissions not found: ${invalidPermissions.join(", ")}`,
-  //       404
-  //     );
-  //   }
-
-  //   const rolePermission = await RolePermissionRepo?.assignPermissions(
-  //     roleId,
-  //     permissions
-  //   );
-
-  //   return this.successResponse(
-  //     res,
-  //     rolePermission,
-  //     "Permissions assigned successfully"
-  //   );
-  // };
-
   assignPermissions = async (req, res) => {
     const validationResult = RolePermissionValidator.validateAssignPermissions(
       req?.body
@@ -69,9 +18,9 @@ class RolePermissionController extends BaseController {
       return this.validationErrorResponse(res, validationResult.message);
     }
 
-    const { roleName, permissions } = req?.body;
+    const { name, permissions } = req?.body;
 
-    const role = await RoleRepo?.findByName(roleName);
+    const role = await RoleRepo?.findByName(name);
 
     if (!role) {
       return this.errorResponse(
@@ -81,7 +30,7 @@ class RolePermissionController extends BaseController {
       );
     }
 
-    const { roleId } = role;
+    const { id } = role;
 
     const permissionsExistPromises = permissions.map((permissionId) =>
       RolePermissionRepo.isPermissionExists([permissionId])
@@ -100,9 +49,7 @@ class RolePermissionController extends BaseController {
       );
     }
 
-    const existingRolePermissions = await RolePermissionRepo?.findByRoleId(
-      roleId
-    );
+    const existingRolePermissions = await RolePermissionRepo?.findByRoleId(id);
 
     if (existingRolePermissions && existingRolePermissions.length > 0) {
       const rolePermissionIds = existingRolePermissions.map((item) => {
@@ -117,7 +64,7 @@ class RolePermissionController extends BaseController {
     }
 
     const rolePermission = await RolePermissionRepo?.assignPermissions(
-      roleId,
+      id,
       permissions
     );
 
@@ -129,8 +76,23 @@ class RolePermissionController extends BaseController {
   };
 
   getRolesWithPermissions = async (req, res) => {
+    const customQuery = {
+      include: [
+        {
+          model: db.Role,
+          as: "Role",
+          attributes: ["name"],
+        },
+        {
+          model: db.Permission,
+          as: "Permission",
+          attributes: ["name", "module"],
+        },
+      ],
+    };
+
     const roleWithPermissions =
-      await RolePermissionRepo?.getRolesWithPermissions();
+      await RolePermissionRepo?.getRolesWithPermissions(customQuery);
 
     if (!roleWithPermissions || roleWithPermissions?.length === 0) {
       return this.errorResponse(res, "Role Not Found", 404);
@@ -145,9 +107,29 @@ class RolePermissionController extends BaseController {
 
   getRolesWithPermissionsById = async (req, res) => {
     const { roleId } = req?.params;
+    const customQuery = {
+      where: { roleId },
+      include: [
+        {
+          model: db.Role,
+          as: "Role",
+          attributes: ["name"],
+        },
+        {
+          model: db.Permission,
+          as: "Permission",
+          attributes: ["name", "module"],
+        },
+      ],
+    };
 
     const roleWithPermissions = await RolePermissionRepo?.findOneWithInclude(
-      roleId
+      customQuery
+    );
+
+    console.log(
+      "role with permissions : ",
+      JSON.stringify(roleWithPermissions)
     );
 
     if (!roleWithPermissions || roleWithPermissions?.length === 0) {
@@ -157,6 +139,8 @@ class RolePermissionController extends BaseController {
     const response = {
       roleId: roleId,
       permissions: roleWithPermissions.map((rp) => rp.permissionId),
+      Role: roleWithPermissions.map((rp) => rp.Role),
+      Permission: roleWithPermissions.map((rp) => rp.Permission),
     };
 
     return this.successResponse(res, response, "Getting Role with Permissions");

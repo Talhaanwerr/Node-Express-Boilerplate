@@ -25,15 +25,15 @@ module.exports = (sequelize, DataTypes) => {
 
   Role.init(
     {
-      roleId: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-      },
-      roleName: {
+      name: {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      description: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+
       isDeleted: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,

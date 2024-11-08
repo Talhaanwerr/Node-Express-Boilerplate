@@ -1,4 +1,5 @@
 const BaseController = require("./BaseController.js");
+const db = require("../models");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const UserRepo = require("../repos/UserRepo.js");
@@ -11,37 +12,14 @@ const { constants } = require("../utils/constant.js");
 //ibad: do not create custom response in controller, delete password from response
 
 class AuthController extends BaseController {
-  constructor() {
-    super();
-  }
+  // constructor() {
+  //   super();
+  // }
 
   signToken = (userResponse) => {
-    return jwt.sign(userResponse, jwtSecret, {
+    return jwt.sign({ data: userResponse }, jwtSecret, {
       expiresIn: constants.expiresIn,
     });
-  };
-
-  createSendResponse = (user, statusCode, res, msg) => {
-    const userResponse = {
-      id: user.id,
-      email: user.email,
-      isNewUser: user.isNewUser,
-      status: user.status,
-      shiftTime: user.shiftTime,
-      primaryReporting: user?.primaryReporting,
-      secondaryReporting: user?.secondaryReporting,
-      roleName: user?.role?.roleName,
-      designationName: user?.designation?.designation_name,
-    };
-
-    let token = this.signToken(userResponse);
-    const options = {
-      maxAge: constants.maxAge,
-      httpOnly: true,
-    };
-    res.cookie("jwt", token, options);
-
-    return this.successResponse(res, { user, token }, msg);
   };
 
   loginUser = async (req, res) => {
@@ -51,51 +29,69 @@ class AuthController extends BaseController {
       return this.validationErrorResponse(res, validationResult.message);
     }
 
-    const { email, password } = req?.body;
+    const { email, password } = req.body;
 
     const customQuery = {
       where: { email },
+      attributes: { exclude: ["password"] },
       include: [
         {
           model: db.Role,
           as: "role",
-          attributes: ["roleName"],
+          attributes: ["name"],
         },
         {
           model: db.Designation,
           as: "designation",
-          attributes: ["designation_name"],
+          attributes: ["name"],
         },
-        {
-          model: db.User,
-          as: "PrimaryReportees",
-          attributes: ["firstName"]//, "lastName", "email"],
-        },
-        {
-          model: db.User,
-          as: "SecondaryReportees",
-          attributes: ["firstName", "lastName", "email"],
-        },
+        // {
+        //   model: db.User,
+        //   as: "PrimaryReportees",
+        //   attributes: ["firstName"], //, "lastName", "email"],
+        // },
+        // {
+        //   model: db.User,
+        //   as: "SecondaryReportees",
+        //   attributes: ["firstName", "lastName", "email"],
+        // },
       ],
-    }
+    };
 
     const user = await UserRepo?.findByEmailWithInclude(customQuery);
+
+    console.log(JSON.stringify(user));
+
+    // const userObject = user.toJSON();
+
+    // delete userObject.password;
+    // delete userObject.resetPasswordToken;
+    // delete userObject.resetPasswordExpires;
 
     if (!user) {
       return this.errorResponse(res, "User not found", 404);
     }
 
-    const passwordMatch = await bcrypt.compare(password, user?.password);
+    // const passwordMatch = await bcrypt.compare(password, user?.password);
 
-    if (!passwordMatch) {
-      return this.errorResponse(res, "Invalid password", 404);
-    }
+    // if (!passwordMatch) {
+    //   return this.errorResponse(res, "Invalid password", 404);
+    // }
 
-    this.createSendResponse(user, 200, res, "login Successful");
+    let token = this.signToken(JSON.stringify(user));
+
+    const options = {
+      maxAge: constants.maxAge,
+      httpOnly: true,
+    };
+
+    res.cookie("jwt", token, options);
+
+    return this.successResponse(res, { user, token }, "login Successful");
   };
 
   changePassword = async (req, res) => {
-    const { email, oldPassword, newPassword } = req?.body;
+    const { email, oldPassword, newPassword } = req.body;
 
     if (!email || !newPassword || !oldPassword) {
       return this.validationErrorResponse(
@@ -112,7 +108,33 @@ class AuthController extends BaseController {
       );
     }
 
-    const user = await UserRepo?.findByEmailWithInclude(email);
+    const customQuery = {
+      where: { email },
+      include: [
+        {
+          model: db.Role,
+          as: "role",
+          attributes: ["name"],
+        },
+        {
+          model: db.Designation,
+          as: "designation",
+          attributes: ["name"],
+        },
+        // {
+        //   model: db.User,
+        //   as: "PrimaryReportees",
+        //   attributes: ["firstName", "lastName", "email"],
+        // },
+        // {
+        //   model: db.User,
+        //   as: "SecondaryReportees",
+        //   attributes: ["firstName", "lastName", "email"],
+        // },
+      ],
+    };
+
+    const user = await UserRepo?.findByEmailWithInclude(customQuery);
 
     if (!user) {
       return this.errorResponse(res, "User not found", 404);
@@ -126,28 +148,28 @@ class AuthController extends BaseController {
 
     const hashedPassword = await bcrypt.hash(newPassword, constants.saltRounds);
 
-    await UserRepo?.updateUserPassword(user?.id, hashedPassword); //ibad: use updateUser function
+    const updatedUser = await UserRepo?.updateUser(
+      { password: hashedPassword },
+      user?.id
+    ); //ibad: use updateUser function
+
     user.isNewUser = false;
 
-    const resetPasswordResponse = {
-      id: user?.id,
-      firstName: user?.firstName,
-      lastName: user?.lastName,
-      email: user?.email,
-      isNewUser: user?.isNewUser,
-      roleName: user?.role?.roleName,
-      designationName: user?.designation?.designation_name,
-    };
+    const userObject = updatedUser.toJSON();
+
+    delete userObject.password;
+    delete userObject.resetPasswordToken;
+    delete userObject.resetPasswordExpires;
 
     return this.successResponse(
       res,
-      resetPasswordResponse,
+      userObject,
       "Password changed successfully"
     );
   };
 
   forgetPassword = async (req, res) => {
-    const { email } = req?.body;
+    const { email } = req.body;
 
     if (!email) {
       return this.validationErrorResponse(res, "Email is required");
@@ -159,12 +181,12 @@ class AuthController extends BaseController {
       return this.errorResponse(res, "User not found", 404);
     }
 
-    const resetToken = crypto.randomBytes(constants.hexCode).toString("hex"); // encoded token
+    const resetToken = crypto.randomBytes(constants.hexCode).toString("hex");
 
     const encryptedToken = crypto
       .createHash("sha256")
       .update(resetToken)
-      .digest("hex"); // encrypted token
+      .digest("hex");
 
     user.resetPasswordToken = encryptedToken;
     user.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
@@ -226,23 +248,12 @@ class AuthController extends BaseController {
 
     await transporter.sendMail(mailOptions);
 
-    const userResponse = {
-      id: user?.id,
-      email: user?.email,
-      firstName: user?.firstName,
-      lastName: user?.lastName,
-    };
-
-    return this.successResponse(
-      res,
-      userResponse,
-      "Resent link sent successful"
-    );
+    return this.successResponse(res, {}, "Resent link sent successful");
   };
 
   resetPasswordWithToken = async (req, res) => {
-    const { token } = req?.query;
-    const { newPassword } = req?.body;
+    const { token } = req.query;
+    const { newPassword } = req.body;
 
     if (!token || !newPassword) {
       return this.validationErrorResponse(
@@ -265,86 +276,20 @@ class AuthController extends BaseController {
     const hashedPassword = await bcrypt.hash(newPassword, constants.saltRounds);
     user.password = hashedPassword;
 
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpires = undefined;
+    const userObject = user.toJSON();
+
+    delete userObject.resetPasswordToken;
+    delete userObject.resetPasswordExpires;
 
     await user?.save();
-    this.createSendResponse(user, 200, res, "Password reset successful");
+
+    return this.successResponse(res, {}, "Password reset successfull");
   };
-
-  // verifyToken = async (req, res) => {
-  //   const { token } = req?.query;
-
-  //   if (!token) {
-  //     return this.validationErrorResponse(res, "Token is required");
-  //   }
-
-  //   const encryptedToken = crypto
-  //     .createHash("sha256")
-  //     .update(token)
-  //     .digest("hex");
-
-  //   const user = await UserRepo.findUserByResetToken(encryptedToken);
-
-  //   if (!user || user.resetPasswordExpires < Date.now()) {
-  //     return this.errorResponse(res, "Token is invalid or has expired", 400);
-  //   }
-
-  //   return this.successResponse(res, {}, "Token is valid");
-  // };
 
   logoutUser = async (req, res) => {
     res.clearCookie("jwt");
     return this.successResponse(res, {}, "Logout successful");
   };
-
-  // googleAuthentication = async (req, res) => {
-  //   const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-  //   const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-  //   const REDIRECT_URI = "http://localhost:3000/auth/google/callback";
-
-  //   router.get("/auth/google", (req, res) => {
-  //     const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=profile email`;
-  //     res.redirect(url);
-  //   });
-
-  //   router.get("/auth/google/callback", async (req, res) => {
-  //     const { code } = req.query;
-
-  //     try {
-  //       const { data } = await axios.post(
-  //         "https://oauth2.googleapis.com/token",
-  //         {
-  //           client_id: CLIENT_ID,
-  //           client_secret: CLIENT_SECRET,
-  //           code,
-  //           redirect_uri: REDIRECT_URI,
-  //           grant_type: "authorization_code",
-  //         }
-  //       );
-
-  //       const { access_token, id_token } = data;
-
-  //       const { data: profile } = await axios.get(
-  //         "https://www.googleapis.com/oauth2/v1/userinfo",
-  //         {
-  //           headers: { Authorization: `Bearer ${access_token}` },
-  //         }
-  //       );
-
-  //       res.redirect("/");
-  //     } catch (error) {
-  //       console.error("Error:", error.response.data.error);
-  //       res.redirect("/login");
-  //     }
-  //   });
-
-  //   // Logout route
-  //   router.get("/logout", (req, res) => {
-  //     // Code to handle user logout
-  //     res.redirect("/login");
-  //   });
-  // };
 }
 
 module.exports = new AuthController();

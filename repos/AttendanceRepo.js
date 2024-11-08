@@ -56,7 +56,7 @@ class AttendanceRepo extends BaseRepository {
             {
               model: db.Designation,
               as: "designation",
-              attributes: ["designation_name"],
+              attributes: ["name"],
             },
           ],
         },
@@ -65,26 +65,7 @@ class AttendanceRepo extends BaseRepository {
   }
 
   async getAttendance(options = {}) {
-    return this.findAll({
-      where: options.where,
-      include: [
-        {
-          model: db.User,
-          as: "user",
-          attributes: ["firstName", "lastName"],
-          include: [
-            {
-              model: db.Designation,
-              as: "designation",
-              attributes: ["designation_name"],
-            },
-          ],
-        },
-      ],
-      limit: options.limit,
-      offset: options.offset,
-      order: options.order,
-    });
+    return this.findAll(options);
   }
 
   async findAttendance(attendanceId) {
