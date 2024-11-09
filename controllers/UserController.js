@@ -3,7 +3,7 @@ const db = require("../models/index.js");
 const UserRepo = require("../repos/UserRepo.js");
 const DesignationRepo = require("../repos/DesignationRepo.js");
 const RoleRepo = require("../repos/RoleRepo.js");
-
+const { constants } = require("../utils/constant.js");
 const {
   validateCreateUser,
   validateUpdateUser,
@@ -11,7 +11,6 @@ const {
 } = require("../validators/UserValidator.js");
 const BaseController = require("./BaseController.js");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const UserProfileRepo = require("../repos/UserProfileRepo.js");
 
 class UserController extends BaseController {
@@ -224,10 +223,10 @@ class UserController extends BaseController {
 
     const {
       profile,
-      designationName,
-      roleName,
-      primaryReportingName,
-      secondaryReportingName,
+      // designationId,
+      // roleId,
+      // primaryReporting,
+      // secondaryReporting,
       password = "Demo12345",
       email,
       ...userData
@@ -237,28 +236,27 @@ class UserController extends BaseController {
       return this.validationErrorResponse(res, "Email is required.");
     }
 
-    const saltRounds = 10;
-    userData.password = await bcrypt.hash(password, saltRounds);
+    userData.password = await bcrypt.hash(password, constants.saltRounds);
     userData.email = email;
 
     const [
-      designation,
-      role,
-      primaryReporting,
-      secondaryReporting,
+      // designationName,
+      // roleName,
+      // primaryReportingName,
+      // secondaryReportingName,
       existingUserByEmail,
       existingUserByCnic,
     ] = await Promise.all([
-      designationName
-        ? DesignationRepo.findByName(designationName)
-        : Promise.resolve(null),
-      roleName ? RoleRepo.findByName(roleName) : Promise.resolve(null),
-      primaryReportingName
-        ? UserRepo.findUserByName(primaryReportingName)
-        : Promise.resolve(null),
-      secondaryReportingName
-        ? UserRepo.findUserByName(secondaryReportingName)
-        : Promise.resolve(null),
+      // designationId
+      //   ? DesignationRepo.findById(designationId)
+      //   : Promise.resolve(null),
+      // roleId ? RoleRepo.findById(roleId) : Promise.resolve(null),
+      // primaryReporting
+      //   ? UserRepo.findById(primaryReporting)
+      //   : Promise.resolve(null),
+      // secondaryReporting
+      //   ? UserRepo.findById(secondaryReporting)
+      //   : Promise.resolve(null),
       email ? UserRepo.findUserByEmail(email) : Promise.resolve(null),
       profile.cnicNo
         ? UserProfileRepo.findUserByCnic(profile.cnicNo)
@@ -281,28 +279,8 @@ class UserController extends BaseController {
       );
     }
 
-    if (!designation) {
-      return this.errorResponse(res, "Designation not found", 404);
-    }
-
-    if (!role) {
-      return this.errorResponse(res, "Role not found", 404);
-    }
-
-    if (primaryReportingName && !primaryReporting) {
-      return this.errorResponse(res, "Primary reporting user not found", 404);
-    }
-
-    if (secondaryReportingName && !secondaryReporting) {
-      return this.errorResponse(res, "Secondary reporting user not found", 404);
-    }
-
     const user = await UserRepo?.createUserAndProfile({
       ...userData,
-      designationId: designation.id,
-      roleId: role.id,
-      primaryReporting: primaryReporting ? primaryReporting.id : null,
-      secondaryReporting: secondaryReporting ? secondaryReporting.id : null,
       profile: {
         ...profile,
       },

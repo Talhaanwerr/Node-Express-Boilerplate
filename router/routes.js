@@ -22,5 +22,5 @@ router.use("/designation", authMiddleware, designationRoute);
 router.use("/auth", authRoutes);
 router.use("/attendance", authMiddleware, attendanceRoutes);
 router.use("/holiday", authMiddleware, holidayRoutes);
-
+ 
 module.exports = router;

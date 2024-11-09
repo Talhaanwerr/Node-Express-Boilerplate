@@ -30,14 +30,12 @@ class UserValidator extends BaseValidator {
       password: Joi.string().optional().label("Password"),
       shiftTime: Joi.string().optional().label("Shift Time"),
       status: Joi.string().optional().label("Status"),
-      primaryReportingName: Joi.string()
-        .optional()
-        .label("Primary Reporting To"),
-      secondaryReportingName: Joi.string()
+      primaryReporting: Joi.number().optional().label("Primary Reporting To"),
+      secondaryReporting: Joi.number()
         .optional()
         .label("Secondary Reporting To"),
-      designationName: Joi.string().optional().label("Designation ID"),
-      roleName: Joi.string().required().label("Role ID"),
+      designationId: Joi.number().optional().label("Designation ID"),
+      roleId: Joi.number().required().label("Role ID"),
       profilePicture: Joi.binary().optional().label("Profile Picture"),
       isDeleted: Joi.boolean().optional(),
       isNewUser: Joi.boolean().optional(),
