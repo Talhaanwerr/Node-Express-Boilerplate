@@ -9,7 +9,6 @@ const {
 router.get(
   "/get-user",
   // authorize("admin"),
-  authMiddleware,
   UserController.getUserById
 );
 router.get("/get-all-users", UserController.getAllUsers);
@@ -29,5 +28,6 @@ router.delete(
   // authorize("admin"),
   UserController.deleteUser
 );
+
 
 module.exports = router;

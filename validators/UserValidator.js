@@ -52,7 +52,7 @@ class UserValidator extends BaseValidator {
             .label("Gender"),
           address: Joi.string().optional().label("Address"),
           joinedDate: Joi.date().iso().optional().label("Joined Date"),
-          branch: Joi.string().optional().label("Branch"),
+          // branch: Joi.string().optional().label("Branch"),
           employeeType: Joi.string().optional().label("Employee Type"),
           department: Joi.string().optional().label("Department"),
           totalExperience: Joi.string().optional().label("Total Experience"),

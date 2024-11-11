@@ -11,16 +11,18 @@ const userProfileRoutes = require("./userprofile.route.js");
 const authRoutes = require("./auth.route.js");
 const attendanceRoutes = require("./attendance.route.js");
 const holidayRoutes = require("./holiday.route.js");
+const leaveRoutes = require("./leave.route.js");
 
-router.use("/announcements", announcementRoutes);
+router.use("/announcements",authMiddleware, announcementRoutes);
 router.use("/roles", authMiddleware, roleRoutes);
 router.use("/permissions", authMiddleware, permissionRoutes);
-router.use("/rolepermission", RolePermissionRoutes);
-router.use("/users", userRoutes);
+router.use("/rolepermission", authMiddleware, RolePermissionRoutes);
+router.use("/users",authMiddleware, userRoutes);
 router.use("/user-profiles", authMiddleware, userProfileRoutes);
 router.use("/designation", authMiddleware, designationRoute);
 router.use("/auth", authRoutes);
 router.use("/attendance", authMiddleware, attendanceRoutes);
 router.use("/holiday", authMiddleware, holidayRoutes);
+router.use("/leave", authMiddleware, leaveRoutes);
  
 module.exports = router;

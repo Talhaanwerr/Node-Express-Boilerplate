@@ -9,9 +9,9 @@ const {
 const BaseController = require("./BaseController.js");
 
 class UserProfileController extends BaseController {
-  constructor() {
-    super();
-  }
+  // constructor() {
+  //   super();
+  // }
 
   getUserProfileById = async (req, res) => {
     const userId = req?.user?.id;
@@ -237,6 +237,40 @@ class UserProfileController extends BaseController {
       `User Profile with ID ${id} deleted successfully`
     );
   };
+
+  getNewHire = async (req, res) => {
+    const customQuery = {
+      attributes: ["id", "userId", "joinedDate", "city", "contactNo"],
+      where: {
+        joinedDate: {
+          [Op.gte]: new Date(new Date().setDate(new Date().getDate() - 30)),
+        },
+      },
+      include: [
+        {
+          model: db.User,
+          as: "user",
+          attributes: ["firstName", "lastName", "email", "status"],
+          include: [
+            {
+              model: db.Designation,
+              as: "designation",
+              attributes: ["name"],
+            },
+          ],
+        },
+      ],
+    };
+
+    const newHire = await UserProfileRepo?.getUserProfiles(customQuery);
+
+    if (!newHire) {
+      return this.errorResponse(res, "No new hire found", 404);
+    }
+
+    return this.successResponse(res, newHire, "Getting All New Hire");
+  };
 }
 
 module.exports = new UserProfileController();
+

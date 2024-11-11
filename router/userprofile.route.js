@@ -11,11 +11,7 @@ router.get(
   // authorize("admin"),
   UserProfileController.getAllUserProfiles
 );
-router.get(
-  "/get-user-profile",
-  authMiddleware,
-  UserProfileController.getUserProfileById
-);
+router.get("/get-user-profile", UserProfileController.getUserProfileById);
 router.post(
   "/create-user-profile",
   // authorize("admin"),
@@ -24,7 +20,6 @@ router.post(
 router.patch(
   "/update-user-profile",
   // authorize("user"),
-  authMiddleware,
   UserProfileController.updateUserProfile
 );
 router.delete(
@@ -32,5 +27,7 @@ router.delete(
   // authorize("admin"),
   UserProfileController.deleteUserProfile
 );
+
+router.get("/get-new-hires", UserProfileController.getNewHire);
 
 module.exports = router;

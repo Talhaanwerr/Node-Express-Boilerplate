@@ -69,10 +69,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: false,
       },
-      branch: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
+      // branch: {
+      //   type: DataTypes.STRING,
+      //   allowNull: false,
+      // },
       userId: {
         type: DataTypes.INTEGER,
         allowNull: false,

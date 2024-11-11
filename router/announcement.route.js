@@ -21,6 +21,6 @@ router.get(
   "/getAnnouncementsById/:id",
   AnnouncementController.getAnnouncementById
 );
-router.get("/get-birthday", authMiddleware, AnnouncementController.getBirthday);
+router.get("/get-birthday", AnnouncementController.getBirthday);
 
 module.exports = router;

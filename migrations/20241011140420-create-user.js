@@ -27,7 +27,7 @@ module.exports = {
         defaultValue: true,
       },
       shiftTime: {
-        type: Sequelize.TIME,
+        type: Sequelize.STRING,
       },
       profilePicture: {
         type: Sequelize.STRING,

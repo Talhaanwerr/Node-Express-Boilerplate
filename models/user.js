@@ -44,6 +44,12 @@ module.exports = (sequelize, DataTypes) => {
         as: "secondaryReport",
         onDelete: "SET NULL",
       });
+
+      User.hasOne(models.Leave, {
+        foreignKey: "userId",
+        as: "leave",
+        onDelete: "CASCADE",
+      });
     }
   }
   User.init(
@@ -68,7 +74,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
       },
-
       shiftTime: {
         type: DataTypes.STRING,
         allowNull: true,

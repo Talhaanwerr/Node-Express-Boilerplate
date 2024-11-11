@@ -23,10 +23,6 @@ router.get(
   authMiddleware,
   AttendanceController.getAttendanceByUserId
 );
-router.patch(
-  "/update-attendance",
-  authMiddleware,
-  AttendanceController.updateAttendance
-);
+router.patch("/update-attendance", AttendanceController.updateAttendance);
 
 module.exports = router;
