@@ -18,10 +18,6 @@ class UserProfileController extends BaseController {
 
     const user = await UserProfileRepo?.findByIdWithInclude(userId);
 
-    if (!user) {
-      return this.errorResponse(res, `User with ID ${userId} not found`, 404);
-    }
-
     return this.successResponse(
       res,
       user,
@@ -141,10 +137,6 @@ class UserProfileController extends BaseController {
     }
 
     const userProfiles = await UserProfileRepo?.getUserProfiles(customQuery);
-
-    if (!userProfiles.length) {
-      return this.errorResponse(res, "User Profiles not found", 404);
-    }
 
     return this.successResponse(
       res,

@@ -63,10 +63,6 @@ class PermissionController extends BaseController {
 
     const count = await PermissionRepo?.countPermission();
 
-    if (!permissions?.length) {
-      return this.errorResponse(res, "No matching permissions found", 404);
-    }
-
     return this.successResponse(
       res,
       {

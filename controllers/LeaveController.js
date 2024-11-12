@@ -1,8 +1,10 @@
 const LeaveRepo = require("../repos/LeaveRepo.js");
+const LeaveRequestRepo = require("../repos/LeaveRequest.js");
 const db = require("../models/index");
 const {
   validateCreateLeave,
   validateUpdateLeave,
+  validateCreateLeaveRequest,
 } = require("../validators/LeaveValidator.js");
 const BaseController = require("./BaseController.js");
 
@@ -30,10 +32,24 @@ class LeaveController extends BaseController {
   };
 
   createLeaveRequest = async (req, res) => {
-    const { userId } = req.user.id;
-    const { leaveType, startDate, endDate, reason } = req.body;
+    const validateResult = validateCreateLeaveRequest(req.body);
 
-    return this.successResponse(res, leave, "Leave Created Successfully");
+    const userId = req.user.id;
+    const { leaveYear = new Date().getFullYear() } = req.body;
+
+    const leaveRequest = await LeaveRequestRepo?.createLeaveRequest({
+      userId,
+      leaveYear,
+      ...req.body,
+    });
+
+    console.log("leaveRequest", leaveRequest);
+
+    return this.successResponse(
+      res,
+      leaveRequest,
+      "Leave Request Submitted Successfully"
+    );
   };
 }
 module.exports = new LeaveController();

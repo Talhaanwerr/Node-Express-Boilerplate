@@ -50,6 +50,12 @@ module.exports = (sequelize, DataTypes) => {
         as: "leave",
         onDelete: "CASCADE",
       });
+      
+      User.hasMany(models.LeaveRequest, {
+        foreignKey: "userId",
+        as: "leaveRequests",
+        onDelete: "CASCADE",
+      });
     }
   }
   User.init(

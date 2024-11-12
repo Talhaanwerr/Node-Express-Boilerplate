@@ -126,14 +126,6 @@ class AnnouncementController extends BaseController {
       };
     });
 
-    if (users.length === 0) {
-      return this.errorResponse(
-        res,
-        "No birthdays found in the next 30 days",
-        404
-      );
-    }
-
     return this.successResponse(
       res,
       userResponse,

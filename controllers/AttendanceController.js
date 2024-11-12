@@ -249,10 +249,6 @@ class AttendanceController extends BaseController {
       ],
     });
 
-    if (!attendances || attendances?.length === 0) {
-      return this.errorResponse(res, "No attendance found", 404);
-    }
-
     const updatedAttendances = attendances?.map(calculateAttendance);
 
     const filteredAttendances = status
@@ -260,14 +256,6 @@ class AttendanceController extends BaseController {
           (attendance) => attendance?.status === status
         )
       : updatedAttendances;
-
-    if (filteredAttendances.length === 0) {
-      return this.errorResponse(
-        res,
-        "No attendance found with the specified status",
-        404
-      );
-    }
 
     const workingDaysMap = filteredAttendances?.reduce((acc, attendance) => {
       if (attendance?.checkIn) {
@@ -311,9 +299,9 @@ class AttendanceController extends BaseController {
       where: customquery.where,
     });
 
-    if (!attendances || attendances.length === 0) {
-      return this.errorResponse(res, "No attendance found", 404);
-    }
+    // if (!attendances || attendances.length === 0) {
+    //   return this.errorResponse(res, "No attendance found", 404);
+    // }
 
     const bool = true;
     const attendanceResponse = formatAttendanceResponse(attendances, 0, bool);
@@ -403,22 +391,10 @@ class AttendanceController extends BaseController {
       order: [[sort === "id" ? "id" : "date", order]],
     });
 
-    if (!attendances || attendances.length === 0) {
-      return this.errorResponse(res, "No attendance found for this user", 404);
-    }
-
     const updatedAttendances = attendances.map(calculateAttendance);
     const filteredAttendances = status
       ? updatedAttendances.filter((attendance) => attendance.status === status)
       : updatedAttendances;
-
-    if (filteredAttendances.length === 0) {
-      return this.errorResponse(
-        res,
-        "No attendance found with the specified status",
-        404
-      );
-    }
 
     const workingDaysMap = filteredAttendances.reduce((acc, attendance) => {
       if (attendance?.checkIn) {

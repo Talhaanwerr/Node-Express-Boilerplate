@@ -221,16 +221,7 @@ class UserController extends BaseController {
       return this.validationErrorResponse(res, validationResult.message);
     }
 
-    const {
-      profile,
-      // designationId,
-      // roleId,
-      // primaryReporting,
-      // secondaryReporting,
-      password = "Demo12345",
-      email,
-      ...userData
-    } = req.body;
+    const { profile, password = "Demo12345", email, ...userData } = req.body;
 
     if (!email) {
       return this.validationErrorResponse(res, "Email is required.");
@@ -239,24 +230,7 @@ class UserController extends BaseController {
     userData.password = await bcrypt.hash(password, constants.saltRounds);
     userData.email = email;
 
-    const [
-      // designationName,
-      // roleName,
-      // primaryReportingName,
-      // secondaryReportingName,
-      existingUserByEmail,
-      existingUserByCnic,
-    ] = await Promise.all([
-      // designationId
-      //   ? DesignationRepo.findById(designationId)
-      //   : Promise.resolve(null),
-      // roleId ? RoleRepo.findById(roleId) : Promise.resolve(null),
-      // primaryReporting
-      //   ? UserRepo.findById(primaryReporting)
-      //   : Promise.resolve(null),
-      // secondaryReporting
-      //   ? UserRepo.findById(secondaryReporting)
-      //   : Promise.resolve(null),
+    const [existingUserByEmail, existingUserByCnic] = await Promise.all([
       email ? UserRepo.findUserByEmail(email) : Promise.resolve(null),
       profile.cnicNo
         ? UserProfileRepo.findUserByCnic(profile.cnicNo)

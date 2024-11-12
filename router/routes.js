@@ -17,7 +17,7 @@ router.use("/announcements",authMiddleware, announcementRoutes);
 router.use("/roles", authMiddleware, roleRoutes);
 router.use("/permissions", authMiddleware, permissionRoutes);
 router.use("/rolepermission", authMiddleware, RolePermissionRoutes);
-router.use("/users",authMiddleware, userRoutes);
+router.use("/users", userRoutes);
 router.use("/user-profiles", authMiddleware, userProfileRoutes);
 router.use("/designation", authMiddleware, designationRoute);
 router.use("/auth", authRoutes);

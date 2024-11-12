@@ -7,7 +7,7 @@ const {
 } = require("../middlewares/auth.middleware.js");
 
 router.post(
-  "/create-leave",
+  "/create-leave-request",
   // authorize("admin"),
   LeaveController.createLeaveRequest
 );

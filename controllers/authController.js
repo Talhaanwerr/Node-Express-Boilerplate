@@ -33,7 +33,7 @@ class AuthController extends BaseController {
 
     const customQuery = {
       where: { email },
-      attributes: { exclude: ["password"] },
+      // attributes: { exclude: ["password"] },
       include: [
         {
           model: db.Role,
@@ -60,22 +60,17 @@ class AuthController extends BaseController {
 
     const user = await UserRepo?.findByEmailWithInclude(customQuery);
 
-
-    // const userObject = user.toJSON();
-
-    // delete userObject.password;
-    // delete userObject.resetPasswordToken;
-    // delete userObject.resetPasswordExpires;
+    console.log("user", user);
 
     if (!user) {
       return this.errorResponse(res, "User not found", 404);
     }
 
-    // const passwordMatch = await bcrypt.compare(password, user?.password);
+    const passwordMatch = await bcrypt.compare(password, user?.password);
 
-    // if (!passwordMatch) {
-    //   return this.errorResponse(res, "Invalid password", 404);
-    // }
+    if (!passwordMatch) {
+      return this.errorResponse(res, "Invalid password", 404);
+    }
 
     let token = this.signToken(JSON.stringify(user));
 

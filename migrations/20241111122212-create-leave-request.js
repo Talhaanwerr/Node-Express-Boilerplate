@@ -12,6 +12,42 @@ module.exports = {
       leaveType: {
         type: Sequelize.STRING,
       },
+      leaveYear: {
+        type: Sequelize.INTEGER,
+      },
+      description: {
+        type: Sequelize.TEXT,
+      },
+      type: {
+        type: Sequelize.ENUM("fullday", "halfday"),
+      },
+      startDate: {
+        type: Sequelize.DATE,
+      },
+      endDate: {
+        type: Sequelize.DATE,
+      },
+      status: {
+        type: Sequelize.ENUM("pending", "approved", "rejected"),
+        defaultValue: "pending",
+      },
+      userId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Users",
+          key: "id",
+        },
+        onDelete: "CASCADE",
+      },
+
+      approverBy: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Users",
+          key: "id",
+        },
+        onDelete: "CASCADE",
+      },
 
       createdAt: {
         allowNull: false,
