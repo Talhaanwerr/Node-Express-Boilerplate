@@ -16,7 +16,7 @@ router.post(
 //   // authorize("admin"),
 //   AnnouncementController.updateAnnouncement
 // );
-router.get("/get-leave", authMiddleware, LeaveController.getLeaves);
+router.get("/get-leave", LeaveController.getLeaves);
 // router.get(
 //   "/getAnnouncementsById/:id",
 //   AnnouncementController.getAnnouncementById

@@ -127,10 +127,6 @@ class RolePermissionController extends BaseController {
       customQuery
     );
 
-    console.log(
-      "role with permissions : ",
-      JSON.stringify(roleWithPermissions)
-    );
 
     if (!roleWithPermissions || roleWithPermissions?.length === 0) {
       return this.errorResponse(res, `Role with ID ${roleId} Not Found`, 404);

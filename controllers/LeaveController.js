@@ -12,7 +12,7 @@ class LeaveController extends BaseController {
   // }
 
   getLeaves = async (req, res) => {
-    const { userId } = req.user.id;
+    const userId = req.user.id;
 
     const customQuery = {
       where: {
@@ -29,6 +29,11 @@ class LeaveController extends BaseController {
     return this.successResponse(res, leaves, "Getting All Leaves");
   };
 
-  createLeaveRequest = async (req, res) => {};
+  createLeaveRequest = async (req, res) => {
+    const { userId } = req.user.id;
+    const { leaveType, startDate, endDate, reason } = req.body;
+
+    return this.successResponse(res, leave, "Leave Created Successfully");
+  };
 }
 module.exports = new LeaveController();

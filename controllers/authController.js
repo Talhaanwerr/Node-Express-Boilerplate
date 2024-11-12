@@ -60,7 +60,6 @@ class AuthController extends BaseController {
 
     const user = await UserRepo?.findByEmailWithInclude(customQuery);
 
-    console.log(JSON.stringify(user));
 
     // const userObject = user.toJSON();
 

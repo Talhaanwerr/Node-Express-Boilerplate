@@ -20,3 +20,6 @@ skip=
 3) get-attendance-by-user
 4) assign-permissions
 5) 
+
+
+1) roles ke seeder se super admin banega (create-super-admin->roleId, name, email, password,isewUser==false,roleId)

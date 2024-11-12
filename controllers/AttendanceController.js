@@ -47,7 +47,6 @@ class AttendanceController extends BaseController {
           }
         }
 
-        console.log("Daily attendance check completed.");
       } catch (error) {
         console.error("Error in daily attendance check:", error);
       }
