@@ -60,7 +60,6 @@ class AuthController extends BaseController {
 
     const user = await UserRepo?.findByEmailWithInclude(customQuery);
 
-    console.log("user", user);
 
     if (!user) {
       return this.errorResponse(res, "User not found", 404);

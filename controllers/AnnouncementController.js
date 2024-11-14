@@ -70,9 +70,9 @@ class AnnouncementController extends BaseController {
     const announcement = await AnnouncementRepo.findAnnouncements(
       req.params.id
     );
-    if (!announcement) {
-      return this.errorResponse(res, "Announcement not found", 404);
-    }
+    // if (!announcement) {
+    //   return this.errorResponse(res, "Announcement not found", 404);
+    // }
     return this.successResponse(res, announcement, "Getting Announcement");
   };
 

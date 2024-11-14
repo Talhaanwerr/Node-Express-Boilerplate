@@ -427,7 +427,7 @@ class AttendanceController extends BaseController {
   };
 
   updateAttendance = async (req, res) => {
-    const { date, checkIn, checkOut, reason, description } = req?.body;
+    const { date } = req?.body;
     const userId = req?.user?.id;
 
     const validationResult = validateUpdateAttendance(req?.body);

@@ -7,8 +7,8 @@ class RoleRepo extends BaseRepository {
     this.model = db.Role;
   }
 
-  async findById(roleId) {
-    return this.findOne({ roleId });
+  async findById(id) {
+    return this.findOne({ id });
   }
 
   async createRole(role) {

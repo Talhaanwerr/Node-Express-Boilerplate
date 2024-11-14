@@ -20,7 +20,11 @@ class LeaveRequestRepo extends BaseRepository {
     return this.findAll(condition);
   }
 
-  async updateLeave(leaveRequest, id) {
+  async findLeaveByUserId(userId) {
+    return this.findOne({ userId });
+  }
+
+  async updateLeaveRequest(leaveRequest, id) {
     await this.update(leaveRequest, { id });
     return this.findOne({ id });
   }

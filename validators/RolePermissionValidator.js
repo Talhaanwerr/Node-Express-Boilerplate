@@ -5,7 +5,7 @@ const role = require("../models/role");
 class RolePermissionValidator extends BaseValidator {
   validateAssignPermissions = (data) => {
     const schema = Joi.object({
-      name: Joi.string().required().label("Role Name"),
+      roleId: Joi.number().required().label("Role id"),
       permissions: Joi.array()
         .items(Joi.number())
         .required()

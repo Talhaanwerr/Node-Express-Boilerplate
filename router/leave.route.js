@@ -11,16 +11,12 @@ router.post(
   // authorize("admin"),
   LeaveController.createLeaveRequest
 );
-// router.patch(
-//   "/update-announcement/:id",
-//   // authorize("admin"),
-//   AnnouncementController.updateAnnouncement
-// );
 router.get("/get-leave", LeaveController.getLeaves);
-// router.get(
-//   "/getAnnouncementsById/:id",
-//   AnnouncementController.getAnnouncementById
-// );
-// router.get("/get-birthday", authMiddleware, AnnouncementController.getBirthday);
+router.get("/get-all-leave-request", LeaveController.getAllLeaveRequest);
+router.get(
+  "/get-leave-request-by-reportingTo",
+  LeaveController.getLeaveRequestByReportingTo
+);
+router.patch("/update-leave-request", LeaveController.leaveApproval);
 
 module.exports = router;

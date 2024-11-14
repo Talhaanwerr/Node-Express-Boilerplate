@@ -16,6 +16,10 @@ class LeaveRepo extends BaseRepository {
     return this.findOne({ id });
   }
 
+  async findLeaveByUserId(userId) {
+    return this.findOne({ userId });
+  }
+
   async getLeaves(condition = {}) {
     return this.findAll(condition);
   }

@@ -5,9 +5,9 @@ const BaseController = require("./BaseController");
 const db = require("../models");
 
 class RolePermissionController extends BaseController {
-  constructor() {
-    super();
-  }
+  // constructor() {
+  //   super();
+  // }
 
   assignPermissions = async (req, res) => {
     const validationResult = RolePermissionValidator.validateAssignPermissions(
@@ -18,19 +18,15 @@ class RolePermissionController extends BaseController {
       return this.validationErrorResponse(res, validationResult.message);
     }
 
-    const { name, permissions } = req?.body;
+    const { roleId, permissions } = req.body;
 
-    const role = await RoleRepo?.findByName(name);
+    const role = await RoleRepo?.findById(roleId);
 
     if (!role) {
-      return this.errorResponse(
-        res,
-        `Role with name ${roleName} not found`,
-        404
-      );
+      return this.errorResponse(res, `Role with id ${roleId} not found`, 404);
     }
 
-    const { id } = role;
+    // const { id } = role;
 
     const permissionsExistPromises = permissions.map((permissionId) =>
       RolePermissionRepo.isPermissionExists([permissionId])
@@ -49,7 +45,9 @@ class RolePermissionController extends BaseController {
       );
     }
 
-    const existingRolePermissions = await RolePermissionRepo?.findByRoleId(id);
+    const existingRolePermissions = await RolePermissionRepo?.findByRoleId(
+      roleId
+    );
 
     if (existingRolePermissions && existingRolePermissions.length > 0) {
       const rolePermissionIds = existingRolePermissions.map((item) => {
@@ -64,7 +62,7 @@ class RolePermissionController extends BaseController {
     }
 
     const rolePermission = await RolePermissionRepo?.assignPermissions(
-      id,
+      roleId,
       permissions
     );
 
@@ -126,7 +124,6 @@ class RolePermissionController extends BaseController {
     const roleWithPermissions = await RolePermissionRepo?.findOneWithInclude(
       customQuery
     );
-
 
     if (!roleWithPermissions || roleWithPermissions?.length === 0) {
       return this.errorResponse(res, `Role with ID ${roleId} Not Found`, 404);
