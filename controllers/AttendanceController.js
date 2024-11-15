@@ -46,7 +46,6 @@ class AttendanceController extends BaseController {
             });
           }
         }
-
       } catch (error) {
         console.error("Error in daily attendance check:", error);
       }
@@ -465,37 +464,26 @@ class AttendanceController extends BaseController {
     );
 
     if (!attendance) {
-      return this.errorResponse(
+      const newAttendance = await AttendanceRepo?.createAttendance(
+        attendanceData
+      );
+
+      return this.successResponse(
         res,
-        `Attendance record not found for user with ID ${userId} on ${date}`,
-        404
+        newAttendance,
+        "Attendance created successfully"
+      );
+    } else {
+      const updatedAttendance = await AttendanceRepo?.updateAttendance(
+        attendanceData,
+        attendance?.id
+      );
+      return this.successResponse(
+        res,
+        updatedAttendance,
+        `Attendance updated successfully`
       );
     }
-
-    const updatedAttendance = await AttendanceRepo?.updateAttendance(
-      attendanceData,
-      attendance?.id
-    );
-
-    // const forLogTime = {
-    //   checkIn,
-    //   checkOut,
-    //   date,
-    //   reason,
-    //   description,
-    // };
-
-    // const logTime = await LogTimeRepo?.createLogTime(forLogTime);
-
-    // if (!logTime) {
-    //   return this.serverErrorResponse(res, "Log time not created", 500);
-    // }
-
-    return this.successResponse(
-      res,
-      updatedAttendance,
-      `Attendance updated successfully`
-    );
   };
 }
 

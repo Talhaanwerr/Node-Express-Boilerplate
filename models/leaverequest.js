@@ -20,15 +20,15 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      leaveYear: {
+      year: {
         type: DataTypes.INTEGER,
         // defaultValue :
       },
       description: {
         type: DataTypes.TEXT,
       },
-      type: {
-        type: DataTypes.ENUM("fullday", "halfday"),
+      leavePeriod: {
+        type: DataTypes.ENUM("Full day", "Half day"),
       },
       startDate: {
         type: DataTypes.DATE,

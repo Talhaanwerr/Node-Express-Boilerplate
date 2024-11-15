@@ -1,6 +1,9 @@
 const RoleRepo = require("../repos/RoleRepo.js");
 const db = require("../models/index");
-const { validateCreateRole, validateUpdateRole } = require("../validators/RoleValidator.js");
+const {
+  validateCreateRole,
+  validateUpdateRole,
+} = require("../validators/RoleValidator.js");
 const BaseController = require("./BaseController.js");
 
 class RoleController extends BaseController {
@@ -9,10 +12,24 @@ class RoleController extends BaseController {
   }
 
   createRole = async (req, res) => {
+    const { name } = req?.body;
     const validationResult = validateCreateRole(req?.body);
 
     if (!validationResult.status) {
       return this.validationErrorResponse(res, validationResult.message);
+    }
+
+    const existingName = await RoleRepo?.findByName(name);
+
+    if (
+      existingName &&
+      existingName?.name.toLowerCase() === name.toLowerCase()
+    ) {
+      return this.errorResponse(
+        res,
+        `Role with name ${name} already exists`,
+        400
+      );
     }
 
     const role = await RoleRepo?.createRole(req?.body);
@@ -108,6 +125,3 @@ class RoleController extends BaseController {
   };
 }
 module.exports = new RoleController();
-
-
-

@@ -1,3 +1,40 @@
+/**
+ * Calculates attendance details including working hours, undertime, and overtime.
+ * @param {Object} attendance - The attendance object containing check-in and check-out times.
+ * @param {string} attendance.checkIn - The check-in time in "HH:MM:SS" format.
+ * @param {string} attendance.checkOut - The check-out time in "HH:MM:SS" format.
+ * @returns {Object} - The updated attendance object with calculated working hours, undertime, overtime, and status.
+ */
+
+/**
+ * Formats attendance data for response based on the provided parameters.
+ * @param {Object|Object[]} attendance - The attendance object or an array of attendance objects.
+ * @param {Object} [workingDays={}] - An object mapping user IDs to their number of working days.
+ * @param {boolean} bool - Determines the type of response formatting.
+ * @returns {Object|Object[]} - The formatted attendance response.
+ */
+
+/**
+ * Formats attendance data for the dashboard view.
+ * @param {Object} attendance - The attendance object containing user details.
+ * @param {number} [workingDays=0] - The number of working days.
+ * @returns {Object} - The formatted dashboard attendance response.
+ */
+
+/**
+ * Formats a single attendance record for the dashboard view.
+ * @param {Object} attendance - The attendance object containing user details.
+ * @param {number} [workingDays=0] - The number of working days.
+ * @returns {Object} - The formatted single attendance response for the dashboard.
+ */
+
+/**
+ * Formats a single attendance record for a detailed response.
+ * @param {Object} attendance - The attendance object containing user details.
+ * @param {number} [workingDays=0] - The number of working days.
+ * @returns {Object} - The formatted single attendance response.
+ */
+
 function calculateAttendance(attendance) {
   const checkIn = attendance?.checkIn
     ? new Date(`1970-01-01T${attendance?.checkIn}`)
@@ -84,7 +121,6 @@ function formatSingleAttendanceResponseDashboard(attendance, workingDays = 0) {
     lastName: attendance?.user?.lastName,
   };
 }
-
 
 function formatSingleAttendanceResponse(attendance, workingDays = 0) {
   return {

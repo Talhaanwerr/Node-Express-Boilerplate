@@ -12,14 +12,14 @@ module.exports = {
       leaveType: {
         type: Sequelize.STRING,
       },
-      leaveYear: {
+      year: {
         type: Sequelize.INTEGER,
       },
       description: {
         type: Sequelize.TEXT,
       },
-      type: {
-        type: Sequelize.ENUM("fullday", "halfday"),
+      leavePeriod: {
+        type: Sequelize.ENUM("Full day", "Half day"),
       },
       startDate: {
         type: Sequelize.DATE,

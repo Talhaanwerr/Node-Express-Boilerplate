@@ -110,18 +110,19 @@ class DesignationController extends BaseController {
   };
 
   createDesignation = async (req, res) => {
+    const { name } = req?.body;
     const validationResult = validateCreateDesignation(req?.body);
 
     if (!validationResult.status) {
       return this.validationErrorResponse(res, validationResult.message);
     }
 
-    const existingName = await DesignationRepo?.findByName(req?.body?.name);
+    const existingName = await DesignationRepo?.findByName(name);
 
-    if (existingName && existingName?.name === req?.body?.name) {
+    if (existingName && existingName?.name === name.toLowerCase()) {
       return this.errorResponse(
         res,
-        `Designation with name ${req?.body?.name} already exists`,
+        `Designation with name ${name} already exists`,
         400
       );
     }

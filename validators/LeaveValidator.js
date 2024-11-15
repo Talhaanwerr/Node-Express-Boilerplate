@@ -29,12 +29,26 @@ class LeaveValidator extends BaseValidator {
   validateCreateLeaveRequest = (leave) => {
     const schema = Joi.object().keys({
       leaveType: Joi.string().required().label("Leave Type"),
-      leaveYear: Joi.number().optional().label("Leave Year"),
-      type: Joi.string().optional().label("Type"),
+      year: Joi.number().optional().label("Leave Year"),
+      leavePeriod: Joi.string().optional().label("Type"),
       status: Joi.string().optional().label("Status"),
       startDate: Joi.date().required().label("Start Date"),
       endDate: Joi.date().required().label("End Date"),
       description: Joi.string().required().label("Description"),
+    });
+
+    return this.validate(schema, leave);
+  };
+
+  validateUpdateLeaveRequest = (leave) => {
+    const schema = Joi.object().keys({
+      leaveType: Joi.string().optional().label("Leave Type"),
+      year: Joi.number().optional().label("Leave Year"),
+      leavePeriod: Joi.string().optional().label("Type"),
+      status: Joi.string().optional().label("Status"),
+      startDate: Joi.date().optional().label("Start Date"),
+      endDate: Joi.date().optional().label("End Date"),
+      description: Joi.string().optional().label("Description"),
     });
 
     return this.validate(schema, leave);

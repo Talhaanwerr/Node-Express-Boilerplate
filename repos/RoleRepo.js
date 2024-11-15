@@ -11,6 +11,7 @@ class RoleRepo extends BaseRepository {
     return this.findOne({ id });
   }
 
+
   async createRole(role) {
     return this.create(role);
   }
