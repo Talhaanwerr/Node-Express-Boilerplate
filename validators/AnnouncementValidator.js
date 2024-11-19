@@ -5,7 +5,7 @@ class AnnouncementValidator extends BaseValidator {
  
   validateCreateAnnouncement = (announcement) => {
     const schema = Joi.object().keys({
-      name: Joi.string().required().label("Announcement Title"),
+      name: Joi.string().optional().label("Announcement Title"),
       description: Joi.string().optional().label("Description"),
       date: Joi.date().required().label("Date"),
       type: Joi.string().optional().label("Type"),

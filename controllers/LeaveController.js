@@ -93,8 +93,29 @@ class LeaveController extends BaseController {
       };
       const users = await UserRepo.getUsers(customQueryNew);
       userIdsNew = users.map((user) => user.id);
-      customQueryNew.where = {
-        userId: userIdsNew,
+      customQueryNew = {
+        where: {
+          userId: userIdsNew,
+        },
+        include: [
+          {
+            model: db.User,
+            as: "user",
+            attributes: ["id", "firstName", "lastName", "email"],
+            include: [
+              {
+                model: db.Designation,
+                as: "designation",
+                attributes: ["id", "name"],
+              },
+              {
+                model: db.Role,
+                as: "role",
+                attributes: ["id", "name"],
+              },
+            ],
+          },
+        ],
       };
     }
 
@@ -133,8 +154,15 @@ class LeaveController extends BaseController {
   leaveApproval = async (req, res) => {
     const id = req.user.id;
     const { userId, status } = req.body;
-
     const leaveRequest = await LeaveRequestRepo.findLeaveByUserId(userId);
+
+    if (!leaveRequest) {
+      return this.errorResponse(
+        res,
+        "No leave requests found for this User",
+        400
+      );
+    }
 
     let { leaveType } = leaveRequest;
 
@@ -184,7 +212,7 @@ class LeaveController extends BaseController {
     const { id } = req.body;
 
     const updatedLeaveRequest = await LeaveRequestRepo.updateLeaveRequest(
-      req.body,
+      req?.body,
       id
     );
 

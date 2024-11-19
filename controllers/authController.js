@@ -45,27 +45,20 @@ class AuthController extends BaseController {
           as: "designation",
           attributes: ["name"],
         },
-        // {
-        //   model: db.User,
-        //   as: "PrimaryReportees",
-        //   attributes: ["firstName"], //, "lastName", "email"],
-        // },
-        // {
-        //   model: db.User,
-        //   as: "SecondaryReportees",
-        //   attributes: ["firstName", "lastName", "email"],
-        // },
       ],
     };
 
     const user = await UserRepo?.findByEmailWithInclude(customQuery);
-
 
     if (!user) {
       return this.errorResponse(res, "User not found", 404);
     }
 
     const passwordMatch = await bcrypt.compare(password, user?.password);
+
+    user.password = undefined;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
 
     if (!passwordMatch) {
       return this.errorResponse(res, "Invalid password", 404);
