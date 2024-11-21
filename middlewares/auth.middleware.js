@@ -17,7 +17,9 @@ const authorize = (requiredRole) => {
       const customQuery = { id: decoded?.id };
 
       const user = await UserRepo.findByIdWithInclude(customQuery);
+
       requiredRole = user?.role?.roleName;
+
       if (!user) {
         return res.status(401).json({ message: "Unauthorized" });
       }

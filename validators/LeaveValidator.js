@@ -42,6 +42,7 @@ class LeaveValidator extends BaseValidator {
 
   validateUpdateLeaveRequest = (leave) => {
     const schema = Joi.object().keys({
+      id: Joi.number().required().label("Id"),
       leaveType: Joi.string().optional().label("Leave Type"),
       year: Joi.number().optional().label("Leave Year"),
       leavePeriod: Joi.string().optional().label("Type"),
